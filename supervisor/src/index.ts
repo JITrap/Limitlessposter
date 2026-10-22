@@ -83,6 +83,7 @@ async function main(): Promise<void> {
     probes: { http: httpOk, mcpConfigured },
     onState: (s: SupervisorState) => world?.broadcast({ type: 'state', data: s }),
     log,
+    triggers: !smoke,
   })
   await sup.init()
   sup.setHealth({ ok: pre.ok, problems: pre.problems })

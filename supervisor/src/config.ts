@@ -80,7 +80,9 @@ export async function loadConfig(repoRoot: string, env: NodeJS.ProcessEnv = proc
   }
   const merged: NodeJS.ProcessEnv = { ...dotenv, ...env }
 
-  const vaultRoot = typeof raw.vaultRoot === 'string' ? raw.vaultRoot : ''
+  // Environment overrides let tests and smoke runs point at a temporary vault/data dir.
+  const vaultRoot = merged.LIMITLESS_VAULT_ROOT?.trim() || (typeof raw.vaultRoot === 'string' ? raw.vaultRoot : '')
+  const dataDir = merged.LIMITLESS_DATA_DIR?.trim() || join(repoRoot, 'supervisor', 'data')
   const num = (key: keyof typeof DEFAULTS): number =>
     typeof raw[key] === 'number' ? (raw[key] as number) : (DEFAULTS[key] as number)
 
@@ -88,7 +90,7 @@ export async function loadConfig(repoRoot: string, env: NodeJS.ProcessEnv = proc
     repoRoot,
     vaultRoot,
     vaultName: vaultRoot ? basename(dirname(vaultRoot)) : '',
-    dataDir: join(repoRoot, 'supervisor', 'data'),
+    dataDir,
     maxParallel: num('maxParallel'),
     reserveForJuliusPct: num('reserveForJuliusPct'),
     weekReset: (raw.weekReset as WeekReset) ?? DEFAULTS.weekReset,

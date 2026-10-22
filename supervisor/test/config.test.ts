@@ -64,6 +64,15 @@ describe('loadConfig', () => {
     expect(cfg.worldPort).toBe(4242)
   })
 
+  it('lets LIMITLESS_VAULT_ROOT and LIMITLESS_DATA_DIR override the config (for tests and smoke runs)', async () => {
+    const repo = await mkdtemp(join(tmpdir(), 'los-cfg-'))
+    await writeFile(join(repo, 'limitless.config.json'), JSON.stringify(BASE), 'utf8')
+    const cfg = await loadConfig(repo, { LIMITLESS_VAULT_ROOT: '/tmp/x/LimitlessOS', LIMITLESS_DATA_DIR: '/tmp/x/data' })
+    expect(cfg.vaultRoot).toBe('/tmp/x/LimitlessOS')
+    expect(cfg.vaultName).toBe('x')
+    expect(cfg.dataDir).toBe('/tmp/x/data')
+  })
+
   it('throws a German error when the config file is missing', async () => {
     const repo = await mkdtemp(join(tmpdir(), 'los-cfg-'))
     await expect(loadConfig(repo, {})).rejects.toThrow(/limitless\.config\.json/)

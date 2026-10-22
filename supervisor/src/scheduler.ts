@@ -25,6 +25,8 @@ export interface SupervisorDeps {
   /** Called after every tick and every worker completion with the fresh state. */
   onState?: (s: SupervisorState) => void
   log?: (line: string) => void
+  /** false = no planner/report triggers (smoke runs); default true. */
+  triggers?: boolean
 }
 
 interface PersistedState {
@@ -158,7 +160,7 @@ export class Supervisor {
         ? { active: true, reason: decision.reason, until: decision.until ? nowStamp(decision.until) : null }
         : { active: false, reason: null, until: null }
 
-    tasks = await this.fireTriggers(tasks, now)
+    if (this.deps.triggers !== false) tasks = await this.fireTriggers(tasks, now)
     this.updateCounters(tasks, now)
     await this.readShopCounter(now)
 
