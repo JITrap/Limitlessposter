@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Clip – Zoom</title>
+<style>
+  /* Limitless Poster – kurzer Motion-Clip (Standard 1080×1920, 4 s). Platzhalter: {{headline}}, {{sub}},
+     {{poster}} (Datei), {{bg}}, {{accent}}, {{seconds}} (Gesamtdauer, Standard 4).
+     Der Renderer ruft window.__setTime(t) pro Frame auf – keine CSS-Animationen, alles deterministisch. */
+  :root { --bg: {{bg|#0f1115}}; --accent: {{accent|#f5c542}}; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+  body { background: var(--bg, #0f1115); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .poster { width: 72%; aspect-ratio: 2 / 3; border-radius: 2vw; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,.55); transform-origin: center; will-change: transform; }
+  .poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .poster .placeholder { width: 100%; height: 100%; background: linear-gradient(160deg, #f5c542, #ff5c5c 55%, #5aa9ff); }
+  .text { position: absolute; left: 8%; right: 8%; bottom: 10%; opacity: 0; transform: translateY(20px); }
+  .headline { font-size: 7vw; font-weight: 800; line-height: 1.05; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
+  .sub { font-size: 3.4vw; color: var(--accent, #f5c542); margin-top: 1.5%; font-weight: 600; letter-spacing: .04em; }
+  .sub:empty { display: none; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="poster" id="poster">
+      <img src="{{poster}}" alt="" onerror="this.outerHTML='<div class=&quot;placeholder&quot;></div>'">
+    </div>
+  </div>
+  <div class="text" id="text">
+    <div class="headline">{{headline}}</div>
+    <div class="sub">{{sub}}</div>
+  </div>
+  <script>
+    (function () {
+      var total = Number('{{seconds|4}}') || 4;
+      var poster = document.getElementById('poster');
+      var text = document.getElementById('text');
+      var clamp = function (x) { return Math.max(0, Math.min(1, x)); };
+      var ease = function (x) { return 1 - Math.pow(1 - x, 3); };
+      window.__setTime = function (t) {
+        var p = clamp(t / total);
+        poster.style.transform = 'scale(' + (1 + 0.08 * p) + ') rotate(' + (-1.5 + 3 * p) + 'deg)';
+        var tp = ease(clamp((t - total * 0.25) / (total * 0.35)));
+        text.style.opacity = String(tp);
+        text.style.transform = 'translateY(' + (20 * (1 - tp)) + 'px)';
+      };
+      window.__setTime(0);
+    })();
+  </script>
+</body>
+</html>

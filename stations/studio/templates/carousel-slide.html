@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Karussell-Slide</title>
+<style>
+  /* Limitless Poster – Karussell-Slide 1080×1350. Platzhalter: {{headline}}, {{sub}}, {{poster}} (Datei),
+     {{bg}} (Hintergrundfarbe), {{accent}} (Akzentfarbe), {{index}} (z. B. "1/5"). Keine externen Schriften. */
+  :root { --bg: {{bg|#0f1115}}; --accent: {{accent|#f5c542}}; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+  body { background: var(--bg, #0f1115); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; }
+  .top { padding: 6% 8% 0; }
+  .brand { font-size: 2.4vw; letter-spacing: .32em; text-transform: uppercase; color: var(--accent, #f5c542); font-weight: 600; }
+  .headline { font-size: 7.2vw; line-height: 1.05; font-weight: 800; margin: 3% 0 0; letter-spacing: -.01em; }
+  .sub { font-size: 3.2vw; color: rgba(255,255,255,.72); margin-top: 2.5%; }
+  .sub:empty { display: none; }
+  .visual { flex: 1; margin: 6% 8% 8%; position: relative; }
+  .visual img { width: 100%; height: 100%; object-fit: cover; border-radius: 2.4vw; box-shadow: 0 30px 80px rgba(0,0,0,.5); display: block; }
+  .visual .placeholder { width: 100%; height: 100%; border-radius: 2.4vw; background: linear-gradient(135deg, #f5c542, #ff5c5c 55%, #5aa9ff); box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+  .index { position: absolute; right: 8%; bottom: 3.5%; font-size: 2.6vw; color: rgba(255,255,255,.6); }
+  .index:empty { display: none; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand">Limitless Poster</div>
+    <h1 class="headline">{{headline}}</h1>
+    <div class="sub">{{sub}}</div>
+  </div>
+  <div class="visual">
+    <img src="{{poster}}" alt="" onerror="this.outerHTML='<div class=&quot;placeholder&quot;></div>'">
+  </div>
+  <div class="index">{{index}}</div>
+</body>
+</html>
