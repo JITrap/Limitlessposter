@@ -1,4 +1,4 @@
-import type { Task, TaskFrontmatter, Tier } from '../types.js'
+import type { Task, TaskFrontmatter, TaskStatus, Tier } from '../types.js'
 
 export interface SelectContext {
   /** Stations whose `requires` are satisfied right now. */
@@ -58,14 +58,19 @@ export function selectRunnable(tasks: Task[], ctx: SelectContext): Task[] {
   return picked
 }
 
-/** Julius' approvals: review + !needs_approval → todo; stray needs_approval on todo → cleared (spec §4.2). */
-export function normalizeApprovals(tasks: Task[]): PatchRow[] {
+/**
+ * Julius' approvals (spec §4.2): review + !needs_approval → todo; a card dragged
+ * from review to todo in the Kanban (status flipped, flag still set) counts as
+ * approved – `previous` holds each task's status as last seen by the supervisor,
+ * so a fresh task that simply starts life as todo + needs_approval is left alone.
+ */
+export function normalizeApprovals(tasks: Task[], previous: Map<string, TaskStatus>): PatchRow[] {
   const rows: PatchRow[] = []
   for (const t of tasks) {
     if (t.fm.status === 'review' && !t.fm.needs_approval) {
       rows.push({ id: t.fm.id, patch: { status: 'todo' }, log: 'Freigabe durch Julius' })
-    } else if (t.fm.status === 'todo' && t.fm.needs_approval) {
-      rows.push({ id: t.fm.id, patch: { needs_approval: false }, log: 'Freigabe durch Julius (Status todo)' })
+    } else if (t.fm.status === 'todo' && t.fm.needs_approval && previous.get(t.fm.id) === 'review') {
+      rows.push({ id: t.fm.id, patch: { needs_approval: false }, log: 'Freigabe durch Julius (Kanban)' })
     }
   }
   return rows

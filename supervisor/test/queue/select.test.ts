@@ -89,16 +89,23 @@ describe('selectRunnable', () => {
 })
 
 describe('normalizeApprovals', () => {
-  it('moves approved review tasks back to todo and clears stray flags', () => {
+  it('moves approved review tasks back to todo and treats a Kanban drag as approval', () => {
     const approved = task({ id: 'ok', status: 'review', needs_approval: false })
     const waiting = task({ id: 'wait', status: 'review', needs_approval: true })
-    const stray = task({ id: 'stray', status: 'todo', needs_approval: true })
+    const dragged = task({ id: 'dragged', status: 'todo', needs_approval: true })
+    const fresh = task({ id: 'fresh', status: 'todo', needs_approval: true })
     const plain = task({ id: 'plain', status: 'todo', needs_approval: false })
-    const rows = normalizeApprovals([approved, waiting, stray, plain])
+    const previous = new Map<string, 'review' | 'todo'>([['dragged', 'review'], ['fresh', 'todo'], ['ok', 'review']])
+    const rows = normalizeApprovals([approved, waiting, dragged, fresh, plain], previous)
     expect(rows).toEqual([
       { id: 'ok', patch: { status: 'todo' }, log: 'Freigabe durch Julius' },
-      { id: 'stray', patch: { needs_approval: false }, log: 'Freigabe durch Julius (Status todo)' },
+      { id: 'dragged', patch: { needs_approval: false }, log: 'Freigabe durch Julius (Kanban)' },
     ])
+  })
+
+  it('leaves a brand-new todo task with needs_approval alone', () => {
+    const fresh = task({ id: 'fresh', status: 'todo', needs_approval: true })
+    expect(normalizeApprovals([fresh], new Map())).toEqual([])
   })
 })
 
