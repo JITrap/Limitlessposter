@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Limitless OS – Die Welt</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --panel-2: #1e222b; --line: #2a2f3a;
+    --text: #e8eaf0; --muted: #9aa3b2; --accent: #f5c542; --ok: #4cd680; --warn: #f0a04b; --bad: #ff5c5c;
+    --busy: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 2; }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
+  header h1 span { color: var(--accent); }
+  .conn { font-size: 12px; color: var(--muted); }
+  .conn.on::before { content: "● "; color: var(--ok); }
+  .conn.off::before { content: "● "; color: var(--bad); }
+  button { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; font: inherit; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+  main { display: grid; grid-template-columns: 1fr 340px; gap: 16px; padding: 16px 20px 40px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+  section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  section.panel h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .banner { border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: none; }
+  .banner.show { display: block; }
+  .banner.danger { background: #3a1416; border: 1px solid var(--bad); }
+  .banner.warn { background: #3a2a14; border: 1px solid var(--warn); }
+  /* Rooms */
+  .rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .room { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; min-height: 150px; position: relative; transition: border-color .3s; }
+  .room.off { opacity: .45; filter: grayscale(1); }
+  .room.busy { border-color: var(--busy); box-shadow: 0 0 0 1px var(--busy) inset; }
+  .room .name { font-weight: 600; font-size: 14px; }
+  .room .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .room .reason { color: var(--warn); font-size: 12px; margin-top: 6px; }
+  .desk { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .worker { display: flex; gap: 10px; align-items: flex-start; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffe9a8, var(--accent)); position: relative; flex: none; }
+  .avatar::after { content: ""; position: absolute; left: 9px; right: 9px; bottom: -6px; height: 6px; border-radius: 3px; background: var(--busy); animation: typing .9s infinite alternate; }
+  @keyframes typing { from { transform: scaleX(.4); opacity: .5 } to { transform: scaleX(1); opacity: 1 } }
+  .worker .label { font-size: 12px; line-height: 1.35; }
+  .worker .label b { display: block; font-size: 13px; }
+  .worker .label .muted { color: var(--muted); }
+  .empty { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  /* Wall board */
+  .board .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
+  .board .row:last-child { border-bottom: 0; }
+  .bar { flex: 1; height: 8px; background: #0b0d11; border-radius: 4px; overflow: hidden; margin: 0 10px; }
+  .bar i { display: block; height: 100%; background: var(--ok); }
+  .bar i.warn { background: var(--warn); } .bar i.bad { background: var(--bad); }
+  .mode { font-weight: 600; }
+  .mode.normal { color: var(--ok); } .mode.cheap-only { color: var(--warn); } .mode.paused { color: var(--bad); }
+  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+  .counts div { background: var(--panel-2); border-radius: 8px; padding: 6px 8px; font-size: 12px; text-align: center; }
+  .counts div b { display: block; font-size: 16px; }
+  /* Waiting desk */
+  .card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+  .card .t { font-weight: 600; font-size: 13px; }
+  .card .s { color: var(--muted); font-size: 12px; margin: 2px 0 8px; }
+  .card .actions { display: flex; gap: 8px; }
+  .card .actions a { color: var(--text); text-decoration: none; }
+  .ticker { list-style: none; margin: 0; padding: 0; font-size: 12px; max-height: 320px; overflow: auto; }
+  .ticker li { padding: 4px 0; border-bottom: 1px dashed var(--line); color: var(--muted); }
+  .ticker li:first-child { color: var(--text); }
+  .small { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Limitless OS · <span>Die Welt</span></h1>
+  <div style="display:flex; gap:12px; align-items:center">
+    <span id="conn" class="conn off">verbinde…</span>
+    <button id="pauseBtn">Pause</button>
+    <a class="small" id="vaultLink" href="#" title="Vault in Obsidian öffnen">Obsidian öffnen</a>
+  </div>
+</header>
+
+<main>
+  <div>
+    <div id="danger" class="banner danger"></div>
+    <div id="warn" class="banner warn"></div>
+    <section class="panel">
+      <h2>Büro – wer macht was</h2>
+      <div id="rooms" class="rooms"></div>
+    </section>
+    <section class="panel" style="margin-top:16px">
+      <h2>Wartet auf dich</h2>
+      <div id="waiting"></div>
+    </section>
+  </div>
+  <aside>
+    <section class="panel board">
+      <h2>Wandtafel</h2>
+      <div id="board"></div>
+      <div id="counts" class="counts"></div>
+      <p class="small" id="reset"></p>
+    </section>
+    <section class="panel" style="margin-top:16px">
+      <h2>Ticker</h2>
+      <ul id="ticker" class="ticker"></ul>
+    </section>
+  </aside>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var state = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); };
+  var hhmm = function (stamp) { return stamp ? String(stamp).slice(11, 16) : ''; };
+  var pct = function (x) { return Math.round(Math.max(0, Math.min(9.99, x)) * 100) + ' %'; };
+  var de = function (n) { return Number(n || 0).toLocaleString('de-DE'); };
+
+  function obsidianLink(file) {
+    var vault = state && state.vaultName ? state.vaultName : '';
+    return 'obsidian://open?vault=' + encodeURIComponent(vault) + '&file=' + encodeURIComponent('LimitlessOS/' + file);
+  }
+
+  function minutesSince(stamp) {
+    var t = new Date(stamp).getTime();
+    if (isNaN(t)) return '';
+    return Math.max(0, Math.round((Date.now() - t) / 60000)) + ' min';
+  }
+
+  function render() {
+    if (!state) return;
+    // banners
+    var danger = $('danger'), warn = $('warn');
+    if (!state.health.ok) { danger.className = 'banner danger show'; danger.innerHTML = '<b>Aufseher gestoppt</b><br>' + state.health.problems.map(esc).join('<br>'); }
+    else danger.className = 'banner danger';
+    if (state.paused.active) { warn.className = 'banner warn show'; warn.textContent = 'Pause: ' + (state.paused.reason || '') + (state.paused.until ? ' (bis ' + hhmm(state.paused.until) + ')' : ''); }
+    else warn.className = 'banner warn';
+    $('pauseBtn').textContent = state.paused.active ? 'Weiter' : 'Pause';
+    $('vaultLink').href = obsidianLink('Home.md');
+
+    // rooms
+    var byStation = {};
+    (state.workers || []).forEach(function (w) { (byStation[w.station] = byStation[w.station] || []).push(w); });
+    var rooms = (state.stations || []).map(function (st) {
+      var ws = byStation[st.name] || [];
+      var cls = 'room' + (st.available ? '' : ' off') + (ws.length ? ' busy' : '');
+      var html = '<div class="' + cls + '">' +
+        '<div class="name">' + esc(st.display) + '</div>' +
+        '<div class="meta">Autopilot ' + esc(st.autopilot) + (st.available ? ' · bereit' : ' · nicht verbunden') + '</div>' +
+        (st.available ? '' : '<div class="reason">' + esc(st.reason || '') + '</div>') +
+        '<div class="desk">' + ws.map(function (w) {
+          return '<div class="worker"><div class="avatar"></div><div class="label"><b>' + esc(w.title) + '</b>' +
+            '<span class="muted">' + esc(w.model) + ' · ' + minutesSince(w.startedAt) + ' · ' + de(w.tokens) + ' Tokens</span><br>' +
+            '<a class="small" href="' + obsidianLink('Aufgaben/' + w.taskId + '.md') + '">Notiz öffnen</a></div></div>';
+        }).join('') + '</div>' +
+        (ws.length || !st.available ? '' : '<div class="empty">frei</div>') +
+        '</div>';
+      return html;
+    });
+    $('rooms').innerHTML = rooms.join('') || '<div class="empty">Keine Stationen geladen.</div>';
+
+    // board
+    var d = state.decision;
+    var rows = [];
+    if (d) {
+      ['opus', 'sonnet', 'haiku'].forEach(function (f) {
+        var u = d.usage.week[f]; if (!u || !u.capacity) return;
+        var share = u.used / u.capacity, target = u.target / u.capacity;
+        var cls = share > target * 1.2 ? 'bad' : share > target * 1.1 ? 'warn' : '';
+        rows.push('<div class="row"><span>' + f.charAt(0).toUpperCase() + f.slice(1) + '</span><span class="bar"><i class="' + cls + '" style="width:' + Math.min(100, share * 100) + '%"></i></span><span>' + pct(share) + ' <span class="small">(Soll ' + pct(target) + ')</span></span></div>');
+      });
+      var s = d.usage.session, sShare = s.capacity ? s.used / s.capacity : 0;
+      rows.push('<div class="row"><span>5-h-Fenster</span><span class="bar"><i class="' + (sShare > .85 ? 'bad' : sShare > .7 ? 'warn' : '') + '" style="width:' + Math.min(100, sShare * 100) + '%"></i></span><span>' + pct(sShare) + '</span></div>');
+      rows.push('<div class="row"><span>Modus</span><span class="mode ' + esc(d.mode) + '">' + esc({'normal':'normal','cheap-only':'nur günstig','paused':'Pause'}[d.mode] || d.mode) + '</span></div>');
+      rows.push('<div class="row small"><span>' + esc(d.reason) + '</span></div>');
+    } else rows.push('<div class="row small">Noch keine Messung.</div>');
+    rows.push('<div class="row"><span>Posts heute</span><b>' + state.today.posts + '/' + state.today.postLimit + '</b></div>');
+    rows.push('<div class="row"><span>Shop-Änderungen heute</span><b>' + state.today.shopChanges + '/' + state.today.shopLimit + '</b></div>');
+    $('board').innerHTML = rows.join('');
+    var c = state.counts || {};
+    $('counts').innerHTML = ['todo', 'doing', 'review', 'blocked', 'done', 'cancelled'].map(function (k) { return '<div><b>' + (c[k] || 0) + '</b>' + k + '</div>'; }).join('');
+    $('reset').textContent = 'Nächster Wochen-Reset: ' + new Date(state.nextWeekReset).toLocaleString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+    // waiting desk
+    var waiting = (state.waiting || []).map(function (w) {
+      return '<div class="card"><div class="t">' + esc(w.title) + '</div><div class="s">' + esc(w.station) + '</div>' +
+        '<div class="actions"><button onclick="window.__open(\'' + esc(w.id) + '\')">Öffnen</button>' +
+        '<button class="primary" onclick="window.__approve(\'' + esc(w.id) + '\')">Freigeben</button></div></div>';
+    });
+    $('waiting').innerHTML = waiting.join('') || '<div class="empty">Nichts – alles läuft.</div>';
+
+    // ticker (newest first)
+    var t = (state.ticker || []).slice().reverse();
+    $('ticker').innerHTML = t.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') || '<li>(leer)</li>';
+  }
+
+  window.__approve = function (id) {
+    fetch('/api/approve/' + encodeURIComponent(id), { method: 'POST' }).then(function () { refresh(); });
+  };
+  window.__open = function (id) { window.location.href = obsidianLink('Aufgaben/' + id + '.md'); };
+  $('pauseBtn').addEventListener('click', function () {
+    fetch(state && state.paused.active ? '/api/resume' : '/api/pause', { method: 'POST' }).then(function () { refresh(); });
+  });
+
+  function refresh() {
+    fetch('/api/state').then(function (r) { return r.json(); }).then(function (s) { state = s; render(); }).catch(function () {});
+  }
+
+  function connect() {
+    var es = new EventSource('/events');
+    es.onopen = function () { $('conn').className = 'conn on'; $('conn').textContent = 'live'; };
+    es.addEventListener('state', function (e) { state = JSON.parse(e.data); render(); });
+    es.addEventListener('ticker', function () { refresh(); });
+    es.onerror = function () { $('conn').className = 'conn off'; $('conn').textContent = 'getrennt – verbinde neu…'; es.close(); setTimeout(connect, 3000); };
+  }
+  refresh();
+  connect();
+  setInterval(render, 30000); // keep "x min" labels fresh
+})();
+</script>
+</body>
+</html>

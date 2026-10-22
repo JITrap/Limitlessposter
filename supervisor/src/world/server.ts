@@ -1,0 +1,153 @@
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
+import { readFile, stat } from 'node:fs/promises'
+import { extname, join, resolve, sep } from 'node:path'
+import type { SupervisorState } from '../status/writer.js'
+
+export interface WorldActions {
+  approve: (id: string) => Promise<void>
+  pause: () => Promise<void>
+  resume: () => Promise<void>
+}
+
+export interface WorldOptions {
+  port: number
+  host?: string
+  getState: () => SupervisorState
+  actions: WorldActions
+  publicDir: string
+}
+
+export interface WorldEvent {
+  type: string
+  data: unknown
+}
+
+export interface WorldHandle {
+  port: number
+  close(): Promise<void>
+  broadcast(ev: WorldEvent): void
+}
+
+const MIME: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon',
+}
+
+const HEARTBEAT_MS = 15_000
+
+/** JSON with Sets as arrays and Dates as ISO strings. */
+export function toJson(value: unknown): string {
+  return JSON.stringify(value, (_k, v) => (v instanceof Set ? [...v] : v instanceof Date ? v.toISOString() : v))
+}
+
+function json(res: ServerResponse, status: number, body: unknown): void {
+  res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
+  res.end(toJson(body))
+}
+
+/**
+ * „Die Welt“: localhost-only HTTP server with the static page, a JSON state
+ * endpoint, an SSE stream and the approve/pause/resume actions (spec §9).
+ */
+export async function startWorld(opts: WorldOptions): Promise<WorldHandle> {
+  const host = opts.host ?? '127.0.0.1'
+  const publicRoot = resolve(opts.publicDir)
+  const clients = new Set<ServerResponse>()
+
+  const send = (res: ServerResponse, ev: WorldEvent): void => {
+    res.write(`event: ${ev.type}\ndata: ${toJson(ev.data)}\n\n`)
+  }
+
+  const serveStatic = async (urlPath: string, res: ServerResponse): Promise<void> => {
+    const rel = urlPath === '/' ? 'index.html' : decodeURIComponent(urlPath.replace(/^\/+/, ''))
+    const file = resolve(publicRoot, rel)
+    if (file !== publicRoot && !file.startsWith(publicRoot + sep)) return json(res, 404, { error: 'Nicht gefunden' })
+    try {
+      if (!(await stat(file)).isFile()) throw new Error('not a file')
+      const body = await readFile(file)
+      res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream', 'cache-control': 'no-store' })
+      res.end(body)
+    } catch {
+      json(res, 404, { error: 'Nicht gefunden' })
+    }
+  }
+
+  const handle = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
+    const url = new URL(req.url ?? '/', `http://${host}`)
+    const path = url.pathname
+    const method = req.method ?? 'GET'
+
+    if (path === '/api/state') {
+      if (method !== 'GET') return json(res, 405, { error: 'Methode nicht erlaubt' })
+      return json(res, 200, opts.getState())
+    }
+    if (path === '/events') {
+      if (method !== 'GET') return json(res, 405, { error: 'Methode nicht erlaubt' })
+      res.writeHead(200, {
+        'content-type': 'text/event-stream; charset=utf-8',
+        'cache-control': 'no-store',
+        connection: 'keep-alive',
+      })
+      res.write(': verbunden\n\n')
+      clients.add(res)
+      send(res, { type: 'state', data: opts.getState() })
+      req.on('close', () => clients.delete(res))
+      return
+    }
+    const approve = /^\/api\/approve\/([^/]+)$/.exec(path)
+    if (approve) {
+      if (method !== 'POST') return json(res, 405, { error: 'Methode nicht erlaubt' })
+      await opts.actions.approve(decodeURIComponent(approve[1]))
+      return json(res, 200, { ok: true })
+    }
+    if (path === '/api/pause' || path === '/api/resume') {
+      if (method !== 'POST') return json(res, 405, { error: 'Methode nicht erlaubt' })
+      await (path === '/api/pause' ? opts.actions.pause() : opts.actions.resume())
+      return json(res, 200, { ok: true })
+    }
+    if (path.startsWith('/api/')) return json(res, 404, { error: 'Nicht gefunden' })
+    if (method !== 'GET') return json(res, 405, { error: 'Methode nicht erlaubt' })
+    return serveStatic(path, res)
+  }
+
+  const server = createServer((req, res) => {
+    handle(req, res).catch((err: unknown) => {
+      if (!res.headersSent) json(res, 500, { error: err instanceof Error ? err.message : String(err) })
+      else res.end()
+    })
+  })
+
+  const heartbeat = setInterval(() => {
+    for (const c of clients) c.write(': ping\n\n')
+  }, HEARTBEAT_MS)
+  heartbeat.unref()
+
+  await new Promise<void>((ok, fail) => {
+    server.once('error', fail)
+    server.listen(opts.port, host, () => ok())
+  })
+  const address = server.address()
+  const port = typeof address === 'object' && address ? address.port : opts.port
+
+  return {
+    port,
+    broadcast(ev) {
+      for (const c of clients) send(c, ev)
+    },
+    async close() {
+      clearInterval(heartbeat)
+      for (const c of clients) c.end()
+      clients.clear()
+      await new Promise<void>((ok) => server.close(() => ok()))
+    },
+  }
+}
+
+/** Where the static page lives – served straight from the source tree, no copy step. */
+export function defaultPublicDir(repoRoot: string): string {
+  return join(repoRoot, 'supervisor', 'src', 'world', 'public')
+}
