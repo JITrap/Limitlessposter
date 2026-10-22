@@ -1,0 +1,22 @@
+name: studio
+display: Studio
+description: Baut ohne Grafikkarte die Bilder für Posts – Poster-Mockups in Räumen, Karussell-Slides und kurze Motion-Clips – aus HTML-Vorlagen.
+tier: cheap
+max_turns: 30
+timeout_min: 20
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Bash(node supervisor/dist/adapters/studio.js *)
+context:
+  - Marke/Visuell.md
+  - Marke/Produkte.md
+requires:
+  mcp: []
+  env: []
+  services: []
+autopilot: 2
+cooldown_hours: 0
+outputs_dir: Assets/content

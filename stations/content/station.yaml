@@ -1,0 +1,28 @@
+name: content
+display: Content-Studio
+description: Schreibt Reel-Skripte, Karussell-Texte und Captions je Plattform und plant Posts über Metricool – veröffentlicht nur nach Freigabe.
+tier: standard
+max_turns: 40
+timeout_min: 25
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - mcp__metricool__*
+  - Bash(node supervisor/dist/adapters/studio.js *)
+  - Bash(node supervisor/dist/adapters/shopify.js upload-file *)
+context:
+  - Marke/Kern.md
+  - Marke/Tonalität.md
+  - Marke/Hashtags.md
+  - Marke/Visuell.md
+  - Marke/Kanäle.md
+  - Pläne/Content-Kalender.md
+requires:
+  mcp: [metricool]
+  env: []
+  services: []
+autopilot: 1
+cooldown_hours: 0
+outputs_dir: Assets/content

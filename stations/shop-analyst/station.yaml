@@ -1,0 +1,22 @@
+name: shop-analyst
+display: Shop-Büro
+description: Liest Bestellungen, Bestseller und Lager aus Shopify, pflegt Marke/Produkte.md und verbessert Produkttitel und -beschreibungen – Änderungen nur nach Freigabe.
+tier: standard
+max_turns: 35
+timeout_min: 20
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Bash(node supervisor/dist/adapters/shopify.js *)
+context:
+  - Marke/Produkte.md
+  - Marke/Tonalität.md
+  - Marke/Kern.md
+requires:
+  mcp: []
+  env: [SHOPIFY_STORE_DOMAIN, SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET]
+  services: []
+autopilot: 1
+cooldown_hours: 0

@@ -1,0 +1,32 @@
+name: planer
+display: Planung
+description: Hält die Warteschlange gefüllt – legt Aufgaben nach der Wertleiter an, pflegt den Content-Kalender und den Wochenplan, ordnet Inbox-Dateien ein.
+tier: standard
+max_turns: 40
+timeout_min: 25
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - mcp__metricool__getBrandSettings
+  - mcp__metricool__getAnalyticsAvailableMetrics
+  - mcp__metricool__getAnalyticsDataByMetrics
+  - mcp__metricool__getScheduledPosts
+  - Bash(node supervisor/dist/adapters/shopify.js orders*)
+  - Bash(node supervisor/dist/adapters/shopify.js products*)
+context:
+  - Strategie.md
+  - Marke/Kern.md
+  - Marke/Produkte.md
+  - Marke/Kanäle.md
+  - Pläne/Content-Kalender.md
+  - Pläne/Wochenplan.md
+  - Status.md
+requires:
+  mcp: []
+  env: []
+  services: []
+autopilot: 2
+cooldown_hours: 0

@@ -209,3 +209,55 @@ describe('CLI main', () => {
     expect(err.join('')).toMatch(/products|orders|update-product/)
   })
 })
+
+describe('CLI upload-file', () => {
+  it('stages, uploads, creates and polls the file until READY, then prints the CDN url', async () => {
+    const { mkdtemp, writeFile } = await import('node:fs/promises')
+    const dataDir = await mkdtemp(join(tmpdir(), 'los-upload-'))
+    const file = join(dataDir, 'slide.png')
+    await writeFile(file, Buffer.from('89504e470d0a1a0a', 'hex'))
+    let polls = 0
+    const { fetch, calls } = fakeFetch(async (url, init) => {
+      if (url.endsWith('/access_token')) return { access_token: 'tok', expires_in: 86400 }
+      if (url === 'https://upload.example/target') return new Response('', { status: 201 })
+      const q = JSON.parse(String(init.body)) as { query: string; variables: Record<string, unknown> }
+      if (q.query.includes('stagedUploadsCreate')) {
+        return {
+          data: {
+            stagedUploadsCreate: {
+              stagedTargets: [{ url: 'https://upload.example/target', resourceUrl: 'https://upload.example/resource/slide.png', parameters: [{ name: 'key', value: 'k' }] }],
+              userErrors: [],
+            },
+          },
+          extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } },
+        }
+      }
+      if (q.query.includes('fileCreate')) {
+        return { data: { fileCreate: { files: [{ id: 'gid://shopify/MediaImage/9', fileStatus: 'UPLOADED' }], userErrors: [] } }, extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } } }
+      }
+      if (q.query.includes('node(')) {
+        polls++
+        return polls < 2
+          ? { data: { node: { id: 'gid://shopify/MediaImage/9', fileStatus: 'PROCESSING' } }, extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } } }
+          : { data: { node: { id: 'gid://shopify/MediaImage/9', fileStatus: 'READY', image: { url: 'https://cdn.shopify.com/s/files/slide.png' } } }, extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } } }
+      }
+      return { errors: [{ message: 'unbekannt' }] }
+    })
+    const out: string[] = []
+    const code = await main(['upload-file', file], { ...env, LIMITLESS_DATA_DIR: dataDir, LIMITLESS_UPLOAD_POLL_MS: '1' }, { fetch, stdout: (s) => out.push(s), stderr: () => {} })
+    expect(code).toBe(0)
+    expect(JSON.parse(out.join(''))).toEqual({ ok: true, id: 'gid://shopify/MediaImage/9', url: 'https://cdn.shopify.com/s/files/slide.png', contentType: 'IMAGE' })
+    const staged = calls.find((c) => String(c.init.body ?? '').includes('stagedUploadsCreate'))!
+    const vars = (JSON.parse(String(staged.init.body)) as { variables: { input: Array<Record<string, unknown>> } }).variables.input[0]
+    expect(vars).toMatchObject({ filename: 'slide.png', mimeType: 'image/png', resource: 'IMAGE', httpMethod: 'POST', fileSize: '8' })
+    const upload = calls.find((c) => c.url === 'https://upload.example/target')!
+    expect(upload.init.method).toBe('POST')
+    expect(upload.init.body).toBeInstanceOf(FormData)
+  })
+
+  it('classifies mp4 as VIDEO and fails on a missing file', async () => {
+    const err: string[] = []
+    expect(await main(['upload-file', '/gibt/es/nicht.mp4'], env, { fetch: fakeFetch(() => ({})).fetch, stdout: () => {}, stderr: (s) => err.push(s) })).toBe(1)
+    expect(err.join('')).toMatch(/nicht gefunden/)
+  })
+})

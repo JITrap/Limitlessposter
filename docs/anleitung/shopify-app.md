@@ -17,6 +17,8 @@ Januar 2026 geschlossen; so geht es jetzt:
    - `read_customers`
    - `read_inventory`, `write_inventory`
    - `read_locations`
+   - `read_files`, `write_files` (damit Limitless OS Bilder und Clips für Posts auf dem
+     Shopify-CDN ablegen kann – Metricool braucht öffentliche Links)
 4. **Release** eine Version und installiere die App im Shop (Button „Install“ oder
    über Shopify-Admin → Apps).
 
@@ -53,6 +55,9 @@ Erscheint eine JSON-Liste mit drei Produkten, ist alles verbunden. Die Station
 - **Schreiben** (nur nach Freigabe): Titel und Beschreibung eines Produkts. Höchstens
   5 Änderungen pro Tag (`dailyShopChangeLimit`). Der Zugriffs-Token läuft nach 24 h ab
   und wird automatisch erneuert.
+- **Dateien hochladen**: Bilder und Clips aus dem Studio werden unter Shopify → Inhalte →
+  Dateien abgelegt, damit Metricool sie als öffentliche Links für Posts bekommt. Das
+  zählt nicht als Shop-Änderung.
 
 ## Grenzen des Basic-Plans
 

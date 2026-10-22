@@ -1,0 +1,25 @@
+name: berichter
+display: Berichte
+description: Schreibt den Tagesbericht und den Wochenbericht – was erledigt wurde, was wartet, was blockiert ist, Kosten und Kennzahlen, eine Empfehlung.
+tier: cheap
+max_turns: 25
+timeout_min: 15
+tools:
+  - Read
+  - Write
+  - Glob
+  - Grep
+  - mcp__metricool__getBrandSettings
+  - mcp__metricool__getAnalyticsAvailableMetrics
+  - mcp__metricool__getAnalyticsDataByMetrics
+  - Bash(node supervisor/dist/adapters/shopify.js orders*)
+context:
+  - Status.md
+  - Strategie.md
+  - Marke/Kanäle.md
+requires:
+  mcp: []
+  env: []
+  services: []
+autopilot: 2
+cooldown_hours: 0

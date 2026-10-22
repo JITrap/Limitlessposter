@@ -10,5 +10,6 @@
     "start": "npm --prefix supervisor run start",
     "test": "npm --prefix supervisor test",
     "build:stations": "npx --prefix supervisor tsx scripts/build-stations.ts"
-  }
+  },
+  "type": "module"
 }

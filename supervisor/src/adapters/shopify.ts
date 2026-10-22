@@ -2,6 +2,7 @@
 //   node supervisor/dist/adapters/shopify.js products [--limit 50]
 //   node supervisor/dist/adapters/shopify.js orders --days 60
 //   node supervisor/dist/adapters/shopify.js update-product <gid> --title "…" --description-html "…"
+//   node supervisor/dist/adapters/shopify.js upload-file <local png/jpg/mp4>   → public CDN url for Metricool media
 // Auth: client-credentials grant of a Dev-Dashboard custom app (token cached 24 h).
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
@@ -138,6 +139,102 @@ const UPDATE_MUTATION = `mutation UpdateProduct($product: ProductUpdateInput!) {
   productUpdate(product: $product) { product { id title } userErrors { field message } }
 }`
 
+const STAGED_UPLOAD_MUTATION = `mutation Staged($input: [StagedUploadInput!]!) {
+  stagedUploadsCreate(input: $input) {
+    stagedTargets { url resourceUrl parameters { name value } }
+    userErrors { field message }
+  }
+}`
+
+const FILE_CREATE_MUTATION = `mutation FileCreate($files: [FileCreateInput!]!) {
+  fileCreate(files: $files) { files { id fileStatus } userErrors { field message } }
+}`
+
+const FILE_STATUS_QUERY = `query FileStatus($id: ID!) {
+  node(id: $id) {
+    id
+    ... on MediaImage { fileStatus image { url } }
+    ... on Video { fileStatus sources { url mimeType } }
+    ... on GenericFile { fileStatus url }
+  }
+}`
+
+const MIME: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.mp4': 'video/mp4',
+  '.mov': 'video/quicktime',
+}
+
+/** Local file → public Shopify CDN url (stagedUploadsCreate → POST → fileCreate → poll READY). */
+export async function uploadFile(
+  filePath: string,
+  env: ShopifyEnv,
+  token: string,
+  fetchImpl: typeof fetch,
+  opts: { pollMs?: number; maxPolls?: number } = {},
+): Promise<{ id: string; url: string; contentType: 'IMAGE' | 'VIDEO' }> {
+  const { basename, extname } = await import('node:path')
+  const { readFile: rf, stat } = await import('node:fs/promises')
+  let size: number
+  try {
+    size = (await stat(filePath)).size
+  } catch {
+    throw new Error(`Datei nicht gefunden: ${filePath}`)
+  }
+  const ext = extname(filePath).toLowerCase()
+  const mimeType = MIME[ext]
+  if (!mimeType) throw new Error(`Dateityp ${ext || '(ohne Endung)'} wird nicht unterstützt (png, jpg, webp, gif, mp4, mov)`)
+  const contentType: 'IMAGE' | 'VIDEO' = mimeType.startsWith('video/') ? 'VIDEO' : 'IMAGE'
+  const filename = basename(filePath)
+
+  const staged = await graphql<{
+    stagedUploadsCreate: {
+      stagedTargets: Array<{ url: string; resourceUrl: string; parameters: Array<{ name: string; value: string }> }>
+      userErrors: Array<{ message: string }>
+    }
+  }>(STAGED_UPLOAD_MUTATION, { input: [{ filename, mimeType, resource: contentType, fileSize: String(size), httpMethod: 'POST' }] }, env, token, fetchImpl)
+  if (staged.stagedUploadsCreate.userErrors.length) throw new Error(`Shopify-Upload abgelehnt: ${staged.stagedUploadsCreate.userErrors.map((e) => e.message).join('; ')}`)
+  const target = staged.stagedUploadsCreate.stagedTargets[0]
+  if (!target) throw new Error('Shopify-Upload: kein Upload-Ziel erhalten')
+
+  const form = new FormData()
+  for (const p of target.parameters) form.append(p.name, p.value)
+  form.append('file', new Blob([await rf(filePath)], { type: mimeType }), filename)
+  const up = await fetchImpl(target.url, { method: 'POST', body: form })
+  if (!up.ok) throw new Error(`Shopify-Upload fehlgeschlagen (HTTP ${up.status})`)
+
+  const created = await graphql<{ fileCreate: { files: Array<{ id: string; fileStatus: string }>; userErrors: Array<{ message: string }> } }>(
+    FILE_CREATE_MUTATION,
+    { files: [{ originalSource: target.resourceUrl, contentType, alt: filename }] },
+    env,
+    token,
+    fetchImpl,
+  )
+  if (created.fileCreate.userErrors.length) throw new Error(`Shopify fileCreate abgelehnt: ${created.fileCreate.userErrors.map((e) => e.message).join('; ')}`)
+  const id = created.fileCreate.files[0]?.id
+  if (!id) throw new Error('Shopify fileCreate: keine Datei-ID erhalten')
+
+  const pollMs = opts.pollMs ?? 2000
+  const maxPolls = opts.maxPolls ?? 45
+  for (let i = 0; i < maxPolls; i++) {
+    const data = await graphql<{
+      node: { id: string; fileStatus: string; image?: { url: string } | null; sources?: Array<{ url: string }>; url?: string } | null
+    }>(FILE_STATUS_QUERY, { id }, env, token, fetchImpl)
+    const node = data.node
+    if (node?.fileStatus === 'FAILED') throw new Error('Shopify konnte die Datei nicht verarbeiten (FAILED)')
+    if (node?.fileStatus === 'READY') {
+      const url = node.image?.url ?? node.sources?.[0]?.url ?? node.url
+      if (url) return { id, url, contentType }
+    }
+    await new Promise((r) => setTimeout(r, pollMs))
+  }
+  throw new Error('Shopify-Datei ist nach der Wartezeit noch nicht bereit – später erneut versuchen')
+}
+
 function arg(argv: string[], name: string): string | undefined {
   const i = argv.indexOf(name)
   return i >= 0 ? argv[i + 1] : undefined
@@ -171,8 +268,28 @@ export async function main(argv: string[], env: ShopifyEnv, io: CliIo): Promise<
   const [cmd] = argv
   const now = io.now ?? (() => new Date())
   const dataDir = dataDirFrom(env)
-  const usage = 'Verwendung: shopify.js products [--limit N] | orders --days N | update-product <gid> [--title T] [--description-html H]\n'
+  const usage =
+    'Verwendung: shopify.js products [--limit N] | orders --days N | update-product <gid> [--title T] [--description-html H] | upload-file <pfad>\n'
   try {
+    if (cmd === 'upload-file') {
+      const filePath = argv[1]
+      if (!filePath) {
+        io.stderr(usage)
+        return 1
+      }
+      // Check the file before touching the network so a typo fails fast and clearly.
+      const { stat } = await import('node:fs/promises')
+      try {
+        await stat(filePath)
+      } catch {
+        io.stderr(`Datei nicht gefunden: ${filePath}\n`)
+        return 1
+      }
+      const token = await getAccessToken(env, fileTokenCache(dataDir), io.fetch, now)
+      const res = await uploadFile(filePath, env, token, io.fetch, { pollMs: Number(env.LIMITLESS_UPLOAD_POLL_MS ?? 2000) })
+      io.stdout(JSON.stringify({ ok: true, ...res }) + '\n')
+      return 0
+    }
     if (cmd === 'products') {
       const token = await getAccessToken(env, fileTokenCache(dataDir), io.fetch, now)
       const first = Math.min(250, Number(arg(argv, '--limit') ?? 50))

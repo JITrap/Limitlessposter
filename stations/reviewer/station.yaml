@@ -1,0 +1,21 @@
+name: reviewer
+display: Review
+description: Prüft fertige Entwürfe gegen Markenregeln und Plattformgrenzen, markiert sie als freigabereif oder schickt sie mit Begründung zurück.
+tier: cheap
+max_turns: 20
+timeout_min: 10
+tools:
+  - Read
+  - Edit
+  - Glob
+context:
+  - Marke/Kern.md
+  - Marke/Tonalität.md
+  - Marke/Hashtags.md
+  - Strategie.md
+requires:
+  mcp: []
+  env: []
+  services: []
+autopilot: 2
+cooldown_hours: 0
