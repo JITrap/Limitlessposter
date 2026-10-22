@@ -1,0 +1,71 @@
+---
+type: strategie
+reserve_for_julius: 30
+week_reset: "Thu 18:00"
+daily_post_limit: 3
+daily_shop_change_limit: 5
+max_open_tasks: 15
+autopilot:
+  planer: 2
+  content: 1
+  shop-analyst: 1
+  studio: 2
+  reviewer: 2
+  berichter: 2
+updated: 2026-10-22
+---
+# Strategie – Limitless Poster
+
+## Ziel
+**Reichweite aufbauen → Verkäufe steigern.** Die Marke ist neu (Metricool seit 14.10.2026, Shop auf
+Basic). In den nächsten 8 Wochen zählt: regelmäßig sichtbar sein mit Formaten, die nachweislich
+Reichweite bringen (Reels, Karussells), die Produktseiten verkaufsfertig machen und einen Kanal
+aufbauen, der uns gehört (E-Mail). Alles, was das System tut, wird daran gemessen.
+
+## Wertleiter
+Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsortieren,
+ändern oder löschen – das System liest sie bei jedem Planungslauf neu.
+
+| # | Bedingung | Aktion (erzeugte Aufgaben) | Abkühlzeit |
+|---|---|---|---|
+| 1 | Content-Kalender < 7 Tage voraus | je Tag 1 Reel oder Karussell (Mix 60/40), nie Einzelbild; Studio-Aufgabe für Assets, dann Content-Aufgabe | – |
+| 2 | `Marke/Produkte.md` älter als 3 Tage | shop-analyst: Shop-Snapshot (Bestseller, Lager, neue Produkte) | 3 Tage |
+| 3 | Produkte ohne optimierten Titel/Beschreibung (Spalte „Titel optimiert?“ leer) | shop-analyst: 3 Produkte überarbeiten | 2 Tage |
+| 4 | Pinterest verbunden **und** Top-5-Produkte ohne Pins | pinterest: Pins + Board-Struktur (Phase 2) | 7 Tage |
+| 5 | Pinterest **nicht** verbunden | manual: Pinterest-Business-Konto anlegen, in Metricool verbinden, Pinterest-for-Shopify-App installieren | einmalig |
+| 6 | Google Merchant Center nicht bestätigt (siehe „Checkliste“) | manual: Google & YouTube-App in Shopify, Merchant Center, Free Listings aktivieren | einmalig |
+| 7 | E-Mail-Flows nicht als eingerichtet markiert | email: Entwürfe Willkommen/Warenkorb/Nachkauf (Phase 2), dann manual: in Shopify Email anlegen | einmalig |
+| 8 | Letzte Trend-Recherche > 7 Tage | content: 10 Post-Ideen aus Pinterest-Wohntrends 2026 → `Ideen/` (cheap) | 7 Tage |
+| 9 | `Ideen/` hat < 10 offene Poster-Ideen | content: Ideen-Session (cheap) | 3 Tage |
+| 10 | Kennzahlen zeigen ein Format mit > 1,5× Reichweite | Planer passt den Mix im Kalender an (mehr davon) | wöchentlich |
+| 11 | Sonst | berichter: Qualitäts-Check alter Posts; Archiv-Pflege | täglich |
+
+## Grenzen
+- Höchstens **3 Posts pro Tag**, höchstens **5 Shop-Änderungen pro Tag**, höchstens **15 offene Aufgaben**.
+- Nach außen (Posts, Shop) nur mit Freigabe, solange die Station auf Autopilot 1 steht.
+- Nachts (00–07 Uhr) keine Premium-Aufgaben (Opus) – die sind für Tagesplanung und Wochenstrategie.
+- 30 % des Kontingents bleiben für Julius' eigene Arbeit frei (`reserve_for_julius`).
+
+## Autopilot-Stufen
+0 = nur Entwürfe · 1 = veröffentlichen/ändern nach deiner Freigabe · 2 = vollautomatisch.
+Empfehlung: `content` nach zwei Wochen sauberer Freigaben auf 2 stellen (Frontmatter oben ändern,
+der Planer liest es beim nächsten Lauf).
+
+## Checkliste (einmalige Aufgaben – abhaken, wenn erledigt)
+- [ ] Pinterest-Business-Konto + in Metricool verbunden
+- [ ] Pinterest-for-Shopify-App installiert (Katalog-Sync)
+- [ ] Google & YouTube-App in Shopify, Merchant Center, Free Listings aktiv
+- [ ] Shopify Email: Willkommen / Warenkorb / Nachkauf eingerichtet
+- [ ] Instagram-Produkt-Tags über Metas Shopify-Kanal
+- [ ] Poster-Dateien in `Assets/poster/` abgelegt
+
+## Was Julius entscheidet
+Preise, Rabatte, neue Produkte, Kooperationen, alles mit Geld oder Verträgen, Markenname und
+Logo, Antworten auf Kundennachrichten. Das System legt dafür Karten auf deinen Schreibtisch
+(`station: manual`), tut es aber nie selbst.
+
+## Notizen von Julius
+(Hier landet, was der Planer aus deiner Inbox als strategisch einordnet.)
+
+## Änderungsprotokoll
+- 2026-10-22 – Erstfassung aus der Spezifikation.

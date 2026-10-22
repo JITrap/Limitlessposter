@@ -1,0 +1,128 @@
+# Limitless OS – Dashboard (Obsidian Bases, Kernplugin ab 1.9; Kanban-Ansicht ab 1.14)
+# Jede Aufgabe ist eine Notiz in Aufgaben/ mit type: task. Bases liest nur Frontmatter.
+filters:
+  and:
+    - note.type == "task"
+formulas:
+  überfällig: if(note.due && note.due < today() && note.status != "done" && note.status != "cancelled", "⚠️ überfällig", "")
+  kosten: if(note.cost_usd, note.cost_usd.toFixed(2) + " $", "")
+properties:
+  file.name:
+    displayName: Datei
+  note.title:
+    displayName: Aufgabe
+  note.station:
+    displayName: Station
+  note.status:
+    displayName: Status
+  note.priority:
+    displayName: Prio
+  note.tier:
+    displayName: Stufe
+  note.due:
+    displayName: Fällig
+  note.needs_approval:
+    displayName: Freigabe nötig
+  note.cost_usd:
+    displayName: Kosten ($)
+  note.tokens_in:
+    displayName: Tokens rein
+  note.tokens_out:
+    displayName: Tokens raus
+  note.model_used:
+    displayName: Modell
+  note.updated:
+    displayName: Geändert
+  note.completed:
+    displayName: Erledigt
+  formula.überfällig:
+    displayName: Hinweis
+views:
+  - type: table
+    name: Heute
+    filters:
+      and:
+        - note.status != "done"
+        - note.status != "cancelled"
+    order:
+      - note.title
+      - note.station
+      - note.status
+      - note.priority
+      - note.due
+      - note.tier
+      - formula.überfällig
+    sort:
+      - property: note.priority
+        direction: ASC
+      - property: note.due
+        direction: ASC
+  - type: kanban
+    name: Kanban
+    groupBy:
+      property: note.status
+      direction: ASC
+    groupOrder:
+      - todo
+      - doing
+      - review
+      - blocked
+      - done
+      - cancelled
+    order:
+      - note.title
+      - note.station
+      - note.priority
+      - note.due
+  - type: table
+    name: Wartet auf dich
+    filters:
+      or:
+        - note.status == "review"
+        - and:
+            - note.station == "manual"
+            - note.status == "todo"
+    order:
+      - note.title
+      - note.station
+      - note.priority
+      - note.due
+      - note.updated
+    sort:
+      - property: note.priority
+        direction: ASC
+      - property: note.updated
+        direction: DESC
+  - type: table
+    name: Nach Station
+    filters:
+      and:
+        - note.status != "done"
+        - note.status != "cancelled"
+    groupBy:
+      property: note.station
+      direction: ASC
+    order:
+      - note.title
+      - note.status
+      - note.priority
+      - note.due
+  - type: table
+    name: Kosten
+    groupBy:
+      property: note.model_used
+      direction: ASC
+    order:
+      - note.title
+      - note.station
+      - note.cost_usd
+      - note.tokens_in
+      - note.tokens_out
+      - note.completed
+    summaries:
+      note.cost_usd: Sum
+      note.tokens_in: Sum
+      note.tokens_out: Sum
+    sort:
+      - property: note.completed
+        direction: DESC
