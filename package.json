@@ -1,0 +1,14 @@
+{
+  "name": "limitless-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Limitless OS – lokales Firmen-Betriebssystem für Limitless Poster",
+  "scripts": {
+    "install:all": "npm --prefix supervisor install",
+    "build": "npm --prefix supervisor run build",
+    "dev": "npm --prefix supervisor run dev",
+    "start": "npm --prefix supervisor run start",
+    "test": "npm --prefix supervisor test",
+    "build:stations": "npx --prefix supervisor tsx scripts/build-stations.ts"
+  }
+}

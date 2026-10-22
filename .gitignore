@@ -1,0 +1,23 @@
+# Geheimnisse – niemals einchecken
+.env
+.env.*
+!.env.example
+
+# Laufzeitdaten des Aufsehers
+supervisor/data/
+supervisor/dist/
+*.log
+
+# Abhängigkeiten
+node_modules/
+
+# Generiert aus stations/ (npm run build:stations)
+.claude/skills/
+.claude/agents/
+
+# Arbeitsbereich der Planungs-Skills
+.superpowers/
+
+# Betriebssystem / Editor
+.DS_Store
+Thumbs.db
