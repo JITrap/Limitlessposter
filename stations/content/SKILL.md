@@ -45,6 +45,9 @@ planst sie über Metricool ein, sobald das erlaubt ist.
       `plannerUrl` je Post unter **## Ergebnis**.
 6. Gilt eine der Bedingungen nicht: **nichts planen.** Alles liegt fertig in der Notiz, Julius gibt
    frei, danach läuft die Aufgabe erneut und du planst dann ein (Schritt 5).
+   **Im Freigabe-Lauf** (unter `## Ergebnis` steht bereits der Entwurf, „Freigabe nötig: nein“):
+   veröffentliche genau diesen Text und diese Assets **unverändert** – kein Umschreiben, keine neuen
+   Ideen. Nur Korrekturen, die Julius unter `## Auftrag` als „Korrektur: …“ verlangt, arbeitest du ein.
 7. Aktualisiere die Zeile dieses Posts in `Pläne/Content-Kalender.md` (Status „Entwurf“ oder
    „Geplant <Datum Uhrzeit>“).
 

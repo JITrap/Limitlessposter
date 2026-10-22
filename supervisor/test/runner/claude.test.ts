@@ -109,8 +109,26 @@ describe('buildArgs', () => {
       '--append-system-prompt-file', '/repo/stations/content/SKILL.md',
       '--add-dir', '/vault/LimitlessOS',
       '--no-session-persistence',
-      '--allowedTools', 'Read', 'Write', 'mcp__metricool__*',
+      '--allowedTools', 'Read', 'Write(///vault/LimitlessOS/**)', 'mcp__metricool__*',
     ])
+  })
+
+  it('scopes bare Write/Edit to the vault (Windows paths become forward slashes)', () => {
+    const args = buildArgs('P', task, { ...station, tools: ['Read', 'Write', 'Edit'] }, { ...cfg, vaultRoot: 'C:\\Users\\Julius\\Vault\\LimitlessOS' })
+    expect(args.slice(args.indexOf('--allowedTools') + 1)).toEqual(['Read', 'Write(//C:/Users/Julius/Vault/LimitlessOS/**)', 'Edit(//C:/Users/Julius/Vault/LimitlessOS/**)'])
+  })
+
+  it('removes the outward tools with --disallowedTools when gated', () => {
+    const gated = buildArgs('P', task, station, cfg, { gated: true })
+    const i = gated.indexOf('--disallowedTools')
+    expect(i).toBeGreaterThan(0)
+    expect(gated.slice(i + 1)).toEqual([
+      'mcp__metricool__createScheduledPost',
+      'mcp__metricool__updateScheduledPost',
+      'Bash(node supervisor/dist/adapters/shopify.js update-product*)',
+      'Bash(node supervisor/dist/adapters/shopify.js upload-file*)',
+    ])
+    expect(buildArgs('P', task, station, cfg, { gated: false })).not.toContain('--disallowedTools')
   })
 
   it('adds the fallback model for premium tasks', () => {

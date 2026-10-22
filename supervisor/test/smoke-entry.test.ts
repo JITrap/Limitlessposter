@@ -47,7 +47,8 @@ describe('entry point --smoke (FAKE_CLAUDE)', () => {
     expect(res.err).toBe('')
     expect(res.code).toBe(0)
     expect(res.out).toMatch(/Rauch-Test: (done|review)/)
-    const ledger = (await readFile(join(dataDir, 'ledger.jsonl'), 'utf8')).trim().split('\n')
+    // A smoke run keeps its own data dir so it never touches the live supervisor's state/ledger.
+    const ledger = (await readFile(join(dataDir, 'smoke', 'ledger.jsonl'), 'utf8')).trim().split('\n')
     expect(ledger).toHaveLength(1)
     expect(JSON.parse(ledger[0])).toMatchObject({ station: 'reviewer', result: 'success' })
     const status = await readFile(join(vault, 'Status.md'), 'utf8')

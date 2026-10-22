@@ -77,6 +77,15 @@ describe('preflight', () => {
     expect(r.problems).toContainEqual(expect.stringMatching(/nicht vertrauenswürdig/))
   })
 
+  it('accepts a trusted project key in another slash/case spelling and a BOM in .claude.json (Windows)', async () => {
+    const { cfg, home } = await setup({ trust: false })
+    const { writeFile: wf } = await import('node:fs/promises')
+    const altKey = cfg.repoRoot.replace(/\//g, '\\').toUpperCase()
+    await wf(join(home, '.claude.json'), '﻿' + JSON.stringify({ projects: { [altKey]: { hasTrustDialogAccepted: true } } }), 'utf8')
+    const r = await preflight(cfg, deps(home))
+    expect(r.problems).toEqual([])
+  })
+
   it('requires an existing vault folder', async () => {
     const { cfg, home } = await setup({ vault: false })
     const r = await preflight(cfg, deps(home))

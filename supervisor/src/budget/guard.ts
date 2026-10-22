@@ -1,6 +1,6 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname } from 'node:path'
+import { readFile } from 'node:fs/promises'
 import type { Decision, FamilyUsage, ModelFamily, RateLimitSignal, Tier } from '../types.js'
+import { writeFileAtomic } from '../vault/atomic.js'
 import type { Ledger } from './ledger.js'
 import { isNight, nextWeekReset, SESSION_MS, sessionStartFor, weekFraction, weekStart, type WeekReset } from './windows.js'
 
@@ -21,6 +21,9 @@ export interface GuardState {
   pauseReason: string | null
   cheapOnlyUntil: string | null
   sessionAnchor: string | null
+  /** start of the window currently being observed, and whether Claude signalled a limit in it */
+  windowStart: string | null
+  windowHadSignal: boolean
 }
 
 const FAMILIES: ModelFamily[] = ['opus', 'sonnet', 'haiku', 'other']
@@ -35,6 +38,11 @@ const SESSION_PAUSE_SHARE = 0.85
 const SESSION_CHEAP_SHARE = 0.7
 const FALLBACK_PAUSE_MS = 30 * 60_000
 const EMA_ALPHA = 0.5
+/** One observation may lower a learned capacity to at most half its previous value. */
+const LEARN_FLOOR = 0.5
+/** A window that ends ≥ 80 % used without any limit signal raises the capacity by 10 %. */
+const RAISE_IF_USED_SHARE = 0.8
+const RAISE_FACTOR = 1.1
 
 const emptyState = (): GuardState => ({
   learned: {},
@@ -42,6 +50,8 @@ const emptyState = (): GuardState => ({
   pauseReason: null,
   cheapOnlyUntil: null,
   sessionAnchor: null,
+  windowStart: null,
+  windowHadSignal: false,
 })
 
 const pct = (n: number): string => `${Math.round(n * 100)} %`
@@ -75,13 +85,21 @@ export class BudgetGuard {
     const anchor = this.state.sessionAnchor ? new Date(this.state.sessionAnchor) : null
     if (!anchor || now.getTime() - anchor.getTime() >= SESSION_MS * 2) {
       this.state.sessionAnchor = now.toISOString()
-      void this.save()
+      this.save().catch(() => {})
     }
   }
 
   /** Feed an official `rate_limit_event` / 429 signal from a worker stream. */
   async observe(sig: RateLimitSignal): Promise<void> {
     const now = this.clock()
+    // Every signal of the 5-hour window carries its reset time: that is the true anchor (spec §6.1).
+    if (sig.window === 'five_hour' && sig.resetsAt) {
+      const anchor = new Date(sig.resetsAt.getTime() - SESSION_MS)
+      if (!this.state.sessionAnchor || Math.abs(new Date(this.state.sessionAnchor).getTime() - anchor.getTime()) > 60_000) {
+        this.state.sessionAnchor = anchor.toISOString()
+      }
+    }
+    if (sig.status !== 'allowed') this.state.windowHadSignal = true
     if (sig.status === 'rejected') {
       const until = sig.resetsAt ?? new Date(now.getTime() + FALLBACK_PAUSE_MS)
       this.state.pausedUntil = until.toISOString()
@@ -96,6 +114,7 @@ export class BudgetGuard {
 
   async decide(): Promise<Decision> {
     const now = this.clock()
+    await this.closeWindowIfRolled(now)
     const usage = await this.usage(now)
 
     // 1. Hard pause from a rejected request.
@@ -238,24 +257,58 @@ export class BudgetGuard {
       const usedWeek = await this.ledger.sumCostSince(weekSince, f)
       const usedSession = await this.ledger.sumCostSince(sessionSince, f)
       if (usedWeek <= 0 && usedSession <= 0) continue
-      // The configured capacities are placeholders, not measurements: the first
-      // observation replaces them, later ones are smoothed with an EMA.
-      const prev = this.state.learned[f]
-      const next = prev ? { ...prev } : { weeklyUsd: this.capacity(f), sessionUsd: this.sessionCapacity(f) }
-      if (sig.window === 'seven_day' && usedWeek > 0) next.weeklyUsd = prev ? ema(prev.weeklyUsd, usedWeek) : usedWeek
-      if (sig.window !== 'seven_day' && usedSession > 0) next.sessionUsd = prev ? ema(prev.sessionUsd, usedSession) : usedSession
+      // Every observation (the first one included) moves the estimate half-way
+      // towards the sample (EMA α = 0.5). One event – e.g. a window Julius mostly
+      // used himself – can therefore lower a value to at most half, never further,
+      // so a single bad sample cannot throttle the system for good.
+      const prev = this.state.learned[f] ?? { weeklyUsd: this.capacity(f), sessionUsd: this.sessionCapacity(f) }
+      const next = { ...prev }
+      if (sig.window === 'seven_day' && usedWeek > 0) next.weeklyUsd = learn(prev.weeklyUsd, usedWeek)
+      if (sig.window !== 'seven_day' && usedSession > 0) next.sessionUsd = learn(prev.sessionUsd, usedSession)
       this.state.learned[f] = next
     }
   }
 
+  /**
+   * When the 5-hour window rolls over, look back: a window that was used ≥ 80 % of
+   * the learned capacity without any warning/rejection means the capacity is
+   * higher than we think – raise it by 10 %. (Only learned values are raised;
+   * placeholders stay until the first real observation.)
+   */
+  private async closeWindowIfRolled(now: Date): Promise<void> {
+    const start = this.sessionStart(now)
+    const startIso = start.toISOString()
+    if (this.state.windowStart === startIso) return
+    const prevStart = this.state.windowStart ? new Date(this.state.windowStart) : null
+    if (prevStart && !this.state.windowHadSignal) {
+      let changed = false
+      for (const f of FAMILIES) {
+        const learned = this.state.learned[f]
+        if (!learned) continue
+        const used = (await this.ledger.sumCostSince(prevStart, f)) - (await this.ledger.sumCostSince(start, f))
+        if (learned.sessionUsd > 0 && used / learned.sessionUsd >= RAISE_IF_USED_SHARE) {
+          learned.sessionUsd = Math.round(learned.sessionUsd * RAISE_FACTOR * 1e6) / 1e6
+          changed = true
+        }
+      }
+      if (changed) await this.save()
+    }
+    this.state.windowStart = startIso
+    this.state.windowHadSignal = false
+    await this.save()
+  }
+
   private async save(): Promise<void> {
-    await mkdir(dirname(this.stateFile), { recursive: true })
-    await writeFile(this.stateFile, JSON.stringify(this.state, null, 2), 'utf8')
+    await writeFileAtomic(this.stateFile, JSON.stringify(this.state, null, 2))
   }
 }
 
 function ema(prev: number, sample: number): number {
   return prev * (1 - EMA_ALPHA) + sample * EMA_ALPHA
+}
+
+function learn(prev: number, sample: number): number {
+  return Math.max(ema(prev, sample), prev * LEARN_FLOOR)
 }
 
 function windowLabel(w: RateLimitSignal['window']): string {

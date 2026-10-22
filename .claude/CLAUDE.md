@@ -31,8 +31,9 @@ Beim Anlegen neuer Aufgaben: exakt das Schema aus der Planer-Skill-Datei, Datums
 ## Grenzen, die immer gelten
 - **Nach außen nur mit Freigabe.** Bei „Freigabe nötig: ja“ entstehen nur Entwürfe. Nichts wird
   gepostet, geplant oder im Shop geändert.
-- **Tageslimits** stehen in `Status.md` (Posts, Shop-Änderungen). Steht dort „erlaubt: nein“, planst
-  du nicht, auch wenn alles andere passt.
+- **Tageslimits**: Der Prompt sagt „Veröffentlichen heute erlaubt: ja|nein“ (Zähler stehen in
+  `Status.md` unter „Heute“). Bei „nein“ planst du nicht, auch wenn alles andere passt. Die
+  Veröffentlichungs-Werkzeuge sind in diesem Fall ohnehin gesperrt.
 - **Wahrheit vor Wirkung**: Preise, Formate, Lieferzeiten, Material nur aus `Marke/Produkte.md`.
 - **Keine Geheimnisse**: Schlüssel, Tokens, Passwörter, Kundendaten gehören nie in Notizen,
   Berichte oder Ausgaben.

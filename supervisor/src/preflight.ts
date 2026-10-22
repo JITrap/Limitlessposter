@@ -1,6 +1,11 @@
 import { access, mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { resolveClaudeBin } from './runner/claude.js'
+import { stripBom } from './config.js'
+
+export function normalizePathKey(p: string): string {
+  return p.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase()
+}
 
 export interface PreflightConfig {
   repoRoot: string
@@ -85,11 +90,14 @@ export async function preflight(cfg: PreflightConfig, deps: PreflightDeps): Prom
   }
 
   // Trust: project permissions only apply under -p when the folder was trusted once.
+  // Claude Code on Windows keys projects in more than one spelling (slashes, drive
+  // letter case), so the lookup is slash- and case-insensitive.
   try {
-    const raw = JSON.parse(await readFile(join(deps.homeDir, '.claude.json'), 'utf8')) as {
+    const raw = JSON.parse(stripBom(await readFile(join(deps.homeDir, '.claude.json'), 'utf8'))) as {
       projects?: Record<string, { hasTrustDialogAccepted?: boolean }>
     }
-    const trusted = raw.projects?.[cfg.repoRoot]?.hasTrustDialogAccepted === true
+    const wanted = normalizePathKey(cfg.repoRoot)
+    const trusted = Object.entries(raw.projects ?? {}).some(([key, v]) => normalizePathKey(key) === wanted && v?.hasTrustDialogAccepted === true)
     if (!trusted) problems.push(`Repo-Ordner ${cfg.repoRoot} ist für Claude nicht vertrauenswürdig – install.ps1 ausführen`)
   } catch {
     problems.push(`Repo-Ordner ${cfg.repoRoot} ist für Claude nicht vertrauenswürdig (~/.claude.json fehlt) – install.ps1 ausführen`)

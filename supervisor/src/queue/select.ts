@@ -1,4 +1,4 @@
-import type { Task, TaskFrontmatter, TaskStatus, Tier } from '../types.js'
+import type { Task, TaskFrontmatter, Tier } from '../types.js'
 
 export interface SelectContext {
   /** Stations whose `requires` are satisfied right now. */
@@ -22,6 +22,8 @@ const byDue = (a: string | null, b: string | null): number => {
   return a.localeCompare(b)
 }
 
+const str = (v: unknown): string => (typeof v === 'string' ? v : '')
+
 /**
  * Pick the tasks to start now (spec §5.1 step 5): `todo`, station available,
  * tier allowed, not running; ordered by priority ↑, due ↑ (null last), created ↑;
@@ -43,7 +45,9 @@ export function selectRunnable(tasks: Task[], ctx: SelectContext): Task[] {
     )
     .sort(
       (a, b) =>
-        a.fm.priority - b.fm.priority || byDue(a.fm.due, b.fm.due) || a.fm.created.localeCompare(b.fm.created),
+        (Number(a.fm.priority) || 3) - (Number(b.fm.priority) || 3) ||
+        byDue(a.fm.due ?? null, b.fm.due ?? null) ||
+        str(a.fm.created).localeCompare(str(b.fm.created)),
     )
 
   const picked: Task[] = []
@@ -59,18 +63,17 @@ export function selectRunnable(tasks: Task[], ctx: SelectContext): Task[] {
 }
 
 /**
- * Julius' approvals (spec §4.2): review + !needs_approval → todo; a card dragged
- * from review to todo in the Kanban (status flipped, flag still set) counts as
- * approved – `previous` holds each task's status as last seen by the supervisor,
- * so a fresh task that simply starts life as todo + needs_approval is left alone.
+ * Julius' approvals (spec §4.2): a `review` task whose `needs_approval` was
+ * cleared (world button or frontmatter edit) goes back to `todo` for the
+ * publishing run. A task moved to `todo` with `needs_approval` still set is
+ * NOT approved – that is how a reviewer or Julius sends a draft back, and it
+ * simply re-runs as a draft.
  */
-export function normalizeApprovals(tasks: Task[], previous: Map<string, TaskStatus>): PatchRow[] {
+export function normalizeApprovals(tasks: Task[]): PatchRow[] {
   const rows: PatchRow[] = []
   for (const t of tasks) {
     if (t.fm.status === 'review' && !t.fm.needs_approval) {
       rows.push({ id: t.fm.id, patch: { status: 'todo' }, log: 'Freigabe durch Julius' })
-    } else if (t.fm.status === 'todo' && t.fm.needs_approval && previous.get(t.fm.id) === 'review') {
-      rows.push({ id: t.fm.id, patch: { needs_approval: false }, log: 'Freigabe durch Julius (Kanban)' })
     }
   }
   return rows

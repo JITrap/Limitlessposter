@@ -34,10 +34,10 @@ ihn beim nächsten Lauf ein und baut daraus Themen und Regeln.
 - Das System legt sofort los: Planer füllt die Warteschlange, Studio baut Bilder, Content schreibt
   Posts. Nach außen geht **nichts ohne dich** – alles landet unter **Wartet auf dich**
   (`Home.md` oder die Welt).
-- Freigeben: Karte im Kanban nach **todo** ziehen oder in der Welt **Freigeben** klicken. Beim
+- Freigeben: in der Welt **Freigeben** klicken (oder in der Notiz `needs_approval: false`). Beim
   nächsten Lauf wird geplant (Metricool) bzw. geändert (Shop).
-- Zurückschicken: in der Notiz unter `## Auftrag` einen Absatz „Korrektur: …“ anfügen und
-  `status: todo` setzen, `needs_approval` bleibt `true`.
+- Zurückschicken: Karte im Kanban nach **todo** ziehen und unter `## Auftrag` einen Absatz
+  „Korrektur: …“ anfügen; `needs_approval` bleibt `true`. Ein Drag ist nie eine Freigabe.
 - Karten mit Station **manual** sind Dinge, die nur du tun kannst (Pinterest verbinden, Poster
   ablegen, Google Merchant Center). Erledigt → `status: done`.
 

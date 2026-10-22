@@ -158,17 +158,17 @@ describe('end-to-end cycle with the real stations and vault template', () => {
     expect(sup.getState().today.posts).toBe(1)
     expect(sup.getState().waiting).toEqual([])
 
-    // Ledger: one entry per run. The planner ran twice: at 09:00 and again at 09:40,
-    // because the queue was thin (< 5 open) and 30 min had passed – exactly the
-    // "always something to do" rule.
+    // Ledger: one entry per run. The planner ran once – the queue was thin at 09:40
+    // as well, but the planner fires at most every two hours (spec §5.1).
     const entries = (await readFile(join(dataDir, 'ledger.jsonl'), 'utf8')).trim().split('\n').map((l) => JSON.parse(l) as { station: string })
     const byStation = entries.reduce<Record<string, number>>((acc, e) => ({ ...acc, [e.station]: (acc[e.station] ?? 0) + 1 }), {})
-    expect(byStation).toEqual({ planer: 2, berichter: 1, studio: 1, content: 2 })
+    expect(byStation).toEqual({ planer: 1, berichter: 1, studio: 1, content: 2 })
 
-    // The daily report does not fire twice on the same day.
+    // Three hours later the thin queue lets the planner run again; the daily report does not fire twice.
     now = new Date('2026-11-06T12:00:00')
     await sup.tick()
     await settle()
     expect((await repo.list()).filter((t) => t.fm.station === 'berichter')).toHaveLength(1)
+    expect((await repo.list()).filter((t) => t.fm.station === 'planer')).toHaveLength(2)
   }, 30_000)
 })

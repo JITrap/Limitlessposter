@@ -29,6 +29,11 @@ export interface Config {
   env: NodeJS.ProcessEnv
 }
 
+/** Windows PowerShell 5.1 writes UTF-8 files with a BOM; JSON.parse refuses it. */
+export function stripBom(text: string): string {
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text
+}
+
 /** Minimal `.env` parser: KEY=VALUE, `#` comments, optional single/double quotes. */
 export function parseDotenv(text: string): Record<string, string> {
   const out: Record<string, string> = {}
@@ -67,14 +72,14 @@ export async function loadConfig(repoRoot: string, env: NodeJS.ProcessEnv = proc
   const file = join(repoRoot, 'limitless.config.json')
   let raw: Record<string, unknown>
   try {
-    raw = JSON.parse(await readFile(file, 'utf8')) as Record<string, unknown>
+    raw = JSON.parse(stripBom(await readFile(file, 'utf8'))) as Record<string, unknown>
   } catch {
     throw new Error(`limitless.config.json nicht gefunden oder ungültig (${file}) – install.ps1 ausführen`)
   }
 
   let dotenv: Record<string, string> = {}
   try {
-    dotenv = parseDotenv(await readFile(join(repoRoot, '.env'), 'utf8'))
+    dotenv = parseDotenv(stripBom(await readFile(join(repoRoot, '.env'), 'utf8')))
   } catch {
     dotenv = {}
   }

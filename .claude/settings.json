@@ -8,7 +8,23 @@
       "Bash(del *)",
       "Bash(Remove-Item*)",
       "WebFetch(domain:*)",
-      "WebSearch"
+      "WebSearch",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Edit(./.env)",
+      "Write(./.env)",
+      "Edit(./.claude/**)",
+      "Write(./.claude/**)",
+      "Edit(./.mcp.json)",
+      "Write(./.mcp.json)",
+      "Edit(./supervisor/**)",
+      "Write(./supervisor/**)",
+      "Edit(./stations/**)",
+      "Write(./stations/**)",
+      "Edit(./scripts/**)",
+      "Write(./scripts/**)",
+      "Edit(./limitless.config.json)",
+      "Write(./limitless.config.json)"
     ]
   }
 }

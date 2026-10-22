@@ -77,11 +77,19 @@ export async function getAccessToken(
 
 interface GraphqlResponse<T> {
   data?: T
-  errors?: Array<{ message: string }>
+  errors?: Array<{ message: string; extensions?: { code?: string } }>
   extensions?: { cost?: { throttleStatus?: { currentlyAvailable?: number } } }
 }
 
-/** POST to the pinned GraphQL Admin API version; one retry when the throttle budget is low. */
+const isThrottled = (errors: GraphqlResponse<unknown>['errors']): boolean =>
+  Boolean(errors?.some((e) => e.extensions?.code === 'THROTTLED' || /throttled/i.test(e.message)))
+
+/**
+ * POST to the pinned GraphQL Admin API version. A successful answer is always
+ * returned (a request is never re-sent – that would duplicate mutations); when the
+ * remaining throttle budget is low we pause before returning so the next call has
+ * room. A real THROTTLED error is retried once after the pause.
+ */
 export async function graphql<T>(
   query: string,
   variables: Record<string, unknown>,
@@ -92,24 +100,52 @@ export async function graphql<T>(
 ): Promise<T> {
   const domain = need(env, 'SHOPIFY_STORE_DOMAIN')
   const url = `https://${domain}/admin/api/${API_VERSION}/graphql.json`
+  const wait = (): Promise<void> => new Promise((r) => setTimeout(r, opts.throttleWaitMs ?? 1000))
   for (let attempt = 0; attempt < 2; attempt++) {
     const res = await fetchImpl(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json', 'X-Shopify-Access-Token': token },
       body: JSON.stringify({ query, variables }),
     })
-    if (!res.ok) throw new Error(`Shopify-Fehler: HTTP ${res.status} bei ${url}`)
-    const json = (await res.json()) as GraphqlResponse<T>
-    if (json.errors?.length) throw new Error(`Shopify-Fehler: ${json.errors.map((e) => e.message).join('; ')}`)
-    const available = json.extensions?.cost?.throttleStatus?.currentlyAvailable
-    if (attempt === 0 && typeof available === 'number' && available < THROTTLE_MIN_AVAILABLE) {
-      await new Promise((r) => setTimeout(r, opts.throttleWaitMs ?? 1000))
+    if (res.status === 429 && attempt === 0) {
+      await wait()
       continue
     }
+    if (!res.ok) throw new Error(`Shopify-Fehler: HTTP ${res.status} bei ${url}`)
+    const json = (await res.json()) as GraphqlResponse<T>
+    if (json.errors?.length) {
+      if (isThrottled(json.errors) && attempt === 0) {
+        await wait()
+        continue
+      }
+      if (isThrottled(json.errors)) throw new Error('Shopify-Fehler: Durchsatzgrenze auch nach Wartezeit erreicht')
+      throw new Error(`Shopify-Fehler: ${json.errors.map((e) => e.message).join('; ')}`)
+    }
     if (json.data === undefined) throw new Error('Shopify-Fehler: Antwort ohne data')
+    const available = json.extensions?.cost?.throttleStatus?.currentlyAvailable
+    if (typeof available === 'number' && available < THROTTLE_MIN_AVAILABLE) await wait()
     return json.data
   }
   throw new Error('Shopify-Fehler: Durchsatzgrenze auch nach Wartezeit erreicht')
+}
+
+/**
+ * Workers run without secrets in their environment; the adapter reads the repo's
+ * `.env` itself for anything missing (process values win). The repo root is
+ * `LIMITLESS_REPO_ROOT` or three levels above this file (src/adapters or dist/adapters).
+ */
+export async function withDotenv(env: ShopifyEnv): Promise<ShopifyEnv> {
+  const repoRoot = env.LIMITLESS_REPO_ROOT || resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
+  try {
+    const { readFile: rf } = await import('node:fs/promises')
+    const { parseDotenv } = await import('../config.js')
+    const file = parseDotenv(await rf(join(repoRoot, '.env'), 'utf8'))
+    const merged: ShopifyEnv = { ...env }
+    for (const [k, v] of Object.entries(file)) if (merged[k] === undefined || merged[k] === '') merged[k] = v
+    return merged
+  } catch {
+    return env
+  }
 }
 
 // --- CLI ---------------------------------------------------------------------
@@ -128,12 +164,15 @@ const PRODUCTS_QUERY = `query Products($first: Int!) {
   }
 }`
 
-const ORDERS_QUERY = `query Orders($query: String!) {
-  orders(first: 250, query: $query, sortKey: CREATED_AT, reverse: true) {
+// Small pages keep the query far below Shopify's 1,000-point single-query cap.
+const ORDERS_QUERY = `query Orders($query: String!, $after: String) {
+  orders(first: 50, after: $after, query: $query, sortKey: CREATED_AT, reverse: true) {
     nodes { id name createdAt currentTotalPriceSet { shopMoney { amount currencyCode } }
-      lineItems(first: 50) { nodes { title quantity originalTotalSet { shopMoney { amount } } } } }
+      lineItems(first: 10) { nodes { title quantity originalTotalSet { shopMoney { amount } } } } }
+    pageInfo { hasNextPage endCursor }
   }
 }`
+const ORDERS_MAX_PAGES = 10
 
 const UPDATE_MUTATION = `mutation UpdateProduct($product: ProductUpdateInput!) {
   productUpdate(product: $product) { product { id title } userErrors { field message } }
@@ -264,9 +303,10 @@ async function bumpShopCounter(dataDir: string, limit: number, now: Date): Promi
   return true
 }
 
-export async function main(argv: string[], env: ShopifyEnv, io: CliIo): Promise<number> {
+export async function main(argv: string[], rawEnv: ShopifyEnv, io: CliIo): Promise<number> {
   const [cmd] = argv
   const now = io.now ?? (() => new Date())
+  const env = await withDotenv(rawEnv)
   const dataDir = dataDirFrom(env)
   const usage =
     'Verwendung: shopify.js products [--limit N] | orders --days N | update-product <gid> [--title T] [--description-html H] | upload-file <pfad>\n'
@@ -315,21 +355,31 @@ export async function main(argv: string[], env: ShopifyEnv, io: CliIo): Promise<
       const token = await getAccessToken(env, fileTokenCache(dataDir), io.fetch, now)
       const days = Number(arg(argv, '--days') ?? 60)
       const since = new Date(now().getTime() - days * 86_400_000)
-      const data = await graphql<{
-        orders: {
-          nodes: Array<{
-            id: string
-            name: string
-            createdAt: string
-            currentTotalPriceSet: { shopMoney: { amount: string; currencyCode: string } }
-            lineItems: { nodes: Array<{ title: string; quantity: number; originalTotalSet: { shopMoney: { amount: string } } }> }
-          }>
-        }
-      }>(ORDERS_QUERY, { query: `created_at:>=${localDay(since)}` }, env, token, io.fetch)
+      type OrderNode = {
+        id: string
+        name: string
+        createdAt: string
+        currentTotalPriceSet: { shopMoney: { amount: string; currencyCode: string } }
+        lineItems: { nodes: Array<{ title: string; quantity: number; originalTotalSet: { shopMoney: { amount: string } } }> }
+      }
+      const orders: OrderNode[] = []
+      let after: string | null = null
+      for (let page = 0; page < ORDERS_MAX_PAGES; page++) {
+        const data: { orders: { nodes: OrderNode[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } = await graphql(
+          ORDERS_QUERY,
+          { query: `created_at:>=${localDay(since)}`, after },
+          env,
+          token,
+          io.fetch,
+        )
+        orders.push(...data.orders.nodes)
+        if (!data.orders.pageInfo?.hasNextPage || !data.orders.pageInfo.endCursor) break
+        after = data.orders.pageInfo.endCursor
+      }
       const byProduct = new Map<string, { title: string; qty: number; revenue: number }>()
       let revenue = 0
       let currency = 'EUR'
-      for (const o of data.orders.nodes) {
+      for (const o of orders) {
         revenue += Number(o.currentTotalPriceSet.shopMoney.amount)
         currency = o.currentTotalPriceSet.shopMoney.currencyCode || currency
         for (const li of o.lineItems.nodes) {
@@ -344,11 +394,12 @@ export async function main(argv: string[], env: ShopifyEnv, io: CliIo): Promise<
         JSON.stringify(
           {
             days,
-            count: data.orders.nodes.length,
+            count: orders.length,
+            truncated: orders.length >= 50 * ORDERS_MAX_PAGES,
             revenue: round(revenue),
             currency,
             byProduct: [...byProduct.values()].map((p) => ({ ...p, revenue: round(p.revenue) })).sort((a, b) => b.revenue - a.revenue),
-            last: data.orders.nodes.slice(0, 10).map((o) => ({ name: o.name, createdAt: o.createdAt, total: round(Number(o.currentTotalPriceSet.shopMoney.amount)) })),
+            last: orders.slice(0, 10).map((o) => ({ name: o.name, createdAt: o.createdAt, total: round(Number(o.currentTotalPriceSet.shopMoney.amount)) })),
           },
           null,
           2,

@@ -1,0 +1,2 @@
+{"type":"system","subtype":"init","session_id":"sess-ul","model":"claude-sonnet-5-5","tools":["Read"],"mcp_servers":[],"mcp_server_errors":[],"plugins":[],"plugin_errors":[]}
+{"type":"result","subtype":"error_during_execution","is_error":true,"session_id":"sess-ul","duration_ms":1200,"duration_api_ms":900,"num_turns":1,"errors":["You've hit your usage limit · resets 6pm (Europe/Berlin)"],"result":"You've hit your usage limit · resets 6pm (Europe/Berlin)","total_cost_usd":0,"usage":{"input_tokens":0,"output_tokens":0},"modelUsage":{},"permission_denials":[]}

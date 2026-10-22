@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { getAccessToken, graphql, main, type TokenCache, API_VERSION } from '../../src/adapters/shopify.js'
+import { getAccessToken, graphql, main, withDotenv, type TokenCache, API_VERSION } from '../../src/adapters/shopify.js'
 
 const env = {
   SHOPIFY_STORE_DOMAIN: 'limitlessposter.myshopify.com',
@@ -86,17 +86,37 @@ describe('graphql', () => {
     await expect(graphql('{ x }', {}, env, 'tok', fetch)).rejects.toThrow(/Shopify-Fehler.*Field does not exist/)
   })
 
-  it('waits and retries once when the throttle budget is low', async () => {
+  it('returns data from a successful call even when the throttle budget is low (never re-sends a mutation)', async () => {
+    const { fetch, calls } = fakeFetch(() => ({ data: { ok: true }, extensions: { cost: { throttleStatus: { currentlyAvailable: 10 } } } }))
+    const data = await graphql<{ ok: boolean }>('mutation { ok }', {}, env, 'tok', fetch, { throttleWaitMs: 5 })
+    expect(data.ok).toBe(true)
+    expect(calls).toHaveLength(1)
+  })
+
+  it('retries once after a THROTTLED error, then gives up with a German error', async () => {
     let n = 0
     const { fetch, calls } = fakeFetch(() => {
       n++
       return n === 1
-        ? { data: {}, extensions: { cost: { throttleStatus: { currentlyAvailable: 10 } } } }
+        ? { errors: [{ message: 'Throttled', extensions: { code: 'THROTTLED' } }] }
         : { data: { ok: true }, extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } } }
     })
-    const data = await graphql<{ ok: boolean }>('{ ok }', {}, env, 'tok', fetch, { throttleWaitMs: 5 })
-    expect(data.ok).toBe(true)
+    expect((await graphql<{ ok: boolean }>('{ ok }', {}, env, 'tok', fetch, { throttleWaitMs: 5 })).ok).toBe(true)
     expect(calls).toHaveLength(2)
+    const always = fakeFetch(() => ({ errors: [{ message: 'Throttled', extensions: { code: 'THROTTLED' } }] }))
+    await expect(graphql('{ ok }', {}, env, 'tok', always.fetch, { throttleWaitMs: 5 })).rejects.toThrow(/Durchsatzgrenze/)
+  })
+
+  it('reads SHOPIFY_* from the repo .env when the process env lacks them (secrets are stripped from workers)', async () => {
+    const { mkdtemp, writeFile, mkdir } = await import('node:fs/promises')
+    const repo = await mkdtemp(join(tmpdir(), 'los-shopenv-'))
+    await mkdir(join(repo, 'supervisor', 'data'), { recursive: true })
+    await writeFile(join(repo, '.env'), 'SHOPIFY_STORE_DOMAIN=x.myshopify.com\nSHOPIFY_CLIENT_ID=cid\nSHOPIFY_CLIENT_SECRET=sec\n', 'utf8')
+    const merged = await withDotenv({ PATH: '/bin', LIMITLESS_REPO_ROOT: repo })
+    expect(merged.SHOPIFY_CLIENT_SECRET).toBe('sec')
+    expect(merged.SHOPIFY_STORE_DOMAIN).toBe('x.myshopify.com')
+    const kept = await withDotenv({ SHOPIFY_CLIENT_SECRET: 'proc', LIMITLESS_REPO_ROOT: repo })
+    expect(kept.SHOPIFY_CLIENT_SECRET).toBe('proc')
   })
 })
 
@@ -131,22 +151,32 @@ describe('CLI main', () => {
     const q = JSON.parse(String(body.body)) as { query: string }
     if (q.query.includes('products(')) return productsResponse
     if (q.query.includes('orders(')) {
-      return {
-        data: {
-          orders: {
-            nodes: [
-              {
-                id: 'gid://shopify/Order/1',
-                name: '#1001',
-                createdAt: '2026-10-21T09:00:00Z',
-                currentTotalPriceSet: { shopMoney: { amount: '59.80', currencyCode: 'EUR' } },
-                lineItems: { nodes: [{ title: 'Poster Berge', quantity: 2, originalTotalSet: { shopMoney: { amount: '59.80' } } }] },
-              },
-            ],
+      const vars = (JSON.parse(String(body.body)) as { variables: { after?: string | null } }).variables
+      const page1 = {
+        nodes: [
+          {
+            id: 'gid://shopify/Order/1',
+            name: '#1001',
+            createdAt: '2026-10-21T09:00:00Z',
+            currentTotalPriceSet: { shopMoney: { amount: '59.80', currencyCode: 'EUR' } },
+            lineItems: { nodes: [{ title: 'Poster Berge', quantity: 2, originalTotalSet: { shopMoney: { amount: '59.80' } } }] },
           },
-        },
-        extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } },
+        ],
+        pageInfo: { hasNextPage: true, endCursor: 'c1' },
       }
+      const page2 = {
+        nodes: [
+          {
+            id: 'gid://shopify/Order/2',
+            name: '#1002',
+            createdAt: '2026-10-20T09:00:00Z',
+            currentTotalPriceSet: { shopMoney: { amount: '29.90', currencyCode: 'EUR' } },
+            lineItems: { nodes: [{ title: 'Poster Meer', quantity: 1, originalTotalSet: { shopMoney: { amount: '29.90' } } }] },
+          },
+        ],
+        pageInfo: { hasNextPage: false, endCursor: null },
+      }
+      return { data: { orders: vars.after ? page2 : page1 }, extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } } }
     }
     if (q.query.includes('productUpdate')) return { data: { productUpdate: { product: { id: 'gid://shopify/Product/1', title: 'Neu' }, userErrors: [] } }, extensions: { cost: { throttleStatus: { currentlyAvailable: 900 } } } }
     return { errors: [{ message: 'unbekannte Abfrage' }] }
@@ -161,16 +191,23 @@ describe('CLI main', () => {
     expect(list[0]).toMatchObject({ id: 'gid://shopify/Product/1', title: 'Poster Berge', handle: 'poster-berge', totalInventory: 12, price: '29.90', currency: 'EUR' })
   })
 
-  it('orders aggregates revenue by product', async () => {
+  it('orders paginates with small pages (query cost ≤ 1000) and aggregates revenue by product', async () => {
     const { fetch, calls } = fakeFetch(route)
     const out: string[] = []
     const code = await main(['orders', '--days', '60'], { ...env, LIMITLESS_DATA_DIR: dataDir }, { fetch, stdout: (s) => out.push(s), stderr: () => {} })
     expect(code).toBe(0)
     const r = JSON.parse(out.join('')) as { count: number; revenue: number; currency: string; byProduct: Array<{ title: string; qty: number; revenue: number }> }
-    expect(r).toMatchObject({ count: 1, revenue: 59.8, currency: 'EUR' })
-    expect(r.byProduct).toEqual([{ title: 'Poster Berge', qty: 2, revenue: 59.8 }])
-    const orderQuery = calls.find((c) => String(c.init.body).includes('orders('))!
-    expect(String(orderQuery.init.body)).toContain('created_at:>=')
+    expect(r).toMatchObject({ count: 2, revenue: 89.7, currency: 'EUR' })
+    expect(r.byProduct).toEqual([
+      { title: 'Poster Berge', qty: 2, revenue: 59.8 },
+      { title: 'Poster Meer', qty: 1, revenue: 29.9 },
+    ])
+    const orderQueries = calls.filter((c) => String(c.init.body).includes('orders('))
+    expect(orderQueries).toHaveLength(2)
+    expect(String(orderQueries[0].init.body)).toContain('created_at:>=')
+    expect(String(orderQueries[0].init.body)).toMatch(/orders\(first: 50/)
+    expect(String(orderQueries[0].init.body)).toMatch(/lineItems\(first: 10\)/)
+    expect((JSON.parse(String(orderQueries[1].init.body)) as { variables: { after: string } }).variables.after).toBe('c1')
   })
 
   it('update-product refuses without LIMITLESS_ALLOW_WRITES=1', async () => {

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Richtet Limitless OS auf diesem Windows-PC ein (einmalig).
 
@@ -105,7 +105,7 @@ Ok "Vorlage liegt in $VaultRoot (vorhandene Dateien wurden nicht überschrieben)
 $configPath = Join-Path $RepoRoot "limitless.config.json"
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
 $config.vaultRoot = $VaultRoot
-$config | ConvertTo-Json -Depth 10 | Set-Content -Path $configPath -Encoding UTF8
+[IO.File]::WriteAllText($configPath, ($config | ConvertTo-Json -Depth 10), (New-Object System.Text.UTF8Encoding $false))
 Ok "limitless.config.json → vaultRoot gesetzt"
 
 # --- 4. Vertrauen für Claude -------------------------------------------------------
@@ -113,34 +113,46 @@ Step "Repo-Ordner für Claude als vertrauenswürdig markieren"
 $claudeJsonPath = Join-Path $env:USERPROFILE ".claude.json"
 if (Test-Path $claudeJsonPath) { $claudeJson = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json } else { $claudeJson = [pscustomobject]@{} }
 if (-not ($claudeJson.PSObject.Properties.Name -contains "projects")) { $claudeJson | Add-Member -NotePropertyName projects -NotePropertyValue ([pscustomobject]@{}) }
-if ($claudeJson.projects.PSObject.Properties.Name -contains $RepoRoot) {
-  $claudeJson.projects.$RepoRoot | Add-Member -NotePropertyName hasTrustDialogAccepted -NotePropertyValue $true -Force
-} else {
-  $claudeJson.projects | Add-Member -NotePropertyName $RepoRoot -NotePropertyValue ([pscustomobject]@{ hasTrustDialogAccepted = $true })
+# Claude Code stores project keys in more than one spelling on Windows (backslashes, forward slashes).
+# Write both so the trust check matches whichever one Claude uses.
+$keys = @($RepoRoot, $RepoRoot.Replace('\', '/'))
+foreach ($key in $keys) {
+  if ($claudeJson.projects.PSObject.Properties.Name -contains $key) {
+    $claudeJson.projects.$key | Add-Member -NotePropertyName hasTrustDialogAccepted -NotePropertyValue $true -Force
+  } else {
+    $claudeJson.projects | Add-Member -NotePropertyName $key -NotePropertyValue ([pscustomobject]@{ hasTrustDialogAccepted = $true })
+  }
 }
-$claudeJson | ConvertTo-Json -Depth 20 | Set-Content -Path $claudeJsonPath -Encoding UTF8
+[IO.File]::WriteAllText($claudeJsonPath, ($claudeJson | ConvertTo-Json -Depth 20), (New-Object System.Text.UTF8Encoding $false))
 Ok "~/.claude.json aktualisiert"
 
 # --- 5. .env -------------------------------------------------------------------------
 Step ".env anlegen"
 $envPath = Join-Path $RepoRoot ".env"
 if (-not (Test-Path $envPath)) { Copy-Item (Join-Path $RepoRoot ".env.example") $envPath }
-$claudeBin = (Get-Command claude).Source
+$claudeCmd = Get-Command claude -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $claudeCmd) { $claudeCmd = Get-Command claude }
+$claudeBin = $claudeCmd.Source
 $envText = Get-Content $envPath -Raw
 if ($envText -match "(?m)^LIMITLESS_CLAUDE_BIN=.*$") {
   $envText = [regex]::Replace($envText, "(?m)^LIMITLESS_CLAUDE_BIN=.*$", "LIMITLESS_CLAUDE_BIN=$claudeBin")
 } else {
   $envText += "`nLIMITLESS_CLAUDE_BIN=$claudeBin`n"
 }
-Set-Content -Path $envPath -Value $envText -Encoding UTF8
+[IO.File]::WriteAllText($envPath, $envText, (New-Object System.Text.UTF8Encoding $false))
 Ok ".env vorhanden (LIMITLESS_CLAUDE_BIN=$claudeBin)"
 Write-Host "    Trage jetzt die Shopify-Zugangsdaten ein (Anleitung: docs\anleitung\shopify-app.md). Leere Zeilen sind erlaubt."
 Start-Process notepad $envPath
 
 # --- 6. Claude-Login + Metricool-MCP ---------------------------------------------
 Step "Claude-Login und Metricool verbinden"
-$auth = & claude auth status 2>$null
-if ($LASTEXITCODE -ne 0 -or -not ($auth -match "claude.ai")) {
+$authOk = $false
+try {
+  $ErrorActionPreference = "Continue"
+  $auth = (& claude auth status 2>&1) -join "`n"
+  $authOk = ($LASTEXITCODE -eq 0) -and ($auth -match "claude.ai")
+} catch { $authOk = $false } finally { $ErrorActionPreference = "Stop" }
+if (-not $authOk) {
   Write-Host "    Du bist nicht mit dem Claude-Abo angemeldet. Es öffnet sich Claude – bitte einloggen (claude.ai-Konto, nicht API)."
   Write-Host "    Danach in Claude '/mcp' tippen, 'metricool' auswählen und im Browser bei Metricool anmelden. Zum Schluss '/exit'."
   & claude

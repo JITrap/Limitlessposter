@@ -4,7 +4,7 @@
 //   node supervisor/dist/adapters/studio.js render-clip  --template clip-zoom      --data '{…}' --out <mp4> [--size 1080x1920] [--seconds 4] [--fps 30]
 import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -75,20 +75,57 @@ async function loadTemplate(template: string, data: Record<string, string>): Pro
   return substitute(html, data)
 }
 
-export async function renderImage(o: RenderImageOptions): Promise<string> {
+export interface RenderResult {
+  out: string
+  /** `<img>` elements that actually loaded (naturalWidth > 0). */
+  imagesLoaded: number
+  /** image requests that failed (e.g. a poster path that does not exist). */
+  imagesFailed: number
+}
+
+/**
+ * Open the substituted HTML as a real file:// document. `page.setContent()` runs on
+ * about:blank, where Chromium refuses to load local resources – the poster would
+ * silently fall back to the placeholder.
+ */
+async function openTemplate(page: import('playwright').Page, html: string, onFailed: () => void): Promise<void> {
+  const dir = await mkdtemp(join(tmpdir(), 'los-html-'))
+  const file = join(dir, 'index.html')
+  await writeFile(file, html, 'utf8')
+  page.on('requestfailed', (req) => {
+    if (req.resourceType() === 'image' || req.resourceType() === 'media') onFailed()
+  })
+  try {
+    await page.goto(pathToFileURL(file).href, { waitUntil: 'load' })
+    await page.evaluate(() => (document as unknown as { fonts?: { ready: Promise<unknown> } }).fonts?.ready)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+}
+
+async function countLoadedImages(page: import('playwright').Page): Promise<number> {
+  return page.evaluate(() => Array.from(document.images).filter((img) => img.complete && img.naturalWidth > 0).length)
+}
+
+export async function renderImageDetailed(o: RenderImageOptions): Promise<RenderResult> {
   const env = o.env ?? process.env
   const html = await loadTemplate(o.template, o.data)
   const b = await getBrowser(env)
   const page = await b.newPage({ viewport: { width: o.width, height: o.height }, deviceScaleFactor: 1 })
+  let imagesFailed = 0
   try {
-    await page.setContent(html, { waitUntil: 'load' })
-    await page.evaluate(() => (document as unknown as { fonts?: { ready: Promise<unknown> } }).fonts?.ready)
+    await openTemplate(page, html, () => imagesFailed++)
+    const imagesLoaded = await countLoadedImages(page)
     await mkdir(dirname(o.out), { recursive: true })
     await page.screenshot({ path: o.out, type: 'png', fullPage: false })
+    return { out: o.out, imagesLoaded, imagesFailed }
   } finally {
     await page.close()
   }
-  return o.out
+}
+
+export async function renderImage(o: RenderImageOptions): Promise<string> {
+  return (await renderImageDetailed(o)).out
 }
 
 function runFfmpeg(args: string[], env: NodeJS.ProcessEnv): Promise<void> {
@@ -112,7 +149,7 @@ export async function renderClip(o: RenderClipOptions): Promise<string> {
   const page = await b.newPage({ viewport: { width: o.width, height: o.height }, deviceScaleFactor: 1 })
   const dir = await mkdtemp(join(tmpdir(), 'los-frames-'))
   try {
-    await page.setContent(html, { waitUntil: 'load' })
+    await openTemplate(page, html, () => {})
     for (let i = 0; i < frames; i++) {
       const t = i / o.fps
       await page.evaluate((sec) => {
@@ -179,8 +216,9 @@ export async function main(argv: string[], env: NodeJS.ProcessEnv, io: StudioIo)
     }
     if (cmd === 'render-image') {
       const [width, height] = parseSize(arg(argv, '--size'), [1080, 1350])
-      await renderImage({ template, data, width, height, out, env })
-      io.stdout(JSON.stringify({ ok: true, out }) + '\n')
+      const r = await renderImageDetailed({ template, data, width, height, out, env })
+      io.stdout(JSON.stringify({ ok: true, out, imagesLoaded: r.imagesLoaded, imagesFailed: r.imagesFailed }) + '\n')
+      if (r.imagesFailed > 0) io.stderr(`Hinweis: ${r.imagesFailed} Bild(er) konnten nicht geladen werden – Platzhalter verwendet.\n`)
     } else {
       const [width, height] = parseSize(arg(argv, '--size'), [1080, 1920])
       const seconds = Number(arg(argv, '--seconds') ?? 4)

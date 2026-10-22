@@ -89,23 +89,17 @@ describe('selectRunnable', () => {
 })
 
 describe('normalizeApprovals', () => {
-  it('moves approved review tasks back to todo and treats a Kanban drag as approval', () => {
+  it('moves approved review tasks (needs_approval cleared) back to todo', () => {
     const approved = task({ id: 'ok', status: 'review', needs_approval: false })
     const waiting = task({ id: 'wait', status: 'review', needs_approval: true })
-    const dragged = task({ id: 'dragged', status: 'todo', needs_approval: true })
-    const fresh = task({ id: 'fresh', status: 'todo', needs_approval: true })
     const plain = task({ id: 'plain', status: 'todo', needs_approval: false })
-    const previous = new Map<string, 'review' | 'todo'>([['dragged', 'review'], ['fresh', 'todo'], ['ok', 'review']])
-    const rows = normalizeApprovals([approved, waiting, dragged, fresh, plain], previous)
-    expect(rows).toEqual([
-      { id: 'ok', patch: { status: 'todo' }, log: 'Freigabe durch Julius' },
-      { id: 'dragged', patch: { needs_approval: false }, log: 'Freigabe durch Julius (Kanban)' },
-    ])
+    expect(normalizeApprovals([approved, waiting, plain])).toEqual([{ id: 'ok', patch: { status: 'todo' }, log: 'Freigabe durch Julius' }])
   })
 
-  it('leaves a brand-new todo task with needs_approval alone', () => {
+  it('never treats a task dragged back to todo with needs_approval still set as approved (that is "send back")', () => {
+    const sentBack = task({ id: 'back', status: 'todo', needs_approval: true, attempts: 1 })
     const fresh = task({ id: 'fresh', status: 'todo', needs_approval: true })
-    expect(normalizeApprovals([fresh], new Map())).toEqual([])
+    expect(normalizeApprovals([sentBack, fresh])).toEqual([])
   })
 })
 

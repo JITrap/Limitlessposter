@@ -116,12 +116,19 @@ export class TaskRepo {
   }
 
   async get(id: string): Promise<Task | null> {
+    const path = await this.locate(id)
+    return path ? this.read(path) : null
+  }
+
+  /** The note for an id: normally `Aufgaben/<id>.md`, otherwise the note whose frontmatter carries the id (renamed by Julius). */
+  private async locate(id: string): Promise<string | null> {
     try {
       await stat(this.pathFor(id))
+      return this.pathFor(id)
     } catch {
-      return null
+      const hit = (await this.list()).find((t) => t.fm.id === id)
+      return hit ? hit.path : null
     }
-    return this.read(this.pathFor(id))
   }
 
   async create(input: NewTask): Promise<Task> {
@@ -168,7 +175,7 @@ export class TaskRepo {
   }
 
   async update(id: string, patch: TaskPatch, opts: UpdateOptions = {}): Promise<Task> {
-    const path = this.pathFor(id)
+    const path = (await this.locate(id)) ?? this.pathFor(id)
     let text: string
     try {
       text = await readFile(path, 'utf8')
@@ -209,10 +216,54 @@ export class TaskRepo {
     try {
       const text = await readFile(path, 'utf8')
       const { data, body } = parseNote(text)
-      if (data.type !== 'task' || typeof data.id !== 'string') return null
-      return { fm: data as unknown as TaskFrontmatter, body, path }
+      if (data.type !== 'task' || typeof data.id !== 'string' || !data.id.trim()) return null
+      const fallbackStamp = nowStamp((await stat(path)).mtime)
+      return { fm: normalizeFrontmatter(data, fallbackStamp), body, path }
     } catch {
       return null
     }
   }
+}
+
+const STATUSES = new Set(['todo', 'doing', 'review', 'blocked', 'done', 'cancelled'])
+const TIERS = new Set(['cheap', 'standard', 'premium'])
+const ORIGINS = new Set(['planer', 'julius', 'inbox', 'system'])
+
+/**
+ * Hand-made or edited notes may lack fields or carry odd values. Fill sane defaults
+ * so one such note never stops the queue (unknown keys are kept as-is).
+ */
+export function normalizeFrontmatter(data: Record<string, unknown>, fallbackStamp: string): TaskFrontmatter {
+  const num = (v: unknown, d: number): number => (typeof v === 'number' && Number.isFinite(v) ? v : d)
+  const strOrNull = (v: unknown): string | null => (typeof v === 'string' && v.trim() ? v : v instanceof Date ? nowStamp(v) : null)
+  const priorityRaw = num(data.priority, 3)
+  const priority = (priorityRaw >= 1 && priorityRaw <= 4 ? Math.round(priorityRaw) : 3) as 1 | 2 | 3 | 4
+  const fm: TaskFrontmatter = {
+    ...(data as Record<string, unknown>),
+    type: 'task',
+    id: String(data.id),
+    title: typeof data.title === 'string' && data.title.trim() ? data.title : String(data.id),
+    status: STATUSES.has(String(data.status)) ? (data.status as TaskFrontmatter['status']) : 'todo',
+    station: typeof data.station === 'string' && data.station.trim() ? data.station : 'manual',
+    priority,
+    tier: TIERS.has(String(data.tier)) ? (data.tier as TaskFrontmatter['tier']) : 'standard',
+    due: strOrNull(data.due),
+    created: strOrNull(data.created) ?? fallbackStamp,
+    updated: strOrNull(data.updated) ?? strOrNull(data.created) ?? fallbackStamp,
+    started: strOrNull(data.started),
+    completed: strOrNull(data.completed),
+    attempts: num(data.attempts, 0),
+    max_attempts: num(data.max_attempts, 3),
+    cost_usd: num(data.cost_usd, 0),
+    tokens_in: num(data.tokens_in, 0),
+    tokens_out: num(data.tokens_out, 0),
+    model_used: strOrNull(data.model_used),
+    outputs: Array.isArray(data.outputs) ? data.outputs.map(String) : [],
+    needs_approval: data.needs_approval === true,
+    origin: ORIGINS.has(String(data.origin)) ? (data.origin as TaskFrontmatter['origin']) : 'julius',
+    parent: strOrNull(data.parent),
+    published_at: strOrNull(data.published_at),
+    tags: Array.isArray(data.tags) ? data.tags.map(String) : ['task'],
+  }
+  return fm
 }

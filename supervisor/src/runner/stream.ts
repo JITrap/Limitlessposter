@@ -5,7 +5,7 @@ import { familyOf } from '../budget/models.js'
 export type StreamEvent =
   | { kind: 'init'; mcpErrors: string[] }
   | { kind: 'rate_limit'; signal: RateLimitSignal }
-  | { kind: 'api_retry'; error: string }
+  | { kind: 'api_retry'; error: string; status: number | null }
   | { kind: 'permission_denied'; tool: string }
   | { kind: 'result'; raw: Record<string, unknown> }
   | { kind: 'other' }
@@ -55,11 +55,16 @@ export function parseStreamLine(line: string): StreamEvent | null {
   switch (raw.type) {
     case 'result':
       return { kind: 'result', raw }
-    case 'rate_limit_event':
-      return { kind: 'rate_limit', signal: toSignal(raw) }
+    case 'rate_limit_event': {
+      const signal = toSignal(raw)
+      return signal ? { kind: 'rate_limit', signal } : { kind: 'other' }
+    }
     case 'system': {
       if (raw.subtype === 'init') return { kind: 'init', mcpErrors: mcpErrors(raw) }
-      if (raw.subtype === 'api_retry') return { kind: 'api_retry', error: String(raw.error ?? 'unknown') }
+      if (raw.subtype === 'api_retry') {
+        const status = typeof raw.error_status === 'number' ? raw.error_status : typeof raw.status === 'number' ? raw.status : null
+        return { kind: 'api_retry', error: String(raw.error ?? 'unknown'), status }
+      }
       if (raw.subtype === 'permission_denied') return { kind: 'permission_denied', tool: String(raw.tool_name ?? raw.tool ?? 'unbekannt') }
       return { kind: 'other' }
     }
@@ -73,8 +78,16 @@ function mcpErrors(init: Obj): string[] {
   return errs.map((e) => (isObj(e) ? `${String(e.name ?? '?')}: ${String(e.error ?? e.message ?? 'Fehler')}` : String(e)))
 }
 
-function toSignal(ev: Obj): RateLimitSignal {
-  const type = String(ev.rate_limit_type ?? '').toLowerCase()
+/**
+ * Claude Code emits `{"type":"rate_limit_event","rate_limit_info":{status,resetsAt,rateLimitType,…}}`
+ * (camelCase, nested). The flat snake_case shape is accepted as a fallback. An event
+ * without a status is not a signal – never invent "allowed".
+ */
+function toSignal(ev: Obj): RateLimitSignal | null {
+  const info = isObj(ev.rate_limit_info) ? ev.rate_limit_info : ev
+  const statusRaw = info.status ?? ev.status
+  if (typeof statusRaw !== 'string') return null
+  const type = String(info.rateLimitType ?? info.rate_limit_type ?? ev.rate_limit_type ?? '').toLowerCase()
   const window: RateLimitSignal['window'] = type.startsWith('five_hour')
     ? 'five_hour'
     : type.startsWith('seven_day')
@@ -82,11 +95,12 @@ function toSignal(ev: Obj): RateLimitSignal {
       : 'unknown'
   let family: ModelFamily | 'all' = 'all'
   for (const f of ['opus', 'sonnet', 'haiku'] as const) if (type.includes(f)) family = f
-  const statusRaw = String(ev.status ?? 'allowed')
   const status: RateLimitSignal['status'] =
     statusRaw === 'rejected' ? 'rejected' : statusRaw === 'allowed_warning' ? 'allowed_warning' : 'allowed'
-  return { family, window, status, resetsAt: parseResetsAt(ev.resets_at) }
+  return { family, window, status, resetsAt: parseResetsAt(info.resetsAt ?? info.resets_at ?? ev.resets_at) }
 }
+
+const USAGE_LIMIT_TEXT = /(hit your .*limit|usage limit|rate limit|limit reached|resets at|resets \d)/i
 
 function parseResetsAt(v: unknown): Date | null {
   if (typeof v === 'number' && Number.isFinite(v)) return new Date(v < 1e12 ? v * 1000 : v)
@@ -107,11 +121,11 @@ const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v)
  */
 export function summarizeResult(
   result: Obj | null,
-  seen: { rateLimited: boolean; denials: string[] },
+  seen: { rateLimited: boolean; denials: string[]; retriedForRateLimit?: boolean },
 ): RunSummary {
   const base: RunSummary = {
     ok: false,
-    reason: seen.rateLimited ? 'rate_limited' : 'no_result',
+    reason: seen.rateLimited || seen.retriedForRateLimit ? 'rate_limited' : 'no_result',
     subtype: null,
     isError: true,
     apiErrorStatus: null,
@@ -170,11 +184,15 @@ export function summarizeResult(
     }
   }
 
+  const resultText = typeof result.result === 'string' ? result.result : ''
+  const errorsText = Array.isArray(result.errors) ? result.errors.map(String).join(' ') : ''
+  const looksLikeUsageLimit = isError && USAGE_LIMIT_TEXT.test(`${resultText} ${errorsText}`)
+
   let reason: RunReason
   if (subtype === 'success' && !isError) reason = 'success'
   else if (subtype === 'error_max_turns') reason = 'max_turns'
   else if (subtype === 'error_max_budget_usd') reason = 'max_budget'
-  else if (apiErrorStatus === 429 || seen.rateLimited) reason = 'rate_limited'
+  else if (apiErrorStatus === 429 || seen.rateLimited || looksLikeUsageLimit) reason = 'rate_limited'
   else if (apiErrorStatus === 401 || apiErrorStatus === 403) reason = 'auth'
   else reason = 'error'
 
@@ -190,7 +208,7 @@ export function summarizeResult(
     cacheRead,
     cacheWrite,
     modelUsed,
-    resultText: typeof result.result === 'string' ? result.result : '',
+    resultText,
     permissionDenials: denials,
     sessionId: typeof result.session_id === 'string' ? result.session_id : null,
     durationMs: num(result.duration_ms),

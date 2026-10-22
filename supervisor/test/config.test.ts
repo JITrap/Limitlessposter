@@ -73,6 +73,13 @@ describe('loadConfig', () => {
     expect(cfg.dataDir).toBe('/tmp/x/data')
   })
 
+  it('tolerates a UTF-8 BOM in limitless.config.json (written by PowerShell 5.1)', async () => {
+    const repo = await mkdtemp(join(tmpdir(), 'los-cfg-'))
+    await writeFile(join(repo, 'limitless.config.json'), '﻿' + JSON.stringify(BASE), 'utf8')
+    const cfg = await loadConfig(repo, {})
+    expect(cfg.maxParallel).toBe(2)
+  })
+
   it('throws a German error when the config file is missing', async () => {
     const repo = await mkdtemp(join(tmpdir(), 'los-cfg-'))
     await expect(loadConfig(repo, {})).rejects.toThrow(/limitless\.config\.json/)

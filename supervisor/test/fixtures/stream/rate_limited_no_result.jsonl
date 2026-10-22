@@ -1,5 +1,5 @@
 {"type":"system","subtype":"init","session_id":"sess-rl","model":"claude-sonnet-5-5","tools":["Read","Write"],"mcp_servers":[],"mcp_server_errors":[],"plugins":[],"plugin_errors":[]}
-{"type":"rate_limit_event","rate_limit_type":"five_hour","status":"allowed_warning","resets_at":1761152400}
+{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1761152400,"rateLimitType":"five_hour","utilization":0.91,"overageStatus":"rejected"},"session_id":"sess-rl"}
 {"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Weiter."}]},"session_id":"sess-rl"}
-{"type":"system","subtype":"api_retry","error":"rate_limit","attempt":1,"max_retries":10}
-{"type":"rate_limit_event","rate_limit_type":"five_hour","status":"rejected","resets_at":"2026-10-22T18:00:00+02:00"}
+{"type":"system","subtype":"api_retry","error":"rate_limit","error_status":429,"attempt":1,"max_retries":10,"session_id":"sess-rl"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"rejected","resetsAt":"2026-10-22T18:00:00+02:00","rateLimitType":"five_hour"},"session_id":"sess-rl"}

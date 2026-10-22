@@ -48,10 +48,19 @@ async function httpOk(url: string): Promise<boolean> {
 
 async function main(): Promise<void> {
   const smoke = process.argv.includes('--smoke')
-  const cfg = await loadConfig(repoRoot)
+  const loaded = await loadConfig(repoRoot)
+  // A smoke run must never touch the live supervisor's data (state, ledger, counters):
+  // it gets its own data dir, and refuses to run while the live world is answering.
+  const cfg = smoke ? { ...loaded, dataDir: join(loaded.dataDir, 'smoke') } : loaded
   const log = (line: string): void => void logLine(cfg.dataDir, line).catch(() => {})
 
-  const pre: PreflightResult = await preflight(cfg, { exec, env: cfg.env, homeDir: homedir() })
+  if (smoke && (await httpOk(`http://127.0.0.1:${cfg.worldPort}/api/state`))) {
+    console.error(`Der Aufseher läuft bereits (Welt antwortet auf Port ${cfg.worldPort}). Bitte zuerst stoppen (Stop-ScheduledTask LimitlessOS) oder den Rauch-Test über die Welt beobachten.`)
+    process.exit(1)
+  }
+
+  const runPreflight = (): Promise<PreflightResult> => preflight(cfg, { exec, env: cfg.env, homeDir: homedir() })
+  const pre: PreflightResult = await runPreflight()
   for (const p of pre.problems) log(`PROBLEM: ${p}`)
   for (const w of pre.warnings) log(`Hinweis: ${w}`)
 
@@ -73,21 +82,7 @@ async function main(): Promise<void> {
   }
 
   let world: WorldHandle | null = null
-  const sup = new Supervisor(cfg, {
-    repo,
-    guard,
-    ledger,
-    stations,
-    run: runWorker,
-    clock: () => new Date(),
-    probes: { http: httpOk, mcpConfigured },
-    onState: (s: SupervisorState) => world?.broadcast({ type: 'state', data: s }),
-    log,
-    triggers: !smoke,
-  })
-  await sup.init()
-  sup.setHealth({ ok: pre.ok, problems: pre.problems })
-
+  let smokeTaskId: string | undefined
   if (smoke) {
     if (!pre.ok) {
       console.error('Vorab-Prüfung fehlgeschlagen:\n- ' + pre.problems.join('\n- '))
@@ -101,6 +96,31 @@ async function main(): Promise<void> {
       origin: 'system',
       auftrag: 'Antworte nur mit OK und schreibe „OK“ unter ## Ergebnis.',
     })
+    smokeTaskId = t.fm.id
+  }
+
+  const sup = new Supervisor(cfg, {
+    repo,
+    guard,
+    ledger,
+    stations,
+    run: runWorker,
+    clock: () => new Date(),
+    probes: { http: httpOk, mcpConfigured },
+    onState: (s: SupervisorState) => world?.broadcast({ type: 'state', data: s }),
+    log,
+    triggers: !smoke,
+    only: smokeTaskId,
+    healthCheck: smoke ? undefined : async () => {
+      const p = await runPreflight()
+      return { ok: p.ok, problems: p.problems }
+    },
+  })
+  await sup.init()
+  sup.setHealth({ ok: pre.ok, problems: pre.problems })
+
+  if (smoke && smokeTaskId) {
+    const t = { fm: { id: smokeTaskId } }
     await sup.tick()
     const deadline = Date.now() + 5 * 60_000
     while (Date.now() < deadline) {

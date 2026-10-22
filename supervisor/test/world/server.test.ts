@@ -104,6 +104,26 @@ describe('world server', () => {
     expect((await fetch(`${base}/api/approve/`, { method: 'POST' })).status).toBe(404)
   })
 
+  it('rejects state-changing requests from a foreign origin or host (CSRF / DNS rebinding)', async () => {
+    const before = calls.length
+    expect((await fetch(`${base}/api/resume`, { method: 'POST', headers: { origin: 'http://evil.example' } })).status).toBe(403)
+    expect((await fetch(`${base}/api/approve/x`, { method: 'POST', headers: { origin: 'https://evil.example' } })).status).toBe(403)
+    // fetch() refuses to set Host, so use a raw request for the DNS-rebinding case.
+    const { request } = await import('node:http')
+    const hostStatus = await new Promise<number>((resolve, reject) => {
+      const req = request({ host: '127.0.0.1', port: world.port, path: '/api/pause', method: 'POST', headers: { host: 'evil.example' } }, (res) => {
+        res.resume()
+        resolve(res.statusCode ?? 0)
+      })
+      req.on('error', reject)
+      req.end()
+    })
+    expect(hostStatus).toBe(403)
+    expect((await fetch(`${base}/api/pause`, { method: 'POST', headers: { origin: `http://127.0.0.1:${world.port}` } })).status).toBe(200)
+    expect((await fetch(`${base}/api/resume`, { method: 'POST', headers: { origin: 'http://localhost:4242' } })).status).toBe(200)
+    expect(calls.slice(before)).toEqual(['pause', 'resume'])
+  })
+
   it('does not serve files outside the public dir', async () => {
     expect((await fetch(`${base}/../package.json`)).status).toBe(404)
   })

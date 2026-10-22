@@ -59,16 +59,27 @@ describe('parseStreamLine', () => {
     expect(rej.signal.resetsAt).toEqual(new Date('2026-10-22T18:00:00+02:00'))
   })
 
-  it('maps unknown rate_limit_type to unknown and opus/sonnet types to a family', () => {
-    const a = parseStreamLine('{"type":"rate_limit_event","rate_limit_type":"seven_day_opus","status":"rejected"}')
+  it('maps unknown rate_limit_type to unknown and opus/sonnet types to a family (nested real shape)', () => {
+    const a = parseStreamLine('{"type":"rate_limit_event","rate_limit_info":{"rateLimitType":"seven_day_opus","status":"rejected"}}')
     expect(a).toEqual({ kind: 'rate_limit', signal: { family: 'opus', window: 'seven_day', status: 'rejected', resetsAt: null } })
-    const b = parseStreamLine('{"type":"rate_limit_event","rate_limit_type":"sonstiges","status":"allowed"}')
+    const b = parseStreamLine('{"type":"rate_limit_event","rate_limit_info":{"rateLimitType":"sonstiges","status":"allowed"}}')
     expect(b).toEqual({ kind: 'rate_limit', signal: { family: 'all', window: 'unknown', status: 'allowed', resetsAt: null } })
   })
 
-  it('classifies api_retry and permission_denied system events', async () => {
+  it('still accepts the flat legacy shape', () => {
+    const a = parseStreamLine('{"type":"rate_limit_event","rate_limit_type":"five_hour","status":"rejected","resets_at":1761152400}')
+    expect(a).toEqual({ kind: 'rate_limit', signal: { family: 'all', window: 'five_hour', status: 'rejected', resetsAt: new Date(1761152400 * 1000) } })
+  })
+
+  it('does not invent an "allowed" signal when rate_limit_info has no status', () => {
+    expect(parseStreamLine('{"type":"rate_limit_event","rate_limit_info":{"resetsAt":1761152400}}')).toEqual({ kind: 'other' })
+    expect(parseStreamLine('{"type":"rate_limit_event"}')).toEqual({ kind: 'other' })
+  })
+
+  it('classifies api_retry (with error_status) and permission_denied system events', async () => {
     const { events, denials } = await replay('rate_limited_no_result')
-    expect(events.some((e) => e.kind === 'api_retry' && e.error === 'rate_limit')).toBe(true)
+    const retry = events.find((e) => e.kind === 'api_retry') as Extract<StreamEvent, { kind: 'api_retry' }>
+    expect(retry).toEqual({ kind: 'api_retry', error: 'rate_limit', status: 429 })
     const perm = await replay('permission_denied')
     expect(perm.denials).toEqual(['Bash'])
     expect(denials).toEqual([])
@@ -137,5 +148,16 @@ describe('summarizeResult', () => {
     expect(summarizeResult({ ...base, api_error_status: 429 }, { rateLimited: false, denials: [] }).reason).toBe('rate_limited')
     expect(summarizeResult({ ...base, api_error_status: 401 }, { rateLimited: false, denials: [] }).reason).toBe('auth')
     expect(summarizeResult({ ...base, api_error_status: 500 }, { rateLimited: false, denials: [] }).reason).toBe('error')
+  })
+
+  it('recognises a usage-limit message in an error result as rate_limited', async () => {
+    const r = await replay('usage_limit_result')
+    const s = summarizeResult(r.result, { rateLimited: false, denials: [] })
+    expect(s.reason).toBe('rate_limited')
+    expect(s.ok).toBe(false)
+  })
+
+  it('treats a stream that ended after an api_retry for rate_limit (no result) as rate_limited', () => {
+    expect(summarizeResult(null, { rateLimited: false, denials: [], retriedForRateLimit: true }).reason).toBe('rate_limited')
   })
 })

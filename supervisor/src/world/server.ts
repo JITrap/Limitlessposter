@@ -76,10 +76,25 @@ export async function startWorld(opts: WorldOptions): Promise<WorldHandle> {
     }
   }
 
+  // State-changing requests must come from the page itself: a foreign Origin (any
+  // website in Julius' browser) or a foreign Host (DNS rebinding) is refused.
+  const isLocal = (value: string | undefined): boolean => {
+    if (!value) return true
+    try {
+      const h = value.includes('://') ? new URL(value).hostname : value.replace(/:\d+$/, '')
+      return h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h === '::1'
+    } catch {
+      return false
+    }
+  }
+
   const handle = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const url = new URL(req.url ?? '/', `http://${host}`)
     const path = url.pathname
     const method = req.method ?? 'GET'
+    if (method === 'POST' && (!isLocal(req.headers.origin) || !isLocal(req.headers.host))) {
+      return json(res, 403, { error: 'Nur von der Welt-Seite selbst erlaubt' })
+    }
 
     if (path === '/api/state') {
       if (method !== 'GET') return json(res, 405, { error: 'Methode nicht erlaubt' })

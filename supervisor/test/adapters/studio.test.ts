@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { chromium } from 'playwright'
-import { renderImage, renderClip, closeBrowser, resolveTemplate, substitute, main } from '../../src/adapters/studio.js'
+import { renderImage, renderImageDetailed, renderClip, closeBrowser, resolveTemplate, substitute, main } from '../../src/adapters/studio.js'
 
 const CHROMIUM_CANDIDATES = [
   process.env.PLAYWRIGHT_CHROMIUM,
@@ -61,13 +61,30 @@ describe.skipIf(!chromiumPath)('renderImage (Chromium)', () => {
     expect((await stat(out)).size).toBeGreaterThan(1000)
   })
 
-  it('turns local file paths in data into file:// URLs', async () => {
+  it('actually shows a local poster file (file:// must load, not fall back to the placeholder)', async () => {
+    const { createHash } = await import('node:crypto')
     const dir = await mkdtemp(join(tmpdir(), 'los-studio-'))
     const poster = join(dir, 'poster.png')
-    await renderImage({ template: 'carousel-slide', data: { headline: 'P' }, width: 200, height: 200, out: poster, env })
-    const out = join(dir, 'with-poster.png')
-    await renderImage({ template: 'mockup-room', data: { poster }, width: 400, height: 400, out, env })
-    expect(pngSize(await readFile(out))).toEqual({ width: 400, height: 400 })
+    // A solid green "poster" rendered through the slide template with a green background.
+    await renderImage({ template: 'carousel-slide', data: { headline: '', bg: '#00ff00' }, width: 200, height: 300, out: poster, env })
+    const withPoster = join(dir, 'with-poster.png')
+    const without = join(dir, 'without-poster.png')
+    await renderImage({ template: 'mockup-room', data: { poster }, width: 400, height: 400, out: withPoster, env })
+    await renderImage({ template: 'mockup-room', data: {}, width: 400, height: 400, out: without, env })
+    const sha = (b: Buffer): string => createHash('sha1').update(b).digest('hex')
+    expect(pngSize(await readFile(withPoster))).toEqual({ width: 400, height: 400 })
+    expect(sha(await readFile(withPoster))).not.toBe(sha(await readFile(without)))
+  })
+
+  it('reports whether every image in the template loaded', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'los-studio-'))
+    const poster = join(dir, 'poster.png')
+    await renderImage({ template: 'carousel-slide', data: { headline: 'P' }, width: 200, height: 300, out: poster, env })
+    const r = await renderImageDetailed({ template: 'mockup-room', data: { poster }, width: 400, height: 400, out: join(dir, 'a.png'), env })
+    expect(r.imagesLoaded).toBe(1)
+    expect(r.imagesFailed).toBe(0)
+    const r2 = await renderImageDetailed({ template: 'mockup-room', data: { poster: '/gibt/es/nicht.png' }, width: 400, height: 400, out: join(dir, 'b.png'), env })
+    expect(r2.imagesFailed).toBeGreaterThan(0)
   })
 })
 

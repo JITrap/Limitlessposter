@@ -6,10 +6,12 @@
 - **Berichte** `LimitlessOS/Berichte/` – täglich 07:30, wöchentlich Donnerstag 17:00.
 
 ## Freigeben und zurückschicken
-- Freigeben: Kanban-Karte von **review** nach **todo** ziehen, in der Welt **Freigeben**, oder in der
-  Notiz `needs_approval: false` setzen.
-- Zurückschicken: in der Notiz unter `## Auftrag` einen Absatz „Korrektur: …“ anfügen, `status: todo`,
-  `needs_approval: true` lassen.
+- Freigeben: in der Welt **Freigeben** klicken oder in der Notiz `needs_approval: false` setzen. Beim
+  nächsten Lauf wird veröffentlicht bzw. im Shop geändert.
+- Zurückschicken: Kanban-Karte von **review** nach **todo** ziehen (oder `status: todo` setzen) und
+  `needs_approval: true` lassen – am besten mit einem Absatz „Korrektur: …“ unter `## Auftrag`. Die
+  Aufgabe wird neu als Entwurf bearbeitet und landet wieder unter „Wartet auf dich“.
+  Ein Drag nach **todo** ist also nie eine Freigabe.
 - Abbrechen: `status: cancelled` (nur du darfst das).
 
 ## Pause / Not-Aus

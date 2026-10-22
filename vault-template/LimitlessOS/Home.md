@@ -10,7 +10,8 @@ cssclasses: [limitless-home]
 ![[Status]]
 
 ## Wartet auf dich
-Karten hier brauchen dein Ja. Freigeben = Karte im Kanban nach **todo** ziehen oder in der Notiz `needs_approval: false` setzen.
+Karten hier brauchen dein Ja. **Freigeben** = Knopf in der Welt oder in der Notiz `needs_approval: false` setzen.
+**Zurückschicken** = Karte im Kanban nach **todo** ziehen (die Aufgabe wird dann neu als Entwurf bearbeitet) – gern mit einem Absatz „Korrektur: …“ unter `## Auftrag`.
 
 ![[Dashboard.base#Wartet auf dich]]
 

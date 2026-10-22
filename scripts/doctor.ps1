@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Gesundheitscheck für Limitless OS. Prüft alles, was der Aufseher zum Arbeiten braucht.
 
@@ -112,7 +112,7 @@ $gpuLine
 ## Letzter Doctor-Lauf
 Probleme: $script:problems
 "@
-  Set-Content -Path (Join-Path $vaultRoot "Technik.md") -Value $technik -Encoding UTF8
+  [IO.File]::WriteAllText((Join-Path $vaultRoot "Technik.md"), $technik, (New-Object System.Text.UTF8Encoding $false))
 }
 
 # Rauch-Test

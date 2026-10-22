@@ -128,7 +128,8 @@ describe('BudgetGuard', () => {
     expect(d.until).toEqual(resetsAt)
     expect(d.reason).toMatch(/Limit/)
     const state = JSON.parse(await readFile(join(dir, 'state.json'), 'utf8'))
-    expect(state.learned.sonnet.sessionUsd).toBeCloseTo(80, 3)
+    // EMA from the placeholder (60) towards the sample (80): one event never swings the estimate fully
+    expect(state.learned.sonnet.sessionUsd).toBeCloseTo(70, 3)
   })
 
   it('falls back to a 30-minute pause when the rejection carries no reset time', async () => {
@@ -153,6 +154,52 @@ describe('BudgetGuard', () => {
     const d = await again.decide()
     expect(d.mode).toBe('paused')
     expect(d.until).toEqual(resetsAt)
+  })
+
+  it('anchors the 5-hour window at resetsAt − 5 h when a signal carries it', async () => {
+    const resetsAt = new Date('2026-11-07T14:30:00')
+    await guard.observe({ family: 'all', window: 'five_hour', status: 'allowed', resetsAt })
+    await ledger.append(run({ ts: '2026-11-07T09:45:00', cost_usd: 10 })) // after the anchor 09:30 → counts
+    await ledger.append(run({ ts: '2026-11-07T09:00:00', cost_usd: 10 })) // before → previous window
+    const d = await guard.decide()
+    expect(d.usage.session.used).toBe(10)
+  })
+
+  it('never lets one rejection cut the learned session capacity below half the previous value', async () => {
+    const state = make()
+    await state.load()
+    // first observation: 50 → EMA from the placeholder 60 → 55
+    now = new Date('2026-11-07T10:00:00')
+    state.noteRunStart()
+    now = QUARTER
+    await ledger.append(run({ ts: '2026-11-07T11:00:00', cost_usd: 50 }))
+    await state.observe({ family: 'all', window: 'five_hour', status: 'rejected', resetsAt: new Date(now.getTime() + 3_600_000) })
+    let saved = JSON.parse(await readFile(join(dir, 'state.json'), 'utf8'))
+    expect(saved.learned.sonnet.sessionUsd).toBeCloseTo(55, 3)
+    // second observation at a tiny share (Julius used the window himself): 55 → 28.5, never below 27.5 (half)
+    now = new Date('2026-11-07T16:00:00')
+    await ledger.append(run({ ts: '2026-11-07T15:30:00', cost_usd: 2 }))
+    await state.observe({ family: 'all', window: 'five_hour', status: 'rejected', resetsAt: new Date(now.getTime() + 3_600_000) })
+    saved = JSON.parse(await readFile(join(dir, 'state.json'), 'utf8'))
+    expect(saved.learned.sonnet.sessionUsd).toBeCloseTo(28.5, 3)
+    expect(saved.learned.sonnet.sessionUsd).toBeGreaterThanOrEqual(27.5)
+  })
+
+  it('raises a learned capacity by 10 % when a window ends heavily used but without any limit signal', async () => {
+    const g = make()
+    await g.load()
+    now = new Date('2026-11-07T10:00:00')
+    g.noteRunStart() // window 10:00–15:00
+    now = QUARTER
+    await ledger.append(run({ ts: '2026-11-07T11:00:00', cost_usd: 50 }))
+    await g.observe({ family: 'all', window: 'five_hour', status: 'rejected', resetsAt: new Date('2026-11-07T15:00:00') }) // learned 55
+    now = new Date('2026-11-07T16:00:00')
+    await g.decide() // pause lifted, new window 15:00–20:00
+    await ledger.append(run({ ts: '2026-11-07T16:30:00', cost_usd: 45 })) // 82 % of 55, no signal
+    now = new Date('2026-11-07T20:30:00') // next window began at 20:00
+    await g.decide()
+    const saved = JSON.parse(await readFile(join(dir, 'state.json'), 'utf8'))
+    expect(saved.learned.sonnet.sessionUsd).toBeCloseTo(60.5, 3)
   })
 
   it('lifts the pause once the reset time has passed', async () => {
