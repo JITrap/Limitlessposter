@@ -2,7 +2,7 @@
 type: task
 id: 20261023-020100-produktfakten-und-markenkern-bestaetigen
 title: "Produktfakten bestätigen und 5 Fragen zum Markenkern beantworten (10 Minuten)"
-status: todo
+status: done
 station: manual
 priority: 1
 tier: cheap
@@ -10,7 +10,7 @@ due: 2026-10-25
 created: 2026-10-23T02:00:00
 updated: 2026-10-23T02:00:00
 started:
-completed:
+completed: 2026-10-23T04:30:00
 attempts: 0
 max_attempts: 3
 cost_usd: 0
@@ -39,7 +39,13 @@ Regel „Wahrheit vor Wirkung“: Preise, Formate, Lieferzeiten, Material kommen
 Was dort nicht steht, darf kein Post behaupten. Quelle der Vorbelegung: deine Produktbeschreibungen in Shopify (23.10.2026).
 
 ## Ergebnis
+Julius hat am 23.10.2026 geantwortet; alles ist in [[Marke/Produkte]], [[Marke/Kern]], [[Marke/Tonalität]] und [[Marke/Visuell]] eingetragen:
+- Widerruf 14 Tage (gesetzlich), Versand nur Deutschland, versandkostenfrei, 4–10 Werktage; Druck in den USA → „Marke aus Deutschland“ ja, „Made in Germany“ nie.
+- Ein Satz: edel, cool, für jeden Geschmack, macht jedes Zimmer besser und persönlicher. Zielgruppe jünger, Männer und Frauen gleich, Ältere als Geschenkkäufer.
+- Warum wir: Qualität + Designs + Lieferzeit + Marke aus Deutschland. Tonfall: direkt, aber edel; TikTok schneller, Instagram ruhiger.
+- Farben/Schrift aus Shop und Content-Bank übernommen (Royal Noir: #0b0b0c, #f4f1ea, #a32235, Anton + Inter).
 
 ## Protokoll
+- 2026-10-23 04:30 done · - · Antworten von Julius übernommen (Cloud-Sitzung)
 
 ## Offene Fragen an Julius

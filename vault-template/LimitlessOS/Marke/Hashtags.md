@@ -6,7 +6,9 @@ updated: 2026-10-23
 
 Regeln: Instagram ≤ 8, TikTok ≤ 5, LinkedIn ≤ 3, Google-Unternehmensprofil keine.
 Mischen: 2 Marke · 3 Thema · 2 Reichweite · 1 Zielgruppe/Lokal. Keine Hashtag-Wände.
-**Nie** Hashtags mit Namen von Sportlern, Vereinen, Marken oder Figuren (siehe [[Marke/Kern#Tabus]]).
+Hashtags mit Namen von Sportlern, Vereinen oder Marken sind erlaubt, wenn sie das Motiv beschreiben – nie als
+Behauptung einer offiziellen Verbindung (siehe [[Marke/Kern#Tabus]]). Bewährte Pools aus der Content-Bank
+stehen unter „Content-Bank“.
 
 ## Marke
 #limitlessposter #limitlessmindset
@@ -32,8 +34,13 @@ Mischen: 2 Marke · 3 Thema · 2 Reichweite · 1 Zielgruppe/Lokal. Keine Hashtag
 ## Lokal
 #kleinunternehmen #supportsmallbusiness #esslingen #stuttgart
 
+## Content-Bank (bewährt, aus Julius' Karten)
+#zimmerdeko #wanddeko #poster #roomdecor #wandgestaltung #motivation #mindset #disziplin #morgenroutine
+#quietluxury #oldmoneyaesthetic #wohnideen #gallerywall #bilderwand #thisorthat #welchesbistdu #queenenergy
+#femininenergy #moneymindset #homeoffice #geschenkidee #weihnachtsgeschenk #smallbusiness #buildinpublic #postershop
+
 ## TikTok-Pool (kurz)
-#motivation #gymposter #setup #wgzimmer #poster
+#zimmerdeko #poster #roomdecor #wanddeko #motivation
 
 ## LinkedIn-Pool
 #gründer #ecommerce #buildinpublic

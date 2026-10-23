@@ -1,25 +1,27 @@
 ---
 type: marke
 updated: 2026-10-23
-zielgruppe_alter: "16–30"
+zielgruppe_alter: "18–35, dazu ältere Geschenkkäufer"
 hero_themen: [Motivation, Fußball, Racing & Autos, Tennis, Wildlife & Tiere, Gym & Fitness]
 ---
 # Markenkern – Limitless Poster
 
-> [!info] Erstfassung vom System aus dem echten Sortiment abgeleitet (125 Produkte, Stand 23.10.2026 – siehe [[Marke/Produkte]]). Alles, was unter einem Frage-Kasten steht, ist ein Vorschlag. Korrigiere direkt im Text, die Arbeiter lesen diese Notiz vor jeder Aufgabe.
+> [!info] Fassung vom 23.10.2026 aus Julius' Antworten, dem Sortiment (125 Produkte, [[Marke/Produkte]]) und seiner Content-Bank ([[Pläne/Content-Bank]]). Die Arbeiter lesen diese Notiz vor jeder Aufgabe – Änderungen hier wirken sofort.
 
 ## Was ist Limitless Poster in einem Satz?
-Gerahmte Poster für Leute, die sich jeden Tag an ihr Ziel erinnern wollen – Motivation, Sport,
-Racing und Wildlife als Statement an der Wand, fertig gerahmt geliefert, versandkostenfrei in Deutschland.
-> [!question] Stimmt das? Wie würdest du es in einem Satz sagen?
+Limitless Poster macht jedes Zimmer besser und persönlicher: edle, coole Poster mit Haltung, gerahmt
+geliefert, für jeden Geschmack etwas dabei – von einer Marke aus Deutschland.
+Shop-Claim: **„Wände für Menschen, die mehr vorhaben.“** · Untertitel: „Gerahmte Motivations- & Sport-Poster“.
+Kurzform für Bios: „Gerahmte Poster mit Haltung.“
 
 ## Für wen?
-**Kernzielgruppe:** 16–30 Jahre, eher männlich, trainiert, schaut Fußball, F1 oder Tennis, richtet
-gerade das erste eigene Zimmer, die WG, das Home-Office oder die „Man Cave“ ein. Kauft spontan über
-TikTok/Instagram, wenn ein Motiv ihn trifft; sucht auf Pinterest nach „Gym Poster“, „Motivation Wandbild“.
-**Zweite Zielgruppe:** Geschenkkäufer (Freundin, Eltern) – „Geschenk für ihn“ zu Geburtstag, Weihnachten, Abi.
-**Dritte Zielgruppe (klein):** Fashion/Noir- und Pop-Kultur-Motive für ein jüngeres, gemischtes Publikum.
-> [!question] Wer kauft wirklich? Gibt es Käuferinnen? Welches Alter siehst du in Shopify/TikTok?
+**Kern (Julius):** eher jüngere Käufer, Männer **und** Frauen etwa gleich – es gibt für beide starke
+Motive (Motivation/Sport/Racing eher männlich, Queens/Wildlife/Quiet Luxury eher weiblich). Sie
+richten Zimmer, WG, Home-Office oder Home-Gym ein und wollen, dass der Raum nach ihnen aussieht.
+**Zweite Gruppe:** Ältere mit Kaufkraft, die ein Poster **verschenken** (Geburtstag, Weihnachten, Abi)
+– für sich selbst kaufen sie seltener. Geschenk-Content ab November ist deshalb Pflicht.
+Kaufweg: spontan über TikTok/Instagram, wenn ein Motiv trifft; Suche auf Pinterest nach „Gym Poster“,
+„Motivation Wandbild“, „Quiet Luxury Poster“.
 
 ## Welches Problem lösen wir?
 Leere Wand im Zimmer oder Home-Gym, aber keine Lust auf „Deko“. Das Poster ist der tägliche Reminder:
@@ -27,10 +29,10 @@ Disziplin, Fokus, dranbleiben – in einem Look, der zu Sneakern, Gym und Gaming
 Nebenbei: fertig gerahmt (kein Rahmen-Suchen, kein Zuschneiden), eine Bestellung, aufhängen.
 
 ## Warum wir und nicht Posterlounge/Desenio/Juniqe?
-Vorschlag: Die großen Shops verkaufen „Wohnen“. Wir verkaufen **Haltung** – Motive mit Satz,
-kuratiert für Sport- und Motivations-Fans, gerahmt geliefert, ein Preis für alle Motive, direkt vom
-Gründer (Julius, 2006, baut die Marke öffentlich auf – das ist der LinkedIn/TikTok-Stoff).
-> [!question] Was können wir, was die nicht können? (Motive, Persönlichkeit, Service, Geschwindigkeit)
+Julius: **Super Qualität + sehr gute Designs + gute Lieferzeit + Marke aus Deutschland** – das schafft
+sofort Vertrauen. Dazu: ein Preis für alle Motive, fertig gerahmt (kein Rahmen-Kauf, kein Zuschneiden),
+kuratiert statt beliebig („Die Marke ordnet. Das Artwork spricht.“), und ein Gründer, der die Marke
+öffentlich aufbaut (Build-in-public-Stoff für TikTok und LinkedIn).
 
 ## Produktversprechen
 Gerahmtes Poster (Holzrahmen Schwarz/Weiß, Plexiglas), mattes Archivpapier, Pigmenttinten,
@@ -38,6 +40,9 @@ Gerahmtes Poster (Holzrahmen Schwarz/Weiß, Plexiglas), mattes Archivpapier, Pig
 Details und was genau gesagt werden darf: [[Marke/Produkte#Feste Produktfakten]].
 
 ## Themenfelder für Content
+0. **Zuerst die Content-Bank** ([[Pläne/Content-Bank]]): 41 fertige Karten (Chat-Story-Reels,
+   Motivations-Clips, Wand-Reveals, Slideshows, This-or-That, Größen-Guide, Geschenkidee). Erst wenn
+   die Bank leer ist oder ein Thema fehlt, neue Posts nach den Feldern unten.
 1. **Motivation im Alltag** – Reel: Morgenroutine/Training, Blick auf das Poster, ein Satz. (Hero-Thema, 29 Produkte)
 2. **Sport-Wände** – Karussell: 5 Poster für dein Fußball-/Tennis-/Gym-Zimmer, Format-Tipps.
 3. **Racing & Autos** – Reel: Garage/Man-Cave-Look, Quer- vs. Hochformat.
@@ -47,9 +52,10 @@ Details und was genau gesagt werden darf: [[Marke/Produkte#Feste Produktfakten]]
 7. **Geschenk für ihn** – saisonal ab November (Weihnachten), Karussell „5 Poster, die er wirklich aufhängt“.
 
 ## Tabus
-- **Keine Namen geschützter Personen, Vereine, Marken oder Figuren** in Posts, Captions, Hashtags oder
-  Produkttexten (keine Fußballer-Namen, kein „Ferrari“, „Porsche“, „Batman“, „Just Do It“, „Wimbledon“).
-  Das Motiv beschreiben: „der Sprint zum Tor“, „roter Rennwagen“, „Silhouette vor Rot“.
+- **Keine Behauptung einer offiziellen Lizenz oder Partnerschaft.** Motive mit Sportlern, Vereinen,
+  Marken oder Figuren dürfen beworben und beschrieben werden (Julius trägt das Risiko und kümmert sich
+  um Rechtliches), aber nie „offizielles Fan-Poster“, „lizenziert“, „in Zusammenarbeit mit …“ oder
+  fremde Logos als Absender.
+- Kein „Made in Germany“ (Druck in den USA) – „Marke aus Deutschland“ ja.
 - Keine politischen oder religiösen Aussagen über die Faith-Motive hinaus (die bleiben positiv, ohne Predigt).
 - Keine Vergleiche mit Wettbewerbern beim Namen, keine Preis- oder Lieferversprechen außerhalb von [[Marke/Produkte]].
-- Keine „Made in Germany“-Aussage, solange der Druckort nicht bestätigt ist.

@@ -12,7 +12,8 @@ updated: 2026-10-23
 - Marke: **LimitlessPoster** · `blogId` 7412016 · Zeitzone Europe/Berlin
 - Verbunden (Stand 23.10.2026): Instagram `@limitlessposter`, TikTok `@limitless.poster`,
   LinkedIn (Profil Julius), Google-Unternehmensprofil
-- **Nicht verbunden:** Pinterest (für Poster der wichtigste Suchkanal – Karte liegt auf deinem Schreibtisch)
+- **Nicht verbunden:** Pinterest – Julius hat ein Pinterest-Konto; es muss noch in Metricool verbunden
+  und ggf. in ein Business-Konto umgewandelt werden (Karte liegt auf dem Schreibtisch)
 - Plan: ~50 €/Monat. Der MCP-Server (`.mcp.json` → `metricool`) reicht fürs Planen und für Kennzahlen;
   REST-API-Token in der `.env` sind optional.
 - **Autolist aktiv:** „Poster-Evergreen LinkedIn + Google“ (id 546926) postet alle 2–3 Tage um 11:05 Uhr
@@ -36,8 +37,10 @@ updated: 2026-10-23
 - Versand weltweit möglich, Fokus und Versandkostenfreiheit: Deutschland.
 
 ## Link in Posts
-Standard-CTA: „Link im Profil“ (Instagram/TikTok) · LinkedIn/GMB: voller Shop-Link https://limitlessposter.com
-> [!question] Nutzt du einen Linktree o. Ä.? Dann hier eintragen.
+Standard-CTA: „Link im Profil“ / „Link in Bio“ (Instagram/TikTok) · in TikTok-Captions zusätzlich
+„👉 limitlessposter.com“ ausgeschrieben · LinkedIn/GMB: voller Shop-Link https://limitlessposter.com.
+Kein Linktree – der Profil-Link zeigt direkt auf den Shop (Julius, 23.10.2026).
+Bios (aus der Content-Bank): Instagram „LimitlessPoster | Gerahmte Poster“ – „Gerahmte Poster mit Haltung 🖼️ / Für Wände, die motivieren. / 🚚 Kostenloser Versand in Deutschland / ⬇️ Zum Shop“ · TikTok „Gerahmte Poster mit Haltung 🖼️ Kostenloser Versand in Deutschland“.
 
 ## Veröffentlichungs-Rhythmus (Standard)
 - TikTok: 1 Reel/Tag (Prozess, Setup, Motivation-Moment), Untertitel immer

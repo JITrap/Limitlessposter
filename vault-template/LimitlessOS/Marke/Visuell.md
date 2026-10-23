@@ -1,19 +1,26 @@
 ---
 type: marke
-bg: "#0f1115"
-accent: "#f5c542"
+bg: "#0b0b0c"
+accent: "#a32235"
+accent_text: "#ef7083"
+fg: "#f4f1ea"
+stone: "#cec8bd"
 wall: "#e9e4dc"
-updated: 2026-10-22
+font_display: Anton
+font_body: Inter
+logo: Assets/marke/logo.png
+updated: 2026-10-23
 ---
 # Visuelle Sprache
 
-> [!question] Hast du Logo, Markenfarben oder eine Schrift? Dann hier eintragen (Hex-Codes). Sonst gelten die Standardwerte, die das Studio bereits nutzt.
+> [!info] Der Look heißt **„Royal Noir“** und ist aus Shop (limitlessposter.com) und Content-Bank übernommen: tiefes Schwarz, cremeweiße Schrift, ein tiefes Rot als einziger Akzent. Das Studio nutzt genau diese Werte.
 
-## Farben (Standard, vom Studio verwendet)
-- Hintergrund dunkel `#0f1115` (`bg`) – Karussells, Clips
-- Akzent `#f5c542` (`accent`) – Markenzeile, Subzeilen
+## Farben (Royal Noir – Shop und Content-Bank)
+- Hintergrund `#0b0b0c` (`bg`), Flächen `#141416` / `#1c1c1f`, Linien `#2a2a2e`
+- Schrift cremeweiß `#f4f1ea` (`fg`), gedämpft `#a8a399`, Stein `#cec8bd` (`stone`)
+- Akzent Crimson `#a32235` (`accent`) für Knöpfe/Flächen, als Textfarbe `#ef7083` (`accent_text`)
 - Wand hell `#e9e4dc` (`wall`) – Raum-Mockups
-- Text auf dunkel `#ffffff`, gedämpft `rgba(255,255,255,.72)`
+- Logo: `Assets/marke/logo.png` (weiße Wortmarke auf transparent, 600×105) – kommt aus der Content-Bank
 
 ## Bildsprache
 - Poster immer **im Raum** zeigen (Mockup), nie nur freigestellt – außer auf Slide 1 als Hero.
@@ -27,8 +34,9 @@ updated: 2026-10-22
 - Mockup 1080×1350 oder 1080×1080
 
 ## Typografie
-Systemschrift (ohne Web-Fonts, damit alles offline rendert). Headlines fett, ≤ 6 Wörter.
-> [!question] Eigene Schrift gewünscht? Dann Datei (TTF/OTF) in `Assets/fonts/` legen und hier nennen.
+Headlines **Anton** (eng, groß, Versalien erlaubt), Fließtext **Inter** – wie im Shop und in der
+Content-Bank. Offline-Fallback im Studio: Impact / Arial Narrow für Headlines, System-Sans für Text.
+Headlines ≤ 6 Wörter.
 
 ## Mockup-Regeln
 Rahmen schwarz, schmal; Passepartout weiß; Poster leicht gedreht (−4°) für Tiefe; Pflanze oder

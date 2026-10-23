@@ -173,17 +173,17 @@ Alle Produkte ohne Verkauf. Kein Lagerrisiko (Print-on-Demand). Erst nach den er
 - Viele Motive zeigen bekannte Personen, Vereine, Marken oder Figuren (z. B. Fußballer, Batman, Ferrari, Porsche, „Just Do It“). Posts und Hashtags nennen diese Namen **nicht** – sie beschreiben das Motiv (Stimmung, Sport, Farbe). Siehe [[Marke/Kern#Tabus]] und die offene Frage an Julius in der Aufgabe „Rechtliches prüfen“.
 - Für Mockups und Karussells nutzt das Studio die Bild-URL aus dieser Tabelle (Bild-Typ „Motiv“ = reines Poster-Bild, ideal; „Mockup (gerahmt)“ = bereits gerahmt, nur als Hero-Bild verwenden, nicht in den Raum-Mockup setzen).
 
-## Feste Produktfakten (aus den Produktbeschreibungen im Shop übernommen – Julius bitte bestätigen)
-> [!question] Alles, was hier steht, darf das System in Posts und Beschreibungen behaupten. Stimmt etwas nicht, hier ändern – die Arbeiter lesen diese Notiz vor jedem Text. Fehlt etwas (z. B. Rückgabe), bitte ergänzen.
+## Feste Produktfakten (von Julius bestätigt am 23.10.2026)
+> [!info] Alles, was hier steht, darf das System in Posts und Beschreibungen behaupten. Stimmt etwas nicht mehr, hier ändern – die Arbeiter lesen diese Notiz vor jedem Text.
 
 - Produkt: gerahmtes Poster, **Holzrahmen in Schwarz oder Weiß**, bruchsichere **Plexiglas-Front**, Aufhängung vormontiert („auspacken, aufhängen, fertig“)
 - Papier / Material: **mattes Archivpapier in Museumsqualität**, farbecht und vergilbungsbeständig
 - Druckverfahren: **Pigmenttinten** (satte Kontraste, langlebig)
 - Formate Hochformat: ca. 28 × 36 · 30 × 46 · 41 × 51 · 46 × 61 · 51 × 76 · 61 × 91 cm (Querformat gespiegelt: 36 × 28 … 91 × 61 cm)
 - Preise: 79,99 € · 84,99 € · 94,99 € · 104,99 € · 117,99 € · 147,99 € (nach Größe, Rahmenfarbe ohne Aufpreis) – **Endpreise, Kleinunternehmerregelung § 19 UStG (keine Umsatzsteuer ausgewiesen)**
-- Versandkosten: **versandkostenfrei innerhalb Deutschlands**
-- Versandzeit (DE): **in der Regel 4–10 Werktage**
+- Versandkosten: **versandkostenfrei innerhalb Deutschlands**; Versand aktuell **nur nach Deutschland** (kein AT/CH)
+- Versandzeit (DE): **in der Regel 4–10 Werktage** (laut Shop-Texten; Produktionszeit des Printify-Partners bei Gelegenheit gegenprüfen)
 - Gewährleistung: gesetzliche 2 Jahre
-- Rückgabe / Widerruf: (nicht in den Beschreibungen – bitte eintragen, z. B. 14 Tage Widerruf)
-- Produktion / Herkunft: Print-on-Demand (Druckpartner über Printify); Druckort bitte eintragen – bis dahin **kein** „Made in Germany“ in Posts
-- Marke: LimitlessPoster, Esslingen am Neckar (Sitz; in Posts nur „aus Deutschland“, wenn Julius es freigibt)
+- Rückgabe / Widerruf: **14 Tage Widerrufsrecht** wie gesetzlich vorgeschrieben (Details und Rücksendekosten laut Widerrufsbelehrung im Shop – nicht im Post ausbuchstabieren, nur „14 Tage Widerruf“)
+- Produktion: Print-on-Demand, Druckpartner über Printify in den **USA**. Darum: **„Made in Germany“ nie**, aber „**Marke aus Deutschland**“, „deutsches Unternehmen“, „aus Esslingen“ ist erlaubt und erwünscht (schafft Vertrauen)
+- Marke: LimitlessPoster, Esslingen am Neckar – Gründer Julius

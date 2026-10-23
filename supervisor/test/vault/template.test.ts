@@ -21,6 +21,7 @@ const FILES = [
   'Marke/Kanäle.md',
   'Pläne/Content-Kalender.md',
   'Pläne/Wochenplan.md',
+  'Pläne/Content-Bank.md',
   'Ideen/README.md',
   'Inbox/README.md',
   'Assets/poster/README.md',
@@ -56,6 +57,15 @@ describe('vault template', () => {
     expect(body.match(/^\| \d+ \|/gm)?.length).toBe(12)
   })
 
+  it('Content-Bank.md lists all 41 cards of Julius\' content bank with a status column', async () => {
+    const { data, body } = parseNote(await readFile(join(root, 'Pläne/Content-Bank.md'), 'utf8'))
+    expect(data.karten).toBe(41)
+    const rows = body.match(/^\| (?:\d+|–) \| `[a-z]\d\d` \|/gm) ?? []
+    expect(rows.length).toBe(41)
+    expect(body).toContain('| Status | Geplant für | plannerUrl |')
+    expect(body).toContain('## Profil (Metricool / Bio)')
+  })
+
   it('Home.md embeds Status and the dashboard views and links to the world', async () => {
     const home = await readFile(join(root, 'Home.md'), 'utf8')
     expect(home).toContain('![[Status]]')
@@ -65,9 +75,11 @@ describe('vault template', () => {
     expect(home).toContain('http://localhost:4242')
   })
 
-  it('brand notes ask Julius questions as callouts and set brand defaults', async () => {
+  it('brand notes carry Julius\' confirmed answers and set brand defaults', async () => {
     const kern = await readFile(join(root, 'Marke/Kern.md'), 'utf8')
-    expect(kern).toContain('> [!question]')
+    expect(kern).toContain('Marke aus Deutschland')
+    expect(kern).toContain('## Tabus')
+    expect(kern).toContain('[[Pläne/Content-Bank]]')
     const ton = await readFile(join(root, 'Marke/Tonalität.md'), 'utf8')
     expect(ton).toMatch(/Du-Ansprache/)
     const produkte = await readFile(join(root, 'Marke/Produkte.md'), 'utf8')
@@ -98,7 +110,7 @@ describe('vault template', () => {
       const { data, body } = parseNote(await readFile(join(dir, f), 'utf8'))
       expect(data.type).toBe('task')
       expect(data.id).toBe(f.replace(/\.md$/, ''))
-      expect(data.status).toBe('todo')
+      expect(['todo', 'done']).toContain(data.status)
       expect(body).toContain('## Auftrag')
       expect(body).toContain('## Offene Fragen an Julius')
       stations.add(String(data.station))

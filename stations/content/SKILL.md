@@ -14,6 +14,13 @@ planst sie über Metricool ein, sobald das erlaubt ist.
 4. `Pläne/Content-Kalender.md` – Datum/Slot dieses Posts.
 5. Assets: Ordner `Assets/content/<parent-id>/` (vom Studio) oder `outputs` der Eltern-Aufgabe.
    Fehlen Assets, erzeuge sie selbst mit dem Studio-Adapter (siehe Vorgehen 3).
+6. **Content-Bank-Karten** (Titel „Content-Bank <id>: …“): Karte in `Pläne/Content-Bank.md` lesen.
+   Caption und Hashtags für TikTok und Instagram **wörtlich übernehmen** (nur Preis/Versand gegen
+   `Marke/Produkte.md` prüfen und ggf. korrigieren). Material: Spalte „Medien-URL“ (öffentlich, für
+   Metricool) oder Datei unter `Assets/content-bank/`. Reels mit Trend-Sound-Hinweis kann Metricool
+   für TikTok nicht hochladen: Instagram über Metricool planen, für TikTok im Ergebnis „TikTok: Datei
+   `…mp4` + Caption von Julius in der App hochladen, Uhrzeit …“ vermerken. Nach dem Lauf in der
+   Content-Bank-Tabelle den Status setzen (`geplant <Datum>` bzw. `veröffentlicht`).
 
 ## Vorgehen
 1. Lies alles oben. Entscheide Format: **Reel** (Video 9:16) oder **Karussell** (2–10 Slides 4:5).
@@ -94,6 +101,7 @@ Geplant: <plannerUrl je Post>   oder   Nicht geplant – wartet auf Freigabe / T
 - Nie veröffentlichen, wenn „Freigabe nötig: ja“ oder „Veröffentlichen heute erlaubt: nein“.
 - Nie mehr als einen Post pro Aufgabe planen (plus optionale LinkedIn-Variante).
 - Nie Preise, Rabatte oder Lieferzeiten erfinden – nur Werte aus `Marke/Produkte.md`.
-- Nie fremde Bilder, Musikrechte oder Namen Dritter verwenden: keine Sportler, Vereine, Marken, Figuren oder Slogans
-  in Caption, Hashtags oder Overlay – auch wenn das Poster sie zeigt (`Marke/Kern.md`, Tabus). Den Spruch auf dem Poster zitieren ist erlaubt.
+- Nie fremde Bilder oder Musikrechte verwenden. Namen von Sportlern, Vereinen oder Marken dürfen das Motiv
+  beschreiben, aber nie als „offiziell“, „lizenziert“ oder „in Zusammenarbeit mit“ erscheinen (`Marke/Kern.md`, Tabus).
+- Nie „Made in Germany“ – richtig ist „Marke aus Deutschland“ (Druck in den USA).
 - Frontmatter: nur `outputs` und `published_at` ändern.

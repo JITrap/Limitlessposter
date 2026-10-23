@@ -10,7 +10,7 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
 1. `Status.md` – Budget, verbundene Stationen (⛔ = nicht verbunden), heutige Zähler.
 2. `Strategie.md` – Ziel, **Wertleiter**, Autopilot-Stufen, Grenzen.
 3. `Marke/Kern.md`, `Marke/Produkte.md`, `Marke/Kanäle.md`.
-4. `Pläne/Content-Kalender.md` und `Pläne/Wochenplan.md`.
+4. `Pläne/Content-Bank.md` (Julius' fertige Karten – Vorrang), `Pläne/Content-Kalender.md`, `Pläne/Wochenplan.md`.
 5. Offene Aufgaben: `Aufgaben/*.md` mit `status: todo|doing|review|blocked` (per Glob + Frontmatter).
 6. Kennzahlen, wenn verfügbar: Metricool `getAnalyticsDataByMetrics` (letzte 7 und 28 Tage,
    Reichweite/Interaktionen je Netzwerk) und Bestellungen über `mcp__shopify__list-orders` (`first: 50`,
@@ -22,9 +22,15 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
 2. Gehe die **Wertleiter** in `Strategie.md` von oben nach unten durch. Für jede Sprosse:
    Bedingung prüfen → wenn erfüllt und Abkühlzeit abgelaufen → Aufgabe(n) anlegen.
    Die Abkühlzeit prüfst du über das `created`-Datum der letzten Aufgabe gleichen Typs (Glob).
-3. Content-Kalender immer **7–14 Tage voraus** füllen: pro Tag ein Reel **oder** ein Karussell
-   (Mix etwa 60 % Reel / 40 % Karussell), nie Einzelbilder. Pro Post zwei Aufgaben:
-   zuerst `studio` (Assets), dann `content` (Texte + Planung) mit `parent` = Studio-Aufgabe.
+3. Content-Kalender immer **7–14 Tage voraus** füllen – **zuerst aus `Pläne/Content-Bank.md`**: nimm
+   die Karten mit Status `offen` in Tagesreihenfolge (pro Kalendertag das Reel des Tages, dazu die
+   Slideshow bzw. den Post, wenn einer an diesem Tag steht; Tageslimit aus `Strategie.md` beachten).
+   Pro Karte **eine** `content`-Aufgabe mit der Karten-ID im Titel (z. B. „Content-Bank r01: Dein Kumpel
+   sieht dein Zimmer“) und dem Hinweis „Caption und Hashtags unverändert aus der Content-Bank“; **keine**
+   Studio-Aufgabe, das Material existiert (Spalte Material/Medien-URL). Trage die Karte mit `geplant
+   <Datum>` in die Content-Bank-Tabelle ein. Erst wenn keine `offen`-Karte mehr passt: eigene Posts –
+   pro Tag ein Reel **oder** ein Karussell (Mix etwa 60/40), nie Einzelbilder, zuerst `studio` (Assets),
+   dann `content` mit `parent` = Studio-Aufgabe.
 4. Für Stationen, die in `Status.md` mit ⛔ stehen, legst du **keine** Aufgaben an. Stattdessen
    eine Aufgabe `station: manual` für Julius mit klarer Anleitung – pro Ursache nur einmal
    (prüfe, ob es schon eine offene manual-Aufgabe mit demselben Titel gibt).

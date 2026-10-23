@@ -64,7 +64,8 @@ Liste der geänderten Produkte mit Zeit, oder „nichts – wartet auf Freigabe�
 ## Qualitätsregeln
 - Zahlen nur aus dem Adapter, nie geschätzt; Währung EUR, deutsche Zahlenschreibweise (1.234,56 €).
 - Titel: Suchbegriff zuerst (Motiv), dann Stil, Muster der bestehenden Produkte „Motiv – Stil-Poster“; keine Großbuchstaben-Wörter, keine Ausrufezeichen.
-- **Keine Namen von Personen, Vereinen, Marken oder Figuren** in Titeln und Beschreibungen (`Marke/Kern.md`, Tabus) – das Motiv beschreiben.
+- Namen von Personen, Vereinen oder Marken nur beschreibend (wie bei den bestehenden Produkten), nie „offiziell“,
+  „lizenziert“ oder „in Zusammenarbeit mit“; kein „Made in Germany“ (`Marke/Kern.md`, Tabus).
 - Beschreibungen im HTML-Aufbau der bestehenden Produkte: Einleitungssatz → „Qualität & Details“-Liste → „Versand & Garantie“ → GPSR-Block unverändert.
 - Beschreibungen in der Tonalität der Marke, keine Keyword-Listen, kein „hochwertig“ ohne Begründung.
 - Was du nicht weißt (Material, Druckverfahren, Versandzeit) fragst du unter *Offene Fragen* – nie erfinden.

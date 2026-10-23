@@ -30,7 +30,7 @@ Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsor
 
 | # | Bedingung | Aktion (erzeugte Aufgaben) | Abkühlzeit |
 |---|---|---|---|
-| 1 | Content-Kalender < 7 Tage voraus | je Tag 1 Reel oder Karussell (Mix 60/40, Themen-Rotation laut [[Pläne/Content-Kalender]]), nie Einzelbild; Studio-Aufgabe für Assets, dann Content-Aufgabe | – |
+| 1 | Content-Kalender < 7 Tage voraus | **zuerst Karten aus [[Pläne/Content-Bank]] in Tagesreihenfolge** (Reel pro Tag, Slideshow/Post an ihren Tagen; Captions unverändert); erst wenn die Bank leer ist: je Tag 1 Reel oder Karussell (Mix 60/40), nie Einzelbild; Studio-Aufgabe nur, wenn Material fehlt | – |
 | 2 | `Marke/Produkte.md` älter als 3 Tage | shop-analyst: Shop-Snapshot (Bestseller, Lager, neue Produkte) | 3 Tage |
 | 3 | Produkte mit Spalte „Sprache“ = EN oder „Titel optimiert?“ leer | shop-analyst: 3 Produkte überarbeiten (zuerst die englischen) | 2 Tage |
 | 4 | Pinterest verbunden **und** Top-5-Produkte ohne Pins | pinterest: Pins + Board-Struktur (Phase 2) | 7 Tage |
@@ -58,14 +58,15 @@ der Planer liest es beim nächsten Lauf).
 - [ ] Claude-Login (claude.ai-Konto) auf dem PC
 - [ ] Metricool-MCP angemeldet (`claude` → `/mcp` → metricool)
 - [ ] Shopify-MCP angemeldet (`claude` → `/mcp` → shopify)
-- [ ] Produktfakten in [[Marke/Produkte]] bestätigt, Fragen in [[Marke/Kern]] beantwortet
-- [ ] Rechtliches geprüft: Motive mit Namen/Marken Dritter (Entscheidung notiert)
+- [x] Produktfakten in [[Marke/Produkte]] bestätigt, Fragen in [[Marke/Kern]] beantwortet (23.10.2026)
+- [x] Rechtliches entschieden: alle Motive bewerben, Julius trägt das Risiko; nie „offiziell/lizenziert“ behaupten (23.10.2026)
 - [ ] Pinterest-Business-Konto + in Metricool verbunden
 - [ ] Pinterest-for-Shopify-App installiert (Katalog-Sync)
 - [ ] Google & YouTube-App in Shopify, Merchant Center, Free Listings aktiv
 - [ ] Shopify Email: Willkommen / Warenkorb / Nachkauf eingerichtet
 - [ ] Instagram-Produkt-Tags über Metas Shopify-Kanal
-- [ ] Tagesplanungs-Chat in `Inbox/` abgelegt
+- [x] Content-Bank (41 Karten) übernommen → [[Pläne/Content-Bank]] (23.10.2026)
+- [ ] Printify-API-Token in der `.env` (Zentrale)
 - [ ] (optional) Druckdateien in `Assets/poster/` – sonst nutzt das Studio die Shopify-Bilder
 
 ## Was Julius entscheidet
@@ -79,3 +80,4 @@ Logo, Antworten auf Kundennachrichten. Das System legt dafür Karten auf deinen 
 ## Änderungsprotokoll
 - 2026-10-22 – Erstfassung aus der Spezifikation.
 - 2026-10-23 – System: Ziel und Wertleiter an das echte Sortiment angepasst (125 Produkte, 0 Bestellungen, TikTok vor Instagram); Sprosse 11 „Testbestellung“ ergänzt; Checkliste um Logins und Rechtliches erweitert.
+- 2026-10-23 – Julius: Produktfakten bestätigt (14 Tage Widerruf, Druck USA, Versand nur DE), Zielgruppe und Tonfall festgelegt, alle Motive freigegeben; Content-Bank mit 41 Karten als Sprosse 1 übernommen.

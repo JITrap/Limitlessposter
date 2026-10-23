@@ -19,6 +19,7 @@ context:
   - Marke/Visuell.md
   - Marke/Kanäle.md
   - Pläne/Content-Kalender.md
+  - Pläne/Content-Bank.md
 requires:
   mcp: [metricool]
   env: []
