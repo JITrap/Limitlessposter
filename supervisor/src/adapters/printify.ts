@@ -9,7 +9,7 @@ import { parseDotenv, stripBom } from '../config.js'
 
 export const PRINTIFY_API = 'https://api.printify.com/v1'
 const USER_AGENT = 'LimitlessOS/1.0 (+https://limitlessposter.com)'
-const PAGE_LIMIT = 100
+const PAGE_LIMIT = 50 // Printify erlaubt höchstens 50 Einträge pro Seite (Fehler 8150 bei mehr)
 const MAX_PAGES = 10
 
 export type PrintifyEnv = Record<string, string | undefined>

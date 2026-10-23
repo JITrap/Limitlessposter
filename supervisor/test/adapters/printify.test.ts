@@ -72,8 +72,8 @@ describe('printifySummary', () => {
     expect(s.ok).toBe(true)
     expect(s.shop?.id).toBe(1)
     expect(calls[0]).toMatch(/\/shops\.json$/)
-    expect(calls.some((u) => u.includes('/shops/1/orders.json?limit=100&page=1'))).toBe(true)
-    expect(calls.some((u) => u.includes('/shops/1/products.json?limit=100&page=1'))).toBe(true)
+    expect(calls.some((u) => u.includes('/shops/1/orders.json?limit=50&page=1'))).toBe(true)
+    expect(calls.some((u) => u.includes('/shops/1/products.json?limit=50&page=1'))).toBe(true)
     expect(s.auftraege.marge_28t).toBe(99.98)
   })
 

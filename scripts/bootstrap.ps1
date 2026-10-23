@@ -69,12 +69,12 @@ Ok ("Inhalt: " + $inner.Name)
 Step "Nach $Target kopieren"
 New-Item -ItemType Directory -Force -Path $Target | Out-Null
 # robocopy: /E alle Unterordner, /XD ausgeschlossene Ordner, /XF ausgeschlossene Dateien; Exit-Codes < 8 sind Erfolg.
-& robocopy $inner.FullName $Target /E /NFL /NDL /NJH /NJS /NP /XD "node_modules" "data" ".git" /XF ".env" | Out-Null
+& robocopy $inner.FullName $Target /E /NFL /NDL /NJH /NJS /NP /XD "node_modules" "data" ".git" /XF ".env" "limitless.config.json" | Out-Null
 $rc = $LASTEXITCODE
 if ($rc -ge 8) { throw "Kopieren fehlgeschlagen (robocopy Code $rc)." }
 Remove-Item -Recurse -Force $extract -ErrorAction SilentlyContinue
 Get-ChildItem -Path $Target -Recurse -File -Include *.ps1, *.psm1 -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue
-Ok "Repo liegt in $Target (robocopy Code $rc; .env, supervisor\data und node_modules unangetastet)"
+Ok "Repo liegt in $Target (robocopy Code $rc; .env, limitless.config.json, supervisor\data und node_modules unangetastet)"
 
 # --- 4. Einrichtung starten ----------------------------------------------------------------------
 if ($NoInstall) { Warn "Einrichtung übersprungen (-NoInstall). Manuell: powershell -ExecutionPolicy Bypass -File $Target\scripts\install.ps1"; exit 0 }

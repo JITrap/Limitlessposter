@@ -41,7 +41,7 @@ describe('PowerShell scripts (Windows PowerShell 5.1 compatibility)', () => {
   it('bootstrap.ps1 keeps .env and data when re-running and never needs git', async () => {
     const text = await readFile(join(repoRoot, 'scripts/bootstrap.ps1'), 'utf8')
     expect(text).toContain('robocopy')
-    expect(text).toContain('/XF ".env"')
+    expect(text).toContain('/XF ".env" "limitless.config.json"')
     expect(text).toContain('"node_modules" "data"')
     expect(text).toContain('Unblock-File')
     expect(text).toContain('archive/refs/heads/')
