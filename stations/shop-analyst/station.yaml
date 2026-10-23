@@ -10,13 +10,27 @@ tools:
   - Edit
   - Glob
   - Bash(node supervisor/dist/adapters/shopify.js *)
+  - mcp__shopify__get-shop-info
+  - mcp__shopify__search_products
+  - mcp__shopify__get-product
+  - mcp__shopify__list-orders
+  - mcp__shopify__get-order
+  - mcp__shopify__get-inventory-levels
+  - mcp__shopify__graphql_query
+  - mcp__shopify__graphql_schema
+  - mcp__shopify__search_docs_chunks
+  - mcp__shopify__update-product
 context:
   - Marke/Produkte.md
   - Marke/Tonalität.md
   - Marke/Kern.md
 requires:
   mcp: []
-  env: [SHOPIFY_STORE_DOMAIN, SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET]
+  env: []
   services: []
+  # Eine Anbindung reicht: Shopify-MCP (Login im Browser) oder Custom-App-Schlüssel in der .env
+  any:
+    - mcp: [shopify]
+    - env: [SHOPIFY_STORE_DOMAIN, SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET]
 autopilot: 1
 cooldown_hours: 0

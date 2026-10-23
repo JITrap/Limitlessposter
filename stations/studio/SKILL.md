@@ -8,11 +8,14 @@ ohne KI-Bildgenerator.
 ## Eingaben
 1. Aufgaben-Notiz: welches Format (Karussell-Slides, Mockups, Clip), welches Poster, welche Texte.
 2. `Marke/Visuell.md` – Farben (`bg`, `accent`), Bildsprache, Mockup-Regeln.
-3. `Marke/Produkte.md` – Produktname/Handle → Poster-Datei.
-4. Poster-Dateien: `Assets/poster/<handle>.png|jpg` (Glob). **Gibt es keine Datei zum Produkt,
-   bricht die Aufgabe nicht ab:** Vorlagen rendern dann einen Marken-Platzhalter; du vermerkst
-   im Ergebnis „Poster-Datei fehlt: Assets/poster/<handle>.png“ und legst, falls noch nicht
-   vorhanden, eine Aufgabe `station: manual` „Poster-Dateien in Assets/poster ablegen“ an.
+3. `Marke/Produkte.md` – Produktname/Handle → Spalten **Bild-URL** und **Bild-Typ**.
+4. Poster-Quelle, in dieser Reihenfolge:
+   a. lokale Datei `Assets/poster/<handle>.png|jpg` (Glob), falls vorhanden;
+   b. sonst die **Bild-URL aus `Marke/Produkte.md`** (Shopify-CDN, `https://cdn.shopify.com/…`) direkt als
+      `poster` übergeben – das ist der Normalfall und ausdrücklich erlaubt. Bild-Typ „Motiv“ passt in jede
+      Vorlage; „Mockup (gerahmt)“ nur als Hero auf Slide 1, nicht in `mockup-room` (sonst Rahmen im Rahmen).
+   c. Fehlt beides (Produkt nicht in der Tabelle), rendern die Vorlagen einen Marken-Platzhalter; vermerke
+      „Bild fehlt: <handle>“ im Ergebnis und lege einmalig eine Aufgabe `station: manual` an.
 5. Vorlagen im Repo: `stations/studio/templates/carousel-slide.html`, `mockup-room.html`,
    `clip-zoom.html` (Platzhalter stehen als Kommentar oben in jeder Datei).
 
@@ -51,7 +54,7 @@ Fehlende Dateien, Platzhalter verwendet, Vorschläge für neue Vorlagen
 - Pro Karussell 5–8 Slides; Slide 1 ohne Produktfoto nur, wenn der Auftrag es sagt.
 
 ## Verbote
-- Keine fremden Bilder, keine Downloads aus dem Netz, keine KI-Bildgeneratoren.
+- Keine fremden Bilder, keine KI-Bildgeneratoren. Einzige erlaubte Netzquelle: Bild-URLs aus `Marke/Produkte.md` (Shopify-CDN).
 - Nichts außerhalb von `Assets/content/` schreiben (außer der eigenen Aufgaben-Notiz und einer
   manual-Aufgabe für fehlende Poster-Dateien).
 - Vorlagen im Repo nicht ändern. Frontmatter: nur `outputs`.

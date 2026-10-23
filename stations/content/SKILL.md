@@ -21,7 +21,7 @@ planst sie über Metricool ein, sobald das erlaubt ist.
 2. Schreibe die Inhalte (siehe Ausgabeformat). Hook in den ersten 3 Wörtern, ein Gedanke pro
    Slide/Szene, klare Handlungsaufforderung am Ende (Shop-Link steht in `Marke/Kanäle.md`).
 3. Assets prüfen/erzeugen:
-   - Karussell: je Slide `node supervisor/dist/adapters/studio.js render-image --template carousel-slide --data '{"headline":"…","sub":"…","poster":"<Pfad aus Assets/poster>","index":"1/5"}' --out "<Vault>/LimitlessOS/Assets/content/<task-id>/slide-1.png"`
+   - Karussell: je Slide `node supervisor/dist/adapters/studio.js render-image --template carousel-slide --data '{"headline":"…","sub":"…","poster":"<Datei aus Assets/poster oder Bild-URL aus Marke/Produkte.md>","index":"1/5"}' --out "<Vault>/LimitlessOS/Assets/content/<task-id>/slide-1.png"`
    - Reel ohne Videomaterial: `render-clip --template clip-zoom --seconds 4 --fps 30 --size 1080x1920`
    - Mockup: `render-image --template mockup-room --data '{"poster":"…","caption":"…"}' --size 1080x1350`
    Trage jede erzeugte Datei in das Frontmatter-Feld `outputs` ein (Vault-relativer Pfad).
@@ -94,5 +94,6 @@ Geplant: <plannerUrl je Post>   oder   Nicht geplant – wartet auf Freigabe / T
 - Nie veröffentlichen, wenn „Freigabe nötig: ja“ oder „Veröffentlichen heute erlaubt: nein“.
 - Nie mehr als einen Post pro Aufgabe planen (plus optionale LinkedIn-Variante).
 - Nie Preise, Rabatte oder Lieferzeiten erfinden – nur Werte aus `Marke/Produkte.md`.
-- Nie fremde Bilder, Musikrechte oder Markennamen Dritter verwenden.
+- Nie fremde Bilder, Musikrechte oder Namen Dritter verwenden: keine Sportler, Vereine, Marken, Figuren oder Slogans
+  in Caption, Hashtags oder Overlay – auch wenn das Poster sie zeigt (`Marke/Kern.md`, Tabus). Den Spruch auf dem Poster zitieren ist erlaubt.
 - Frontmatter: nur `outputs` und `published_at` ändern.

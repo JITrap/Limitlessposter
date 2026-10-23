@@ -21,7 +21,7 @@ const station: Station = {
   timeoutMin: 25,
   tools: ['Read', 'Write', 'mcp__metricool__*'],
   context: ['Marke/Kern.md'],
-  requires: { mcp: ['metricool'], env: [], services: [] },
+  requires: { mcp: ['metricool'], env: [], services: [], any: [] },
   autopilot: 1,
   cooldownHours: 0,
   outputsDir: null,
@@ -125,6 +125,7 @@ describe('buildArgs', () => {
     expect(gated.slice(i + 1)).toEqual([
       'mcp__metricool__createScheduledPost',
       'mcp__metricool__updateScheduledPost',
+      'mcp__shopify__update-product',
       'Bash(node supervisor/dist/adapters/shopify.js update-product*)',
       'Bash(node supervisor/dist/adapters/shopify.js upload-file*)',
     ])

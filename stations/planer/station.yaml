@@ -16,6 +16,8 @@ tools:
   - mcp__metricool__getScheduledPosts
   - Bash(node supervisor/dist/adapters/shopify.js orders*)
   - Bash(node supervisor/dist/adapters/shopify.js products*)
+  - mcp__shopify__list-orders
+  - mcp__shopify__search_products
 context:
   - Strategie.md
   - Marke/Kern.md

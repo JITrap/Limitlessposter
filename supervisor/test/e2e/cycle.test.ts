@@ -39,6 +39,9 @@ describe('end-to-end cycle with the real stations and vault template', () => {
     const root = await mkdtemp(join(tmpdir(), 'los-e2e-'))
     const vault = join(root, 'MeinVault', 'LimitlessOS')
     await cp(join(repoRoot, 'vault-template', 'LimitlessOS'), vault, { recursive: true })
+    // The template ships Julius' first task cards; this test drives its own queue, so start empty.
+    const { readdir, rm } = await import('node:fs/promises')
+    for (const f of await readdir(join(vault, 'Aufgaben'))) if (f.endsWith('.md')) await rm(join(vault, 'Aufgaben', f))
     const dataDir = join(root, 'data')
     let now = new Date('2026-11-06T09:00:00') // Friday
     const clock = (): Date => now

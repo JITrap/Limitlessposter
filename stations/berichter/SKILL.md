@@ -11,8 +11,8 @@ System getan hat und wie die Marke steht – so kurz, dass er es in zwei Minuten
    Status, Station, `cost_usd`, `tokens_in`/`tokens_out`, Protokoll-Zeilen.
 4. Kennzahlen, falls Werkzeuge verfügbar: Metricool `getAnalyticsDataByMetrics` (Zeitraum des
    Berichts, Follower/Reichweite/Interaktionen je Netzwerk; Metrik-IDs über
-   `getAnalyticsAvailableMetrics`) und `node supervisor/dist/adapters/shopify.js orders --days 7`
-   bzw. `--days 60` für die Woche. Fehler → Abschnitt „Kennzahlen“ mit Hinweis „nicht verfügbar: …“.
+   `getAnalyticsAvailableMetrics`) und Bestellungen über `mcp__shopify__list-orders` (`query: "created_at:>=<Datum>"`)
+   oder `node supervisor/dist/adapters/shopify.js orders --days 7` bzw. `--days 60` für die Woche. Fehler → Abschnitt „Kennzahlen“ mit Hinweis „nicht verfügbar: …“.
 5. `Strategie.md` – Ziel und Wertleiter, um die Empfehlung daran zu messen.
 
 ## Vorgehen

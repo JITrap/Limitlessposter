@@ -8,10 +8,15 @@ Produktseiten besser – Änderungen am Shop nur nach Freigabe.
 ## Eingaben
 1. Aufgaben-Notiz und Prompt-Angaben **„Freigabe nötig: ja|nein“**.
 2. `Marke/Produkte.md` (Tabelle aller Produkte), `Marke/Tonalität.md`, `Marke/Kern.md`.
-3. Shop-Daten über den Adapter (immer vom Repo-Ordner aus aufrufen):
-   - `node supervisor/dist/adapters/shopify.js products --limit 100` → Produkte (JSON)
-   - `node supervisor/dist/adapters/shopify.js orders --days 60` → Bestellungen, Umsatz, Bestseller
-   Fehlermeldungen des Adapters wörtlich in **## Offene Fragen an Julius** übernehmen.
+3. Shop-Daten – zwei Wege, einer reicht:
+   - **Shopify-MCP** (Standard, wenn die Werkzeuge `mcp__shopify__…` da sind): `list-orders` (`first: 50`,
+     `query: "created_at:>=YYYY-MM-DD"`), `search_products` (`first: 50`, `search_query: "updated_at:>='<updated aus Produkte.md>'"`,
+     `sort_key: UPDATED_AT`), `get-product` (GID) für Beschreibung/Varianten. Für Umsatz je Produkt `graphql_query`
+     mit kleinen Feldlisten (`orders(first:50, query:"created_at:>=…"){nodes{createdAt totalPriceSet{shopMoney{amount}} lineItems(first:10){nodes{title quantity product{id}}}}}`).
+     **Nie** alle 125 Produkte mit allen Feldern laden – die Tabelle in `Marke/Produkte.md` ist die Basis, du änderst nur Zeilen.
+   - **Adapter** (wenn die `.env` Shopify-Schlüssel hat; vom Repo-Ordner aus): `node supervisor/dist/adapters/shopify.js products --limit 100`
+     bzw. `orders --days 60`.
+   Fehlermeldungen wörtlich in **## Offene Fragen an Julius** übernehmen.
 
 ## Vorgehen
 1. **Snapshot** (bei Aufträgen „Shop-Snapshot“ oder wenn `Marke/Produkte.md` älter als 3 Tage):
@@ -23,18 +28,22 @@ Produktseiten besser – Änderungen am Shop nur nach Freigabe.
    Poster 50×70 cm, matt“) und eine Beschreibung (HTML, 80–140 Wörter: Stimmung → Raumidee →
    Material/Format/Versand aus `Marke/Produkte.md` → Pflegehinweis) vorschlagen.
 3. **Schreiben nur bei „Freigabe nötig: nein“:**
-   `node supervisor/dist/adapters/shopify.js update-product <gid> --title "…" --description-html "…"`
-   – höchstens die im Auftrag genannten Produkte; der Adapter stoppt selbst beim Tageslimit (Code 3)
-   und ohne Freigabe (Code 2). Jede durchgeführte Änderung in `Marke/Produkte.md` (Spalte
-   „Titel optimiert?“ = ✅ Datum) vermerken.
+   - MCP: `mcp__shopify__update-product` mit **genau drei Feldern** `id`, `title`, `descriptionHtml` – nie
+     `status`, `variants`, `images`, `removeMediaIds` (Preise, Sichtbarkeit und Bilder sind tabu).
+   - Adapter: `node supervisor/dist/adapters/shopify.js update-product <gid> --title "…" --description-html "…"`
+     (stoppt selbst beim Tageslimit, Code 3, und ohne Freigabe, Code 2).
+   Höchstens die im Auftrag genannten Produkte, höchstens **5 pro Tag** (Rest am Folgetag, im Ergebnis sagen).
+   Jede Änderung in `Marke/Produkte.md` vermerken: „Titel optimiert?“ = ✅ Datum, „Sprache“ = DE.
 4. Bei „Freigabe nötig: ja“: Vorschläge vollständig ins Ergebnis, nichts ändern.
 
 ## Ausgabeformat
 `Marke/Produkte.md` – Tabelle:
 
 ```
-| Produkt | Handle | GID | Preis | Lager | Verkauft 60 T | Umsatz 60 T | Titel optimiert? | Pins? |
+| Produkt | Handle | GID | Preis | Lager | Verkauft 60 T | Umsatz 60 T | Titel optimiert? | Pins? | Bild-URL | Bild-Typ | Thema | Format | Sprache | Angelegt |
 ```
+`Lager` = `POD` bei Print-on-Demand (Shopify meldet Platzhalter-Bestände). `Bild-URL` = `featuredMedia`-URL vom Shopify-CDN
+(das Studio braucht sie). `Bild-Typ` = `Motiv` (reines Posterbild) oder `Mockup (gerahmt)`. Bestehende Zeilen behalten, nur Werte ändern.
 
 In der Aufgaben-Notiz unter **## Ergebnis**:
 
@@ -54,7 +63,9 @@ Liste der geänderten Produkte mit Zeit, oder „nichts – wartet auf Freigabe�
 
 ## Qualitätsregeln
 - Zahlen nur aus dem Adapter, nie geschätzt; Währung EUR, deutsche Zahlenschreibweise (1.234,56 €).
-- Titel: Suchbegriff zuerst (Motiv), dann Format; keine Großbuchstaben-Wörter, keine Ausrufezeichen.
+- Titel: Suchbegriff zuerst (Motiv), dann Stil, Muster der bestehenden Produkte „Motiv – Stil-Poster“; keine Großbuchstaben-Wörter, keine Ausrufezeichen.
+- **Keine Namen von Personen, Vereinen, Marken oder Figuren** in Titeln und Beschreibungen (`Marke/Kern.md`, Tabus) – das Motiv beschreiben.
+- Beschreibungen im HTML-Aufbau der bestehenden Produkte: Einleitungssatz → „Qualität & Details“-Liste → „Versand & Garantie“ → GPSR-Block unverändert.
 - Beschreibungen in der Tonalität der Marke, keine Keyword-Listen, kein „hochwertig“ ohne Begründung.
 - Was du nicht weißt (Material, Druckverfahren, Versandzeit) fragst du unter *Offene Fragen* – nie erfinden.
 

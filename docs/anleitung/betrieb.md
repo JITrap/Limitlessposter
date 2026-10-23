@@ -33,7 +33,8 @@ Willst du mehr oder weniger: `reserveForJuliusPct` in `limitless.config.json`.
 ## Neue Station hinzufügen
 Ordner `stations/<name>/` mit `station.yaml` und `SKILL.md` (Vorlage: eine bestehende Station),
 dann `npm run build:stations` und den Aufseher neu starten. Braucht die Station einen Schlüssel,
-in `requires.env` eintragen – bis er in der `.env` steht, bleibt sie grau.
+in `requires.env` eintragen – bis er in der `.env` steht, bleibt sie grau. Gibt es mehrere Wege
+(MCP-Login **oder** Schlüssel), stehen sie unter `requires.any` – einer reicht.
 
 ## Aufseher starten, stoppen, Logs
 - Start: Aufgabenplanung → `LimitlessOS` → Ausführen, oder `npm start` im Repo.
@@ -43,10 +44,12 @@ in `requires.env` eintragen – bis er in der `.env` steht, bleibt sie grau.
 
 ## Wenn der Status rot ist
 `Status.md` oben nennt den Grund. Häufig:
-- „Nicht mit dem Claude-Abo angemeldet“ → `claude` starten, einloggen.
+- „Nicht mit dem Claude-Abo angemeldet“ → `claude auth login` (claude.ai-Konto wählen).
 - „ANTHROPIC_API_KEY ist gesetzt“ → Variable entfernen (sonst zahlst du API statt Abo).
 - „Repo-Ordner nicht vertrauenswürdig“ → `install.ps1` erneut ausführen.
-- „MCP-Server metricool …“ → `claude` → `/mcp` → neu anmelden.
+- „MCP-Server metricool …“ oder „MCP-Server shopify …“ → `claude mcp login metricool` bzw. `claude mcp login shopify`.
+- „Shop-Büro ⛔ … (eine Anbindung reicht)“ → entweder Shopify-MCP anmelden (Weg A) oder Schlüssel in die `.env` (Weg B),
+  siehe `docs/anleitung/shopify-app.md`.
 
 ## Was das System nie tut
 Preise, Rabatte, neue Produkte, Zahlungen, Kundenantworten, Konten anlegen. Dafür legt es dir

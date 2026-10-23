@@ -5,12 +5,17 @@ KI-Arbeiter (Claude Code, über dein Abo) arbeiten an Stationen – Planung, Con
 Studio, Review, Berichte – an der Marke. Ein **Aufseher** verteilt die Arbeit, hält das Budget bis
 zum Wochen-Reset ein und zeigt in der **Welt** live, wer was macht. Dein **Obsidian-Vault** ist das Gehirn.
 
-## In fünf Schritten
-1. Repo nach `C:\Users\<du>\limitlessposter` holen.
-2. `powershell -ExecutionPolicy Bypass -File scripts\install.ps1`
-3. Vault wählen, bei Claude einloggen (claude.ai-Konto), Metricool über `/mcp` verbinden.
-4. In Obsidian `LimitlessOS/Marke/` ausfüllen, Poster nach `Assets/poster/`.
-5. Welt öffnen: http://localhost:4242 – Freigaben erteilen, zuschauen.
+## In vier Schritten
+1. GitHub → **Code → Download ZIP**, dann in PowerShell die drei Zeilen aus `docs/anleitung/erste-schritte.md`
+   (entpackt nach `C:\Users\<du>\limitlessposter` und startet `scripts\install.ps1`).
+2. Bei Claude einloggen (claude.ai-Konto), Metricool und Shopify über `/mcp` im Browser anmelden.
+3. In Obsidian die Karten unter **Wartet auf dich** abarbeiten (Produktfakten bestätigen, Rechtliches, Pinterest).
+4. Welt öffnen: http://localhost:4242 – Freigaben erteilen, zuschauen.
+
+Der Vault kommt vorbefüllt: alle 125 Produkte mit Bild-Links, Markenkern und Hashtags aus dem echten
+Sortiment, Content-Kalender mit den Metricool-Autolist-Terminen, erste Aufgaben für Studio, Content-Studio
+und Shop-Büro. Shopify läuft ohne Schlüssel über den offiziellen Shopify-MCP-Server; die eigene App
+(`docs/anleitung/shopify-app.md`, Weg B) ist nur für den Datei-Upload nötig.
 
 Anleitungen: [Erste Schritte](docs/anleitung/erste-schritte.md) · [Betrieb](docs/anleitung/betrieb.md) ·
 [Shopify-App](docs/anleitung/shopify-app.md) · [Metricool](docs/anleitung/metricool-mcp.md)
@@ -20,7 +25,7 @@ Anleitungen: [Erste Schritte](docs/anleitung/erste-schritte.md) · [Betrieb](doc
 supervisor/        Aufseher (Node 22+, TypeScript) – Vault, Budget, Runner, Welt, Adapter
 stations/          Stationen: station.yaml + SKILL.md (+ examples, templates)
 vault-template/    wird nach <Vault>/LimitlessOS kopiert (Home, Dashboard.base, Marke, Strategie …)
-scripts/           install.ps1, doctor.ps1, build-stations.ts
+scripts/           bootstrap.ps1, install.ps1, doctor.ps1, build-stations.ts
 docs/              Spezifikation, Plan, Anleitungen
 ```
 

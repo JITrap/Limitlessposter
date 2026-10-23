@@ -3,6 +3,10 @@
     "metricool": {
       "type": "http",
       "url": "https://ai.metricool.com/mcp"
+    },
+    "shopify": {
+      "type": "http",
+      "url": "https://setup.shopify.com/mcp"
     }
   }
 }

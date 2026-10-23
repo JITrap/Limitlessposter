@@ -28,7 +28,7 @@ function station(name: string, over: Partial<Station> = {}): Station {
     timeoutMin: 25,
     tools: ['Read', 'Write'],
     context: [],
-    requires: { mcp: [], env: [], services: [] },
+    requires: { mcp: [], env: [], services: [], any: [] },
     autopilot: 1,
     cooldownHours: 0,
     outputsDir: null,

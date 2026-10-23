@@ -13,6 +13,7 @@ tools:
   - mcp__metricool__getAnalyticsAvailableMetrics
   - mcp__metricool__getAnalyticsDataByMetrics
   - Bash(node supervisor/dist/adapters/shopify.js orders*)
+  - mcp__shopify__list-orders
 context:
   - Status.md
   - Strategie.md

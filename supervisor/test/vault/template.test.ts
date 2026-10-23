@@ -52,7 +52,7 @@ describe('vault template', () => {
     expect((data.autopilot as Record<string, number>).content).toBe(1)
     expect((data.autopilot as Record<string, number>)['shop-analyst']).toBe(1)
     expect(body).toContain('## Wertleiter')
-    expect(body.match(/^\| \d+ \|/gm)?.length).toBe(11)
+    expect(body.match(/^\| \d+ \|/gm)?.length).toBe(12)
   })
 
   it('Home.md embeds Status and the dashboard views and links to the world', async () => {
@@ -74,6 +74,36 @@ describe('vault template', () => {
     const kanaele = await readFile(join(root, 'Marke/Kanäle.md'), 'utf8')
     expect(kanaele).toContain('limitlessposter')
     expect(kanaele).toContain('Europe/Berlin')
+  })
+
+  it('Produkte.md carries the real catalogue snapshot with image URLs and facts', async () => {
+    const { data, body } = parseNote(await readFile(join(root, 'Marke/Produkte.md'), 'utf8'))
+    expect(data.produkte).toBe(125)
+    const rows = body.split('\n').filter((l) => l.startsWith('| ') && l.includes('gid://shopify/Product/'))
+    expect(rows.length).toBe(125)
+    for (const r of rows) expect(r).toMatch(/https:\/\/cdn\.shopify\.com\//)
+    expect(body).toContain('## Feste Produktfakten')
+    expect(body).toContain('versandkostenfrei innerhalb Deutschlands')
+    expect(body).not.toMatch(/Eugen-Bolz|@gmail/)
+  })
+
+  it('ships the first task cards for Julius and the stations, all parseable', async () => {
+    const dir = join(root, 'Aufgaben')
+    const { readdir } = await import('node:fs/promises')
+    const files = (await readdir(dir)).filter((f) => f.endsWith('.md'))
+    expect(files.length).toBeGreaterThanOrEqual(8)
+    const stations = new Set<string>()
+    for (const f of files) {
+      const { data, body } = parseNote(await readFile(join(dir, f), 'utf8'))
+      expect(data.type).toBe('task')
+      expect(data.id).toBe(f.replace(/\.md$/, ''))
+      expect(data.status).toBe('todo')
+      expect(body).toContain('## Auftrag')
+      expect(body).toContain('## Offene Fragen an Julius')
+      stations.add(String(data.station))
+      if (data.station === 'content' || data.station === 'shop-analyst') expect(data.needs_approval).toBe(true)
+    }
+    expect([...stations].sort()).toEqual(['content', 'manual', 'shop-analyst', 'studio'])
   })
 
   it('Status.md placeholder parses as a status note', async () => {

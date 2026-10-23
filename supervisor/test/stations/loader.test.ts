@@ -55,7 +55,7 @@ describe('loadStations', () => {
       timeoutMin: 25,
       tools: [],
       context: [],
-      requires: { mcp: [], env: [], services: [] },
+      requires: { mcp: [], env: [], services: [], any: [] },
       autopilot: 1,
       cooldownHours: 0,
       outputsDir: null,
@@ -72,11 +72,23 @@ describe('loadStations', () => {
       timeoutMin: 15,
       tools: ['Read', 'Bash(node supervisor/dist/adapters/shopify.js *)'],
       context: ['Marke/Produkte.md'],
-      requires: { mcp: ['metricool'], env: ['SHOPIFY_CLIENT_ID'], services: ['http://127.0.0.1:8188/system_stats'] },
+      requires: { mcp: ['metricool'], env: ['SHOPIFY_CLIENT_ID'], services: ['http://127.0.0.1:8188/system_stats'], any: [] },
       autopilot: 2,
       cooldownHours: 6,
       outputsDir: 'Assets/shop',
     })
+  })
+
+  it('parses requires.any as alternative requirement sets and drops empty ones', async () => {
+    await station(
+      'shop-analyst',
+      FULL.replace('  services: [http://127.0.0.1:8188/system_stats]\n', '  services: [http://127.0.0.1:8188/system_stats]\n  any:\n    - mcp: [shopify]\n    - env: [SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET]\n    - {}\n'),
+    )
+    const [st] = await loadStations(repo)
+    expect(st.requires.any).toEqual([
+      { mcp: ['shopify'], env: [], services: [] },
+      { mcp: [], env: ['SHOPIFY_CLIENT_ID', 'SHOPIFY_CLIENT_SECRET'], services: [] },
+    ])
   })
 
   it('sorts stations by name and skips folders without station.yaml', async () => {
@@ -119,7 +131,7 @@ describe('checkAvailability', () => {
     timeoutMin: 25,
     tools: [],
     context: [],
-    requires: { mcp: [], env: [], services: [] },
+    requires: { mcp: [], env: [], services: [], any: [] },
     autopilot: 2,
     cooldownHours: 0,
     outputsDir: null,
@@ -133,7 +145,7 @@ describe('checkAvailability', () => {
   })
 
   it('names the missing environment variable', async () => {
-    const st = { ...base, requires: { mcp: [], env: ['SHOPIFY_CLIENT_ID'], services: [] } }
+    const st = { ...base, requires: { mcp: [], env: ['SHOPIFY_CLIENT_ID'], services: [], any: [] } }
     expect(await checkAvailability(st, { SHOPIFY_CLIENT_ID: '' }, probes)).toEqual({
       available: false,
       reason: 'Umgebungsvariable SHOPIFY_CLIENT_ID fehlt',
@@ -142,7 +154,7 @@ describe('checkAvailability', () => {
   })
 
   it('names the unreachable service', async () => {
-    const st = { ...base, requires: { mcp: [], env: [], services: ['http://127.0.0.1:3900/health'] } }
+    const st = { ...base, requires: { mcp: [], env: [], services: ['http://127.0.0.1:3900/health'], any: [] } }
     expect(await checkAvailability(st, {}, probes)).toEqual({
       available: false,
       reason: 'Dienst http://127.0.0.1:3900/health nicht erreichbar',
@@ -150,15 +162,37 @@ describe('checkAvailability', () => {
   })
 
   it('names the missing MCP server', async () => {
-    const st = { ...base, requires: { mcp: ['voicestudio'], env: [], services: [] } }
+    const st = { ...base, requires: { mcp: ['voicestudio'], env: [], services: [], any: [] } }
     expect(await checkAvailability(st, {}, probes)).toEqual({
       available: false,
       reason: 'MCP-Server voicestudio nicht eingerichtet',
     })
   })
 
+  it('accepts alternatives in requires.any: one satisfied set is enough', async () => {
+    const st = {
+      ...base,
+      requires: { mcp: [], env: [], services: [], any: [{ mcp: ['shopify'], env: [], services: [] }, { mcp: [], env: ['SHOPIFY_CLIENT_ID'], services: [] }] },
+    }
+    // neither: both problems named, so Julius sees every option
+    expect(await checkAvailability(st, {}, probes)).toEqual({
+      available: false,
+      reason: 'MCP-Server shopify nicht eingerichtet oder Umgebungsvariable SHOPIFY_CLIENT_ID fehlt (eine Anbindung reicht)',
+    })
+    // second alternative holds
+    expect(await checkAvailability(st, { SHOPIFY_CLIENT_ID: 'abc' }, probes)).toEqual({ available: true, reason: null })
+    // first alternative holds
+    const withShopify = { ...probes, mcpConfigured: async (name: string) => name === 'shopify' }
+    expect(await checkAvailability(st, {}, withShopify)).toEqual({ available: true, reason: null })
+  })
+
+  it('checks hard requirements before the alternatives', async () => {
+    const st = { ...base, requires: { mcp: ['metricool'], env: ['A'], services: [], any: [{ mcp: ['shopify'], env: [], services: [] }] } }
+    expect((await checkAvailability(st, {}, probes)).reason).toBe('Umgebungsvariable A fehlt')
+  })
+
   it('reports the first problem only, in the order env → mcp → services', async () => {
-    const st = { ...base, requires: { mcp: ['nope'], env: ['A'], services: ['http://x'] } }
+    const st = { ...base, requires: { mcp: ['nope'], env: ['A'], services: ['http://x'], any: [] } }
     const r = await checkAvailability(st, {}, probes)
     expect(r.reason).toBe('Umgebungsvariable A fehlt')
   })

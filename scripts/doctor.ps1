@@ -60,7 +60,24 @@ if ($vaultRoot) {
 Check (Test-Path (Join-Path $RepoRoot ".env")) ".env vorhanden" "Copy-Item .env.example .env"
 Check (Test-Path (Join-Path $RepoRoot "supervisor\dist\index.js")) "Aufseher gebaut (supervisor\dist)" "npm run build"
 Check (Test-Path (Join-Path $RepoRoot ".claude\skills\planer\SKILL.md")) "Stations-Skills erzeugt" "npm run build:stations"
-Check (Test-Path (Join-Path $RepoRoot ".mcp.json")) ".mcp.json mit Metricool-Server" "Datei aus dem Repo wiederherstellen"
+$mcpPath = Join-Path $RepoRoot ".mcp.json"
+$mcpOk = $false; $mcpShopify = $false
+if (Test-Path $mcpPath) {
+  try { $mcp = Get-Content $mcpPath -Raw | ConvertFrom-Json; $mcpOk = [bool]$mcp.mcpServers.metricool; $mcpShopify = [bool]$mcp.mcpServers.shopify } catch { }
+}
+Check $mcpOk ".mcp.json mit Metricool-Server" "Datei aus dem Repo wiederherstellen"
+Check $mcpShopify ".mcp.json mit Shopify-MCP-Server (setup.shopify.com)" "Datei aus dem Repo wiederherstellen"
+if ($claudeOk) {
+  # `claude mcp list` prüft die Server und meldet, ob eine Anmeldung fehlt. Nur Hinweis, kein Fehler.
+  try {
+    $mcpList = (& claude mcp list 2>&1) -join "`n"
+    foreach ($srv in @("metricool", "shopify")) {
+      $line = ($mcpList -split "`n" | Where-Object { $_ -match "^\s*$srv\b" } | Select-Object -First 1)
+      if ($line) { Write-Host ("      " + $line.Trim()) } else { Write-Host "      $srv : nicht in 'claude mcp list' (Repo-Ordner als Projekt noch nicht geöffnet?)" -ForegroundColor Yellow }
+    }
+    Write-Host "      Fehlt eine Anmeldung: 'claude' starten, '/mcp', Server wählen, Authenticate." -ForegroundColor Yellow
+  } catch { }
+}
 
 # Obsidian
 $obsidianExe = Join-Path $env:LOCALAPPDATA "Obsidian\Obsidian.exe"

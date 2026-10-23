@@ -22,7 +22,7 @@ describe('generateClaudeFiles', () => {
       timeoutMin: 25,
       tools: ['Read', 'Write', 'mcp__metricool__*'],
       context: [],
-      requires: { mcp: ['metricool'], env: [], services: [] },
+      requires: { mcp: ['metricool'], env: [], services: [], any: [] },
       autopilot: 1,
       cooldownHours: 0,
       outputsDir: null,

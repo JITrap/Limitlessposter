@@ -13,7 +13,8 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
 4. `Pläne/Content-Kalender.md` und `Pläne/Wochenplan.md`.
 5. Offene Aufgaben: `Aufgaben/*.md` mit `status: todo|doing|review|blocked` (per Glob + Frontmatter).
 6. Kennzahlen, wenn verfügbar: Metricool `getAnalyticsDataByMetrics` (letzte 7 und 28 Tage,
-   Reichweite/Interaktionen je Netzwerk) und `node supervisor/dist/adapters/shopify.js orders --days 60`.
+   Reichweite/Interaktionen je Netzwerk) und Bestellungen über `mcp__shopify__list-orders` (`first: 50`,
+   `query: "created_at:>=<vor 60 Tagen>"`) oder `node supervisor/dist/adapters/shopify.js orders --days 60`.
    Schlägt ein Werkzeug fehl, arbeite ohne die Zahl weiter und notiere es unter *Offene Fragen*.
 
 ## Vorgehen

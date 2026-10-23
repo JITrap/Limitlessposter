@@ -5,10 +5,11 @@
 .DESCRIPTION
   1. Installiert Node.js LTS, Git für Windows, ffmpeg und Claude Code (falls nicht vorhanden)
   2. Baut den Aufseher und erzeugt die Stations-Skills
-  3. Fragt nach dem Obsidian-Vault und kopiert die Vorlage nach <Vault>\LimitlessOS
+  3. Findet deinen Obsidian-Vault (fragt nur bei mehreren) und kopiert die Vorlage nach <Vault>\LimitlessOS
+     – vorbefüllt mit Sortiment, Marke, Kalender und ersten Aufgaben; vorhandene Dateien bleiben unangetastet
   4. Markiert den Repo-Ordner für Claude als vertrauenswürdig
-  5. Richtet den Metricool-MCP-Server ein (Login im Browser)
-  6. Legt die .env an und öffnet sie
+  5. Legt die .env an (Shopify-Schlüssel optional)
+  6. Meldet dich an: Claude (Abo), Metricool-MCP, Shopify-MCP – je ein Browserfenster
   7. Registriert den Autostart in der Aufgabenplanung ("Bei Anmeldung")
   8. Startet den Aufseher und öffnet die Welt
 
@@ -81,6 +82,40 @@ Ok "Aufseher gebaut, Skills erzeugt"
 # --- 3. Vault ---------------------------------------------------------------------
 Step "Obsidian-Vault wählen"
 if (-not $VaultPath) {
+  # Obsidian führt seine Vaults in %APPDATA%\obsidian\obsidian.json ("vaults": { id: { path, ts, open } }).
+  # Ein Vault -> nehmen; mehrere -> Auswahl; keiner/Fehler -> Ordnerdialog.
+  $registry = Join-Path $env:APPDATA "obsidian\obsidian.json"
+  if (Test-Path $registry) {
+    try {
+      $reg = Get-Content $registry -Raw | ConvertFrom-Json
+      $vaults = @()
+      if ($reg.vaults) {
+        foreach ($prop in $reg.vaults.PSObject.Properties) {
+          $v = $prop.Value
+          if ($v.path -and (Test-Path $v.path)) {
+            $vaults += [pscustomobject]@{ Path = [string]$v.path; Ts = [long]($(if ($v.ts) { $v.ts } else { 0 })); Open = [bool]$v.open }
+          }
+        }
+      }
+      $vaults = @($vaults | Sort-Object -Property @{ Expression = "Open"; Descending = $true }, @{ Expression = "Ts"; Descending = $true })
+      if ($vaults.Count -eq 1) {
+        $VaultPath = $vaults[0].Path
+        Ok "Obsidian-Vault gefunden: $VaultPath"
+      } elseif ($vaults.Count -gt 1) {
+        Write-Host "    Mehrere Obsidian-Vaults gefunden:"
+        for ($i = 0; $i -lt $vaults.Count; $i++) {
+          $mark = if ($vaults[$i].Open) { " (zuletzt geöffnet)" } else { "" }
+          Write-Host ("      [{0}] {1}{2}" -f ($i + 1), $vaults[$i].Path, $mark)
+        }
+        $pick = Read-Host "    Nummer wählen (Enter = 1)"
+        if (-not $pick) { $pick = "1" }
+        $idx = 0
+        if ([int]::TryParse($pick, [ref]$idx) -and $idx -ge 1 -and $idx -le $vaults.Count) { $VaultPath = $vaults[$idx - 1].Path }
+      }
+    } catch { Warn "obsidian.json konnte nicht gelesen werden – Ordner bitte wählen." }
+  }
+}
+if (-not $VaultPath) {
   Add-Type -AssemblyName System.Windows.Forms
   $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
   $dialog.Description = "Wähle deinen Obsidian-Vault (den Ordner, den Obsidian als Vault öffnet)"
@@ -141,11 +176,11 @@ if ($envText -match "(?m)^LIMITLESS_CLAUDE_BIN=.*$") {
 }
 [IO.File]::WriteAllText($envPath, $envText, (New-Object System.Text.UTF8Encoding $false))
 Ok ".env vorhanden (LIMITLESS_CLAUDE_BIN=$claudeBin)"
-Write-Host "    Trage jetzt die Shopify-Zugangsdaten ein (Anleitung: docs\anleitung\shopify-app.md). Leere Zeilen sind erlaubt."
-Start-Process notepad $envPath
+Write-Host "    Shopify läuft über den MCP-Login (nächster Schritt). Schlüssel in der .env sind nur für den Datei-Upload nötig (docs\anleitung\shopify-app.md, Weg B)."
 
-# --- 6. Claude-Login + Metricool-MCP ---------------------------------------------
-Step "Claude-Login und Metricool verbinden"
+# --- 6. Logins: Claude (Abo), Metricool-MCP, Shopify-MCP ----------------------------------
+Step "Anmelden: Claude, Metricool, Shopify (je ein Browserfenster)"
+# `claude auth status` liefert JSON mit authMethod (claude.ai = Abo, api_key = API) und Exit-Code 0 = angemeldet.
 $authOk = $false
 try {
   $ErrorActionPreference = "Continue"
@@ -153,14 +188,35 @@ try {
   $authOk = ($LASTEXITCODE -eq 0) -and ($auth -match "claude.ai")
 } catch { $authOk = $false } finally { $ErrorActionPreference = "Stop" }
 if (-not $authOk) {
-  Write-Host "    Du bist nicht mit dem Claude-Abo angemeldet. Es öffnet sich Claude – bitte einloggen (claude.ai-Konto, nicht API)."
-  Write-Host "    Danach in Claude '/mcp' tippen, 'metricool' auswählen und im Browser bei Metricool anmelden. Zum Schluss '/exit'."
-  & claude
+  Write-Host "    1/3 Claude: Es öffnet sich der Browser – mit dem claude.ai-Konto (Max-Abo) anmelden, NICHT 'API key'."
+  try { $ErrorActionPreference = "Continue"; & claude auth login; $ErrorActionPreference = "Stop" } catch { Warn "Login abgebrochen – später 'claude auth login' ausführen." }
+  try {
+    $ErrorActionPreference = "Continue"
+    $auth = (& claude auth status 2>&1) -join "`n"
+    $authOk = ($LASTEXITCODE -eq 0) -and ($auth -match "claude.ai")
+  } catch { $authOk = $false } finally { $ErrorActionPreference = "Stop" }
+}
+if ($authOk) { Ok "1/3 Claude-Abo angemeldet" } else { Warn "Claude ist nicht mit dem Abo angemeldet. Später: 'claude auth login' (claude.ai-Konto wählen)." }
+
+# MCP-Server aus .mcp.json: `claude mcp login <name>` startet den OAuth-Login im Browser, ohne das /mcp-Menü.
+# (ab Claude Code 2.1.186; ältere Versionen: 'claude' starten, '/mcp', Server wählen, Authenticate)
+$mcpServers = @(
+  @{ Name = "metricool"; Label = "2/3 Metricool"; Hint = "mit deinem Metricool-Konto anmelden" },
+  @{ Name = "shopify";   Label = "3/3 Shopify";   Hint = "mit dem Shopify-Konto anmelden, dem limitlessposter.com gehört, und den Zugriff bestätigen" }
+)
+if ($authOk) {
+  foreach ($srv in $mcpServers) {
+    $status = ""
+    try { $ErrorActionPreference = "Continue"; $status = ((& claude mcp get $srv.Name 2>&1) -join "`n"); $ErrorActionPreference = "Stop" } catch { $status = "" }
+    if ($status -match "Connected") { Ok ("{0} bereits verbunden" -f $srv.Label); continue }
+    Write-Host ("    {0}: Browser öffnet sich – {1}." -f $srv.Label, $srv.Hint)
+    try { $ErrorActionPreference = "Continue"; & claude mcp login $srv.Name; $ErrorActionPreference = "Stop" } catch { }
+    try { $ErrorActionPreference = "Continue"; $status = ((& claude mcp get $srv.Name 2>&1) -join "`n"); $ErrorActionPreference = "Stop" } catch { $status = "" }
+    if ($status -match "Connected") { Ok ("{0} verbunden" -f $srv.Label) }
+    else { Warn ("{0}: noch nicht verbunden. Später: 'claude mcp login {1}' (oder 'claude' -> '/mcp' -> {1} -> Authenticate)." -f $srv.Label, $srv.Name) }
+  }
 } else {
-  Ok "Claude-Login vorhanden"
-  Write-Host "    Für Metricool einmalig: in diesem Ordner 'claude' starten, '/mcp' tippen, 'metricool' anmelden, '/exit'."
-  $answer = Read-Host "    Jetzt machen? (j/n)"
-  if ($answer -match "^[jJyY]") { & claude }
+  Warn "MCP-Logins übersprungen (erst Claude anmelden). Danach: 'claude mcp login metricool' und 'claude mcp login shopify'."
 }
 
 # --- 7. Aufgabenplanung ---------------------------------------------------------------
@@ -187,4 +243,4 @@ $vaultName = Split-Path $VaultPath -Leaf
 Start-Process ("obsidian://open?vault=" + [uri]::EscapeDataString($vaultName) + "&file=" + [uri]::EscapeDataString("LimitlessOS/Home"))
 Write-Host ""
 Write-Host "Die Welt: http://localhost:4242   ·   Obsidian: LimitlessOS/Home.md" -ForegroundColor Green
-Write-Host "Nächste Schritte: docs\anleitung\erste-schritte.md   ·   Gesundheitscheck: scripts\doctor.ps1"
+Write-Host "Deine Karten liegen unter 'Wartet auf dich' (Welt oder Home.md). Anleitung: docs\anleitung\erste-schritte.md   ·   Gesundheitscheck: scripts\doctor.ps1"

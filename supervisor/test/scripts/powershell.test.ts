@@ -4,7 +4,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
-const SCRIPTS = ['scripts/install.ps1', 'scripts/doctor.ps1']
+const SCRIPTS = ['scripts/install.ps1', 'scripts/doctor.ps1', 'scripts/bootstrap.ps1']
 
 describe('PowerShell scripts (Windows PowerShell 5.1 compatibility)', () => {
   it('start with a UTF-8 BOM so PS 5.1 does not read them as Windows-1252', async () => {
@@ -26,5 +26,25 @@ describe('PowerShell scripts (Windows PowerShell 5.1 compatibility)', () => {
     expect(text).toContain("Replace('\\', '/')")
     expect(text).toMatch(/try\s*\{[^}]*claude auth status/s)
     expect(text).toContain('-CommandType Application')
+  })
+
+  it('install.ps1 signs in to Claude and both MCP servers from the shell and finds the vault via obsidian.json', async () => {
+    const text = await readFile(join(repoRoot, 'scripts/install.ps1'), 'utf8')
+    expect(text).toContain('claude auth login')
+    expect(text).toMatch(/claude mcp login \$srv\.Name/)
+    expect(text).toContain('"metricool"')
+    expect(text).toContain('"shopify"')
+    expect(text).toContain('obsidian\\obsidian.json')
+    expect(text).not.toContain('Start-Process notepad')
+  })
+
+  it('bootstrap.ps1 keeps .env and data when re-running and never needs git', async () => {
+    const text = await readFile(join(repoRoot, 'scripts/bootstrap.ps1'), 'utf8')
+    expect(text).toContain('robocopy')
+    expect(text).toContain('/XF ".env"')
+    expect(text).toContain('"node_modules" "data"')
+    expect(text).toContain('Unblock-File')
+    expect(text).toContain('archive/refs/heads/')
+    expect(text).not.toMatch(/\bgit clone\b/)
   })
 })

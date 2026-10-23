@@ -12,15 +12,17 @@ autopilot:
   studio: 2
   reviewer: 2
   berichter: 2
-updated: 2026-10-22
+updated: 2026-10-23
 ---
 # Strategie – Limitless Poster
 
 ## Ziel
-**Reichweite aufbauen → Verkäufe steigern.** Die Marke ist neu (Metricool seit 14.10.2026, Shop auf
-Basic). In den nächsten 8 Wochen zählt: regelmäßig sichtbar sein mit Formaten, die nachweislich
-Reichweite bringen (Reels, Karussells), die Produktseiten verkaufsfertig machen und einen Kanal
-aufbauen, der uns gehört (E-Mail). Alles, was das System tut, wird daran gemessen.
+**Reichweite aufbauen → Verkäufe steigern.** Die Marke ist neu: 125 gerahmte Poster im Shop
+(Shopify Basic), **0 Bestellungen**, Instagram ~10 und TikTok 6 Follower (Stand 23.10.2026). TikTok-Videos
+erreichen schon jetzt ein Vielfaches der Instagram-Bilder. In den nächsten 8 Wochen zählt: täglich ein
+Reel, Karussells statt Einzelbilder, Pinterest als Suchkanal anbinden, die Produktseiten verkaufsfertig
+machen (12 englische Importe eindeutschen) und vor Weihnachten das Thema „Geschenk für ihn“ besetzen.
+Alles, was das System tut, wird daran gemessen – Erfolgsmaß bis Ende November: erste Bestellung.
 
 ## Wertleiter
 Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsortieren,
@@ -28,17 +30,18 @@ Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsor
 
 | # | Bedingung | Aktion (erzeugte Aufgaben) | Abkühlzeit |
 |---|---|---|---|
-| 1 | Content-Kalender < 7 Tage voraus | je Tag 1 Reel oder Karussell (Mix 60/40), nie Einzelbild; Studio-Aufgabe für Assets, dann Content-Aufgabe | – |
+| 1 | Content-Kalender < 7 Tage voraus | je Tag 1 Reel oder Karussell (Mix 60/40, Themen-Rotation laut [[Pläne/Content-Kalender]]), nie Einzelbild; Studio-Aufgabe für Assets, dann Content-Aufgabe | – |
 | 2 | `Marke/Produkte.md` älter als 3 Tage | shop-analyst: Shop-Snapshot (Bestseller, Lager, neue Produkte) | 3 Tage |
-| 3 | Produkte ohne optimierten Titel/Beschreibung (Spalte „Titel optimiert?“ leer) | shop-analyst: 3 Produkte überarbeiten | 2 Tage |
+| 3 | Produkte mit Spalte „Sprache“ = EN oder „Titel optimiert?“ leer | shop-analyst: 3 Produkte überarbeiten (zuerst die englischen) | 2 Tage |
 | 4 | Pinterest verbunden **und** Top-5-Produkte ohne Pins | pinterest: Pins + Board-Struktur (Phase 2) | 7 Tage |
 | 5 | Pinterest **nicht** verbunden | manual: Pinterest-Business-Konto anlegen, in Metricool verbinden, Pinterest-for-Shopify-App installieren | einmalig |
 | 6 | Google Merchant Center nicht bestätigt (siehe „Checkliste“) | manual: Google & YouTube-App in Shopify, Merchant Center, Free Listings aktivieren | einmalig |
 | 7 | E-Mail-Flows nicht als eingerichtet markiert | email: Entwürfe Willkommen/Warenkorb/Nachkauf (Phase 2), dann manual: in Shopify Email anlegen | einmalig |
-| 8 | Letzte Trend-Recherche > 7 Tage | content: 10 Post-Ideen aus Pinterest-Wohntrends 2026 → `Ideen/` (cheap) | 7 Tage |
+| 8 | Letzte Trend-Recherche > 7 Tage | content: 10 Post-Ideen zu Motivation-/Sport-/Setup-Trends → `Ideen/` (cheap) | 7 Tage |
 | 9 | `Ideen/` hat < 10 offene Poster-Ideen | content: Ideen-Session (cheap) | 3 Tage |
 | 10 | Kennzahlen zeigen ein Format mit > 1,5× Reichweite | Planer passt den Mix im Kalender an (mehr davon) | wöchentlich |
-| 11 | Sonst | berichter: Qualitäts-Check alter Posts; Archiv-Pflege | täglich |
+| 11 | 14 Tage Content ohne Bestellung | manual: Testbestellung durch den Checkout + Blick in Shopify-Analytics (Sitzungen, Warenkorb); planer: Produktseiten-Check-Aufgabe für das Shop-Büro | 14 Tage |
+| 12 | Sonst | berichter: Qualitäts-Check alter Posts; Archiv-Pflege | täglich |
 
 ## Grenzen
 - Höchstens **3 Posts pro Tag**, höchstens **5 Shop-Änderungen pro Tag**, höchstens **15 offene Aufgaben**.
@@ -52,12 +55,18 @@ Empfehlung: `content` nach zwei Wochen sauberer Freigaben auf 2 stellen (Frontma
 der Planer liest es beim nächsten Lauf).
 
 ## Checkliste (einmalige Aufgaben – abhaken, wenn erledigt)
+- [ ] Claude-Login (claude.ai-Konto) auf dem PC
+- [ ] Metricool-MCP angemeldet (`claude` → `/mcp` → metricool)
+- [ ] Shopify-MCP angemeldet (`claude` → `/mcp` → shopify)
+- [ ] Produktfakten in [[Marke/Produkte]] bestätigt, Fragen in [[Marke/Kern]] beantwortet
+- [ ] Rechtliches geprüft: Motive mit Namen/Marken Dritter (Entscheidung notiert)
 - [ ] Pinterest-Business-Konto + in Metricool verbunden
 - [ ] Pinterest-for-Shopify-App installiert (Katalog-Sync)
 - [ ] Google & YouTube-App in Shopify, Merchant Center, Free Listings aktiv
 - [ ] Shopify Email: Willkommen / Warenkorb / Nachkauf eingerichtet
 - [ ] Instagram-Produkt-Tags über Metas Shopify-Kanal
-- [ ] Poster-Dateien in `Assets/poster/` abgelegt
+- [ ] Tagesplanungs-Chat in `Inbox/` abgelegt
+- [ ] (optional) Druckdateien in `Assets/poster/` – sonst nutzt das Studio die Shopify-Bilder
 
 ## Was Julius entscheidet
 Preise, Rabatte, neue Produkte, Kooperationen, alles mit Geld oder Verträgen, Markenname und
@@ -69,3 +78,4 @@ Logo, Antworten auf Kundennachrichten. Das System legt dafür Karten auf deinen 
 
 ## Änderungsprotokoll
 - 2026-10-22 – Erstfassung aus der Spezifikation.
+- 2026-10-23 – System: Ziel und Wertleiter an das echte Sortiment angepasst (125 Produkte, 0 Bestellungen, TikTok vor Instagram); Sprosse 11 „Testbestellung“ ergänzt; Checkliste um Logins und Rechtliches erweitert.

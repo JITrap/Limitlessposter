@@ -41,6 +41,7 @@ export interface RunOptions {
 export const OUTWARD_TOOLS = [
   'mcp__metricool__createScheduledPost',
   'mcp__metricool__updateScheduledPost',
+  'mcp__shopify__update-product',
   'Bash(node supervisor/dist/adapters/shopify.js update-product*)',
   'Bash(node supervisor/dist/adapters/shopify.js upload-file*)',
 ]

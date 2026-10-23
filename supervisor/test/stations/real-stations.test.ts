@@ -28,6 +28,20 @@ describe('real stations/ folder', () => {
     }
   })
 
+  it('shop-analyst accepts the Shopify MCP login or .env keys as alternative connections', async () => {
+    const stations = await loadStations(repoRoot)
+    const shop = stations.find((s) => s.name === 'shop-analyst')!
+    expect(shop.requires.env).toEqual([])
+    expect(shop.requires.any).toEqual([
+      { mcp: ['shopify'], env: [], services: [] },
+      { mcp: [], env: ['SHOPIFY_STORE_DOMAIN', 'SHOPIFY_CLIENT_ID', 'SHOPIFY_CLIENT_SECRET'], services: [] },
+    ])
+    expect(shop.tools).toContain('mcp__shopify__update-product')
+    const mcp = JSON.parse(await readFile(join(repoRoot, '.mcp.json'), 'utf8')) as { mcpServers: Record<string, { url: string }> }
+    expect(mcp.mcpServers.shopify.url).toBe('https://setup.shopify.com/mcp')
+    expect(mcp.mcpServers.metricool.url).toBe('https://ai.metricool.com/mcp')
+  })
+
   it('keeps every SKILL.md German, short and with the shared outline', async () => {
     const stations = await loadStations(repoRoot)
     for (const st of stations) {
