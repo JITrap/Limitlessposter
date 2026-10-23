@@ -37,6 +37,7 @@ tun kannst, jede mit Klick-Anleitung:
 - Rechtliches: Motive mit Namen Dritter – deine Entscheidung
 - Tagesplanungs-Chat in `Inbox/` legen
 - Pinterest-Business-Konto verbinden · Google Merchant Center
+- Printify-API-Token in die `.env` (damit die Zentrale Aufträge, Kosten und Marge zeigt)
 
 Erledigt → in der Notiz `status: done` setzen. Poster-Dateien musst du **nicht** ablegen – das Studio
 nutzt die Produktbilder aus Shopify.

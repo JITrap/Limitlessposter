@@ -37,6 +37,7 @@ const state: SupervisorState = {
   nextWeekReset: '2026-10-22T18:00:00',
   waiting: [{ id: 't7', title: 'Reel: Druckprozess', station: 'content' }],
   ticker: ['10:05 content · Lauf gestartet', '10:11 reviewer · fertig'],
+  zentrale: { kennzahlen: null, printify: null, aktualisierung_laeuft: false, links: [] },
 }
 
 describe('bar', () => {

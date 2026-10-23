@@ -22,6 +22,7 @@ const state: SupervisorState = {
   nextWeekReset: '2026-10-22T18:00:00',
   waiting: [],
   ticker: [],
+  zentrale: { kennzahlen: null, printify: null, aktualisierung_laeuft: false, links: [] },
 }
 
 describe('world server', () => {
@@ -39,6 +40,10 @@ describe('world server', () => {
         approve: async (id) => void calls.push(`approve:${id}`),
         pause: async () => void calls.push('pause'),
         resume: async () => void calls.push('resume'),
+        refreshKennzahlen: async () => {
+          calls.push('refresh')
+          return { ok: true, reason: null }
+        },
       },
       publicDir,
     })
@@ -96,6 +101,14 @@ describe('world server', () => {
     const r = await fetch(`${base}/api/resume`, { method: 'POST' })
     expect(await r.json()).toEqual({ ok: true })
     expect(calls).toEqual(['approve:abc', 'pause', 'resume'])
+  })
+
+  it('routes the Zentrale refresh button and returns its answer', async () => {
+    const r = await fetch(`${base}/api/kennzahlen/refresh`, { method: 'POST', headers: { origin: `http://localhost:${world.port}` } })
+    expect(r.status).toBe(200)
+    expect(await r.json()).toEqual({ ok: true, reason: null })
+    expect(calls).toContain('refresh')
+    expect((await fetch(`${base}/api/kennzahlen/refresh`)).status).toBe(405)
   })
 
   it('rejects GET on action routes and unknown paths with 404/405', async () => {

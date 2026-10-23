@@ -13,7 +13,9 @@ import { checkAvailability, type Availability, type AvailabilityProbes, type Sta
 import { runWorker } from './runner/claude.js'
 import type { RunSummary, StreamEvent } from './runner/stream.js'
 import { normalizeApprovals, recoverOrphans, selectRunnable, type PatchRow } from './queue/select.js'
-import { renderStatusMd, type SupervisorState, type WorkerView } from './status/writer.js'
+import { renderStatusMd, type SupervisorState, type WorkerView, type ZentraleView } from './status/writer.js'
+import { loadKennzahlen, type KennzahlenCache } from './kennzahlen.js'
+import { printifySummary, type PrintifySummary } from './adapters/printify.js'
 
 export interface SupervisorDeps {
   repo: TaskRepo
@@ -32,6 +34,8 @@ export interface SupervisorDeps {
   healthCheck?: () => Promise<{ ok: boolean; problems: string[] }>
   /** Smoke mode: process only this task id – no approvals, no orphan recovery, no other starts. */
   only?: string
+  /** Printify reader for the Zentrale (default: the real adapter); called at most hourly. */
+  printify?: (env: NodeJS.ProcessEnv, now: Date) => Promise<PrintifySummary>
 }
 
 interface PersistedState {
@@ -61,6 +65,18 @@ const PLANNER_MIN_INTERVAL_MS = 2 * 60 * 60_000
 const TICKER_MAX = 50
 const ARCHIVE_DAYS = 30
 const OUTWARD_STATIONS = new Set(['content', 'shop-analyst', 'pinterest', 'email'])
+const KENNZAHLEN_EVERY_HOURS = 6
+const PRINTIFY_EVERY_MS = 60 * 60_000
+const ZENTRALE_LINKS: ZentraleView['links'] = [
+  { name: 'Shopify-Admin', url: 'https://admin.shopify.com/' },
+  { name: 'Shop', url: 'https://limitlessposter.com' },
+  { name: 'Metricool', url: 'https://app.metricool.com/' },
+  { name: 'Printify', url: 'https://printify.com/app/' },
+  { name: 'Instagram', url: 'https://www.instagram.com/limitlessposter/' },
+  { name: 'TikTok', url: 'https://www.tiktok.com/@limitless.poster' },
+  { name: 'Pinterest Business', url: 'https://business.pinterest.com/' },
+  { name: 'Google Merchant', url: 'https://merchants.google.com/' },
+]
 const SECRET_KEY = /(SECRET|TOKEN|PASSWORD|PASSWD|API_KEY|APIKEY|PRIVATE)/i
 
 const emptyState = (): PersistedState => ({ inboxSeen: [], fired: {}, lastPlannerCreated: null, lastArchive: null, known: [] })
@@ -104,6 +120,10 @@ export class Supervisor {
   private waiting: SupervisorState['waiting'] = []
   private today = { posts: 0, shopChanges: 0 }
   private health: SupervisorState['health'] = { ok: true, problems: [] }
+  private kennzahlen: KennzahlenCache | null = null
+  private printify: PrintifySummary | null = null
+  private printifyAt = 0
+  private printifyBusy = false
   private timer: NodeJS.Timeout | null = null
   private ticking = false
   private lastStatusBody = ''
@@ -213,6 +233,7 @@ export class Supervisor {
     if (this.deps.triggers !== false && !this.deps.only) tasks = await this.fireTriggers(tasks, now)
     this.updateCounters(tasks, now)
     await this.readShopCounter(now)
+    await this.refreshZentrale(now)
 
     const canStart = this.health.ok && !pauseFile && decision.mode !== 'paused'
     if (canStart) {
@@ -486,6 +507,14 @@ export class Supervisor {
     const minutes = now.getHours() * 60 + now.getMinutes()
     const berichterOk = this.availability.get('berichter')?.available ?? false
 
+    // Zentrale: fresh numbers every 6 hours (slot = 0–3), only while nothing of that kind is open.
+    const kennzahlenOk = this.availability.get('kennzahlen')?.available ?? false
+    const kennzahlenOpen = has((t) => t.fm.station === 'kennzahlen' && (t.fm.status === 'todo' || t.fm.status === 'doing'))
+    const slot = Math.floor(now.getHours() / KENNZAHLEN_EVERY_HOURS)
+    await fire(`kennzahlen:${day}-${slot}`, kennzahlenOk && !kennzahlenOpen, () =>
+      this.createKennzahlenTask(now, 3).then(() => this.pushTicker('Zentrale: Kennzahlen werden gesammelt')),
+    )
+
     await fire(`tagesbericht:${day}`, berichterOk && minutes >= 7 * 60 + 30, () =>
       this.deps.repo
         .create({
@@ -528,6 +557,57 @@ export class Supervisor {
       return this.deps.repo.list()
     }
     return tasks
+  }
+
+  private async createKennzahlenTask(now: Date, priority: 1 | 2 | 3 | 4): Promise<void> {
+    await this.deps.repo.create({
+      title: 'Kennzahlen sammeln (Zentrale)',
+      station: 'kennzahlen',
+      tier: 'cheap',
+      priority,
+      origin: 'system',
+      auftrag: `Hole die aktuellen Kennzahlen aus Metricool, Shopify und Printify (letzte 7 und 28 Tage, Stand ${nowStamp(now).replace('T', ' ').slice(0, 16)}) und schreibe Kennzahlen.md neu.`,
+      kontext: '[[Marke/Kanäle]] · [[Marke/Produkte]] · [[Kennzahlen]]',
+    })
+  }
+
+  /** Kennzahlen.md (every tick, by mtime) and Printify (hourly, in the background). */
+  private async refreshZentrale(now: Date): Promise<void> {
+    this.kennzahlen = await loadKennzahlen(this.cfg.vaultRoot, this.kennzahlen)
+    const read = this.deps.printify ?? ((env, at) => printifySummary(env, undefined, at))
+    if (!this.printifyBusy && now.getTime() - this.printifyAt >= PRINTIFY_EVERY_MS) {
+      this.printifyBusy = true
+      this.printifyAt = now.getTime()
+      read(this.cfg.env, now)
+        .then((p) => {
+          const was = this.printify
+          this.printify = p
+          if (p.ok && !was?.ok) this.pushTicker('Zentrale: Printify verbunden')
+          if (!p.ok && was?.ok) this.pushTicker(`Zentrale: Printify nicht erreichbar – ${p.fehler}`)
+        })
+        .catch((err: unknown) => {
+          this.printify = { ...(this.printify ?? { ok: false, fehler: null, stand: nowStamp(now), shop: null, auftraege: { offen: 0, in_produktion: 0, versendet_28t: 0, gesamt_28t: 0, umsatz_28t: 0, kosten_28t: 0, marge_28t: 0, mit_problemen: 0 }, produkte: { gesamt: 0, sichtbar: 0, marge_durchschnitt: null, marge_min: null, marge_max: null } }), ok: false, fehler: err instanceof Error ? err.message : String(err) }
+        })
+        .finally(() => {
+          this.printifyBusy = false
+        })
+    }
+  }
+
+  /** Welt button „Kennzahlen aktualisieren“: one open kennzahlen task at a time. */
+  async refreshKennzahlen(): Promise<{ ok: boolean; reason: string | null }> {
+    const now = this.deps.clock()
+    if (!(this.availability.get('kennzahlen')?.available ?? false)) {
+      return { ok: false, reason: this.availability.get('kennzahlen')?.reason ?? 'Station Zentrale nicht verfügbar' }
+    }
+    const tasks = await this.deps.repo.list()
+    if (tasks.some((t) => t.fm.station === 'kennzahlen' && (t.fm.status === 'todo' || t.fm.status === 'doing'))) {
+      return { ok: true, reason: 'läuft bereits' }
+    }
+    await this.createKennzahlenTask(now, 1)
+    this.pushTicker('Zentrale: Aktualisierung angestoßen (Julius)')
+    this.printifyAt = 0 // next tick re-reads Printify too
+    return { ok: true, reason: null }
   }
 
   private async scanInbox(now: Date): Promise<void> {
@@ -701,6 +781,12 @@ export class Supervisor {
       nextWeekReset: nowStamp(nextWeekReset(now, this.cfg.weekReset)),
       waiting: this.waiting,
       ticker: [...this.ticker],
+      zentrale: {
+        kennzahlen: this.kennzahlen?.value ?? null,
+        printify: this.printify,
+        aktualisierung_laeuft: [...this.running.values()].some((r) => r.station.name === 'kennzahlen'),
+        links: ZENTRALE_LINKS,
+      },
     }
   }
 

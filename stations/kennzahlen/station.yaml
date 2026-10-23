@@ -1,0 +1,32 @@
+name: kennzahlen
+display: Zentrale
+description: Sammelt alle 6 Stunden die Zahlen aus Shopify, Metricool und Printify in Kennzahlen.md – die Zentrale in der Welt zeigt sie an.
+tier: cheap
+max_turns: 30
+timeout_min: 15
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - mcp__metricool__getBrandSettings
+  - mcp__metricool__getAnalyticsAvailableMetrics
+  - mcp__metricool__getAnalyticsDataByMetrics
+  - mcp__metricool__getScheduledPosts
+  - mcp__metricool__getBestTimeToPostByNetwork
+  - mcp__shopify__get-shop-info
+  - mcp__shopify__list-orders
+  - mcp__shopify__search_products
+  - mcp__shopify__run-analytics-query
+  - Bash(node supervisor/dist/adapters/printify.js *)
+  - Bash(node supervisor/dist/adapters/shopify.js orders*)
+context:
+  - Marke/Kanäle.md
+  - Marke/Produkte.md
+  - Kennzahlen.md
+requires:
+  mcp: [metricool]
+  env: []
+  services: []
+autopilot: 2
+cooldown_hours: 0

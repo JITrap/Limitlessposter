@@ -1,9 +1,20 @@
 # Betrieb – so steuerst du Limitless OS
 
 ## Wo du hinschaust
-- **Die Welt** `http://localhost:4242` – wer gerade was macht, Budget, Wartet-auf-dich, Not-Aus.
+- **Die Welt** `http://localhost:4242` – oben die **Zentrale** (alle Zahlen aus Shopify, Metricool und
+  Printify auf einer Seite, Links zu allen Werkzeugen), darunter wer gerade was macht, Budget,
+  Wartet-auf-dich, Not-Aus.
 - **Obsidian** `LimitlessOS/Home.md` – Status, Kanban, Heute. `Status.md` wird jede Minute neu geschrieben.
 - **Berichte** `LimitlessOS/Berichte/` – täglich 07:30, wöchentlich Donnerstag 17:00.
+
+## Die Zentrale
+Die Station **Zentrale** (`kennzahlen`, Haiku, alle 6 Stunden) holt Follower, Reichweite,
+Interaktionen und geplante Posts je Netzwerk aus Metricool, Bestellungen und Umsatz aus Shopify,
+und schreibt alles nach `Kennzahlen.md`. Der Aufseher liest zusätzlich stündlich Printify
+(Aufträge, Produktionskosten, Marge) direkt über den Token in der `.env` (`PRINTIFY_API_TOKEN`).
+Die Welt zeigt beides als Kacheln und Tabelle; Status.md bekommt den Abschnitt „Zentrale“.
+Sofort aktualisieren: Knopf **Kennzahlen aktualisieren** in der Welt. Kosten: ein Haiku-Lauf,
+meist unter 0,10 $.
 
 ## Freigeben und zurückschicken
 - Freigeben: in der Welt **Freigeben** klicken oder in der Notiz `needs_approval: false` setzen. Beim

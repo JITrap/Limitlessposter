@@ -1,5 +1,7 @@
 import { join } from 'node:path'
 import type { Decision, ModelFamily, TaskStatus } from '../types.js'
+import type { Kennzahlen } from '../kennzahlen.js'
+import type { PrintifySummary } from '../adapters/printify.js'
 import { stringifyNote } from '../vault/frontmatter.js'
 import { writeFileAtomic } from '../vault/atomic.js'
 
@@ -20,6 +22,18 @@ export interface StationView {
   autopilot: number
 }
 
+/** The Zentrale: everything the dashboard needs from outside the supervisor. */
+export interface ZentraleView {
+  /** from `Kennzahlen.md` (written by the kennzahlen station), null until the first run */
+  kennzahlen: Kennzahlen | null
+  /** read directly by the supervisor every hour; ok=false carries the German reason */
+  printify: PrintifySummary | null
+  /** a kennzahlen task is open or running right now */
+  aktualisierung_laeuft: boolean
+  /** deep links Julius uses daily */
+  links: { name: string; url: string }[]
+}
+
 /** Snapshot the supervisor exposes to Status.md and the world view (spec §9, §11). */
 export interface SupervisorState {
   now: string
@@ -34,6 +48,7 @@ export interface SupervisorState {
   nextWeekReset: string
   waiting: { id: string; title: string; station: string }[]
   ticker: string[]
+  zentrale: ZentraleView
 }
 
 const BAR_WIDTH = 20
@@ -104,6 +119,23 @@ export function renderStatusMd(s: SupervisorState): string {
 
   lines.push('', '## Heute', `- Posts: ${s.today.posts}/${s.today.postLimit}`, `- Shop-Änderungen: ${s.today.shopChanges}/${s.today.shopLimit}`)
   lines.push('', '## Nächster Wochen-Reset', formatReset(s.nextWeekReset))
+
+  lines.push('', '## Zentrale')
+  const k = s.zentrale?.kennzahlen
+  if (k) {
+    const geld = (n: number | null): string => (n === null ? '–' : `${n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${k.shop.waehrung}`)
+    lines.push(`- Shop: ${k.shop.bestellungen_7t ?? '–'} Bestellungen / ${geld(k.shop.umsatz_7t)} (7 T) · ${k.shop.bestellungen_28t ?? '–'} / ${geld(k.shop.umsatz_28t)} (28 T)`)
+    for (const [name, n] of Object.entries(k.netzwerke)) {
+      const delta = n.follower_7t === null ? '' : ` (${n.follower_7t >= 0 ? '+' : ''}${de(n.follower_7t)})`
+      lines.push(`- ${name}: ${n.follower === null ? '–' : de(n.follower)} Follower${delta} · Reichweite 7 T ${n.reichweite_7t === null ? '–' : de(n.reichweite_7t)} · ${n.posts_7t ?? '–'} Posts`)
+    }
+    lines.push(`- Stand ${k.updated ?? '–'} → [[Kennzahlen]]`)
+  } else {
+    lines.push('- Noch kein Kennzahlen-Lauf → [[Kennzahlen]]')
+  }
+  const pf = s.zentrale?.printify
+  if (pf?.ok) lines.push(`- Printify: ${pf.auftraege.offen} offen · ${pf.auftraege.in_produktion} in Produktion · ${pf.auftraege.versendet_28t} versendet (28 T) · Marge 28 T ${pf.auftraege.marge_28t.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €`)
+  else if (pf) lines.push(`- Printify: ${pf.fehler}`)
 
   lines.push('', '## Wartet auf dich')
   if (s.waiting.length === 0) lines.push('Nichts – alles läuft.')

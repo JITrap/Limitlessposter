@@ -7,6 +7,8 @@ export interface WorldActions {
   approve: (id: string) => Promise<void>
   pause: () => Promise<void>
   resume: () => Promise<void>
+  /** Zentrale button: collect fresh numbers now. Optional for older callers. */
+  refreshKennzahlen?: () => Promise<{ ok: boolean; reason: string | null }>
 }
 
 export interface WorldOptions {
@@ -118,6 +120,11 @@ export async function startWorld(opts: WorldOptions): Promise<WorldHandle> {
       if (method !== 'POST') return json(res, 405, { error: 'Methode nicht erlaubt' })
       await opts.actions.approve(decodeURIComponent(approve[1]))
       return json(res, 200, { ok: true })
+    }
+    if (path === '/api/kennzahlen/refresh') {
+      if (method !== 'POST') return json(res, 405, { error: 'Methode nicht erlaubt' })
+      if (!opts.actions.refreshKennzahlen) return json(res, 404, { error: 'Nicht verfügbar' })
+      return json(res, 200, await opts.actions.refreshKennzahlen())
     }
     if (path === '/api/pause' || path === '/api/resume') {
       if (method !== 'POST') return json(res, 405, { error: 'Methode nicht erlaubt' })

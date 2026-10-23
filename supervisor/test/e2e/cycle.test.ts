@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { cp, mkdtemp, readFile } from 'node:fs/promises'
+import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -43,6 +43,14 @@ describe('end-to-end cycle with the real stations and vault template', () => {
     const { readdir, rm } = await import('node:fs/promises')
     for (const f of await readdir(join(vault, 'Aufgaben'))) if (f.endsWith('.md')) await rm(join(vault, 'Aufgaben', f))
     const dataDir = join(root, 'data')
+    // The Zentrale trigger (every 6 h) is covered by test/zentrale.test.ts; keep this cycle focused.
+    const { mkdir: mkdirp } = await import('node:fs/promises')
+    await mkdirp(dataDir, { recursive: true })
+    await writeFile(
+      join(dataDir, 'state.json'),
+      JSON.stringify({ inboxSeen: [], fired: { 'kennzahlen:2026-11-06-1': 'seed', 'kennzahlen:2026-11-06-2': 'seed' }, lastPlannerCreated: null, lastArchive: null, known: [] }),
+      'utf8',
+    )
     let now = new Date('2026-11-06T09:00:00') // Friday
     const clock = (): Date => now
     const repo = new TaskRepo(vault, clock)

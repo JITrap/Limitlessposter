@@ -14,10 +14,11 @@ const EXPECTED: Record<string, { tier: string; autopilot: number }> = {
   studio: { tier: 'cheap', autopilot: 2 },
   reviewer: { tier: 'cheap', autopilot: 2 },
   berichter: { tier: 'cheap', autopilot: 2 },
+  kennzahlen: { tier: 'cheap', autopilot: 2 },
 }
 
 describe('real stations/ folder', () => {
-  it('loads the six core stations with the planned tiers and autopilot levels', async () => {
+  it('loads the seven core stations with the planned tiers and autopilot levels', async () => {
     const stations = await loadStations(repoRoot)
     const byName = Object.fromEntries(stations.map((s) => [s.name, s]))
     for (const [name, exp] of Object.entries(EXPECTED)) {

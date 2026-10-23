@@ -5,7 +5,7 @@ cssclasses: [limitless-home]
 # Limitless OS
 
 > Dein Firmen-Betriebssystem. Alles, was die Marke voranbringt, läuft hier zusammen.
-> **Die Welt** (live, wer gerade was macht): http://localhost:4242
+> **Die Welt** (live, wer gerade was macht) und die **Zentrale** (alle Zahlen aus Shopify, Metricool, Printify auf einer Seite): http://localhost:4242
 
 ![[Status]]
 
@@ -22,6 +22,7 @@ Karten hier brauchen dein Ja. **Freigeben** = Knopf in der Welt oder in der Noti
 ![[Dashboard.base#Heute]]
 
 ## Schnellzugriff
+- [[Kennzahlen]] – die Zahlen der Zentrale als Notiz (alle 6 Stunden neu)
 - [[Strategie]] – Ziel, Wertleiter, Autopilot-Stufen, Grenzen
 - [[Marke/Kern]] · [[Marke/Tonalität]] · [[Marke/Visuell]] · [[Marke/Hashtags]] · [[Marke/Produkte]] · [[Marke/Kanäle]]
 - [[Pläne/Content-Kalender]] · [[Pläne/Wochenplan]]

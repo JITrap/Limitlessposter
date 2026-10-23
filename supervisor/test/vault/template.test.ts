@@ -12,6 +12,7 @@ const FILES = [
   'Dashboard.base',
   'Status.md',
   'Strategie.md',
+  'Kennzahlen.md',
   'Marke/Kern.md',
   'Marke/Tonalität.md',
   'Marke/Produkte.md',
@@ -91,7 +92,7 @@ describe('vault template', () => {
     const dir = join(root, 'Aufgaben')
     const { readdir } = await import('node:fs/promises')
     const files = (await readdir(dir)).filter((f) => f.endsWith('.md'))
-    expect(files.length).toBeGreaterThanOrEqual(8)
+    expect(files.length).toBeGreaterThanOrEqual(9)
     const stations = new Set<string>()
     for (const f of files) {
       const { data, body } = parseNote(await readFile(join(dir, f), 'utf8'))

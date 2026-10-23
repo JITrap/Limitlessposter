@@ -2,8 +2,10 @@
 
 Lokales „Firmen-Betriebssystem“ für die Marke **Limitless Poster** (limitlessposter.com).
 KI-Arbeiter (Claude Code, über dein Abo) arbeiten an Stationen – Planung, Content-Studio, Shop-Büro,
-Studio, Review, Berichte – an der Marke. Ein **Aufseher** verteilt die Arbeit, hält das Budget bis
-zum Wochen-Reset ein und zeigt in der **Welt** live, wer was macht. Dein **Obsidian-Vault** ist das Gehirn.
+Studio, Review, Berichte, Zentrale – an der Marke. Ein **Aufseher** verteilt die Arbeit, hält das Budget
+bis zum Wochen-Reset ein und zeigt in der **Welt** live, wer was macht. Die **Zentrale** oben in der Welt
+führt die Zahlen aus Shopify, Metricool und Printify auf einer Seite zusammen. Dein **Obsidian-Vault**
+ist das Gehirn.
 
 ## In vier Schritten
 1. GitHub → **Code → Download ZIP**, dann in PowerShell die drei Zeilen aus `docs/anleitung/erste-schritte.md`

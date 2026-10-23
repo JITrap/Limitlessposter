@@ -67,6 +67,28 @@
   .ticker li { padding: 4px 0; border-bottom: 1px dashed var(--line); color: var(--muted); }
   .ticker li:first-child { color: var(--text); }
   .small { font-size: 12px; color: var(--muted); }
+  /* Zentrale */
+  .zentrale { grid-column: 1 / -1; }
+  .zhead { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .zhead h2 { margin: 0; }
+  .links { display: flex; flex-wrap: wrap; gap: 6px; }
+  .links a { font-size: 12px; color: var(--text); text-decoration: none; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+  .links a:hover { border-color: var(--accent); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .tile { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .tile .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .tile .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .tile .v small { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .tile.src-shop { border-top: 3px solid #7bd389; } .tile.src-social { border-top: 3px solid #5aa9ff; } .tile.src-printify { border-top: 3px solid #d98cff; }
+  table.z { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  table.z th, table.z td { text-align: left; padding: 6px 8px; border-bottom: 1px dashed var(--line); }
+  table.z th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  table.z td.num, table.z th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .delta.up { color: var(--ok); } .delta.down { color: var(--bad); }
+  .saetze { margin: 12px 0 0; padding-left: 18px; font-size: 13px; }
+  .saetze li { margin: 3px 0; }
+  .zfoot { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .zfoot .err { color: var(--warn); }
 </style>
 </head>
 <body>
@@ -80,6 +102,20 @@
 </header>
 
 <main>
+  <section class="panel zentrale">
+    <div class="zhead">
+      <h2>Zentrale – Shop · Social · Produktion</h2>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <span class="small" id="zstand"></span>
+        <button id="refreshBtn" title="Die Station Zentrale sammelt die Zahlen jetzt neu (dauert 1–3 Minuten)">Kennzahlen aktualisieren</button>
+      </div>
+    </div>
+    <div class="links" id="zlinks"></div>
+    <div class="tiles" id="ztiles" style="margin-top:12px"></div>
+    <div id="znetz"></div>
+    <ul class="saetze" id="zsaetze"></ul>
+    <div class="zfoot" id="zfoot"></div>
+  </section>
   <div>
     <div id="danger" class="banner danger"></div>
     <div id="warn" class="banner warn"></div>
@@ -127,8 +163,73 @@
     return Math.max(0, Math.round((Date.now() - t) / 60000)) + ' min';
   }
 
+  function money(n, cur) { return n == null ? '–' : Number(n).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (cur || '€'); }
+  function num(n) { return n == null ? '–' : de(n); }
+  function delta(n) {
+    if (n == null) return '';
+    var cls = n > 0 ? 'up' : n < 0 ? 'down' : '';
+    return '<span class="delta ' + cls + '">' + (n > 0 ? '+' : '') + de(n) + '</span>';
+  }
+  var NETZ_LABEL = { instagram: 'Instagram', tiktok: 'TikTok', linkedin: 'LinkedIn', gmb: 'Google-Profil', pinterest: 'Pinterest', facebook: 'Facebook', youtube: 'YouTube' };
+
+  function renderZentrale() {
+    var z = state.zentrale || {};
+    var k = z.kennzahlen, p = z.printify;
+    $('zlinks').innerHTML = (z.links || []).map(function (l) { return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + '</a>'; }).join('');
+    var stand = k && k.updated ? 'Stand ' + String(k.updated).replace('T', ' ').slice(0, 16) : 'noch kein Kennzahlen-Lauf';
+    $('zstand').textContent = stand + (z.aktualisierung_laeuft ? ' · wird gerade gesammelt…' : '');
+    $('refreshBtn').disabled = !!z.aktualisierung_laeuft;
+
+    var tiles = [];
+    var tile = function (src, k_, v, sub) { tiles.push('<div class="tile src-' + src + '"><div class="k">' + esc(k_) + '</div><div class="v">' + v + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</div></div>'); };
+    var shop = k ? k.shop : {};
+    var cur = shop.waehrung || 'EUR';
+    tile('shop', 'Umsatz 7 Tage', esc(money(shop.umsatz_7t, cur)));
+    tile('shop', 'Bestellungen 7 Tage', esc(num(shop.bestellungen_7t)));
+    tile('shop', 'Umsatz 28 Tage', esc(money(shop.umsatz_28t, cur)));
+    tile('shop', 'Bestellungen 28 Tage', esc(num(shop.bestellungen_28t)));
+    var aov = shop.bestellungen_28t > 0 && shop.umsatz_28t != null ? shop.umsatz_28t / shop.bestellungen_28t : null;
+    tile('shop', 'Ø Bestellwert 28 T', esc(money(aov, cur)));
+    tile('shop', 'Produkte aktiv', esc(num(shop.produkte_aktiv)), shop.produkte_englisch ? shop.produkte_englisch + ' noch EN' : '');
+    var followerSum = 0, hasFollower = false, reachSum = 0, hasReach = false;
+    Object.keys((k && k.netzwerke) || {}).forEach(function (n) {
+      var x = k.netzwerke[n];
+      if (x.follower != null) { followerSum += x.follower; hasFollower = true; }
+      if (x.reichweite_7t != null) { reachSum += x.reichweite_7t; hasReach = true; }
+    });
+    tile('social', 'Follower gesamt', hasFollower ? esc(de(followerSum)) : '–');
+    tile('social', 'Reichweite 7 Tage', hasReach ? esc(de(reachSum)) : '–', 'alle Netzwerke');
+    tile('social', 'Geplante Posts 7 T', esc(num(k ? k.geplant_7t : null)));
+    if (p && p.ok) {
+      tile('printify', 'Printify offen', esc(de(p.auftraege.offen)), p.auftraege.in_produktion + ' in Produktion');
+      tile('printify', 'Versendet 28 T', esc(de(p.auftraege.versendet_28t)), p.auftraege.mit_problemen ? p.auftraege.mit_problemen + ' mit Problemen' : '');
+      tile('printify', 'Marge 28 T', esc(money(p.auftraege.marge_28t, '€')), 'Umsatz − Printify-Kosten');
+      tile('printify', 'Ø Marge je Variante', esc(money(p.produkte.marge_durchschnitt, '€')), p.produkte.marge_min != null ? p.produkte.marge_min.toFixed(2) + ' bis ' + p.produkte.marge_max.toFixed(2) : '');
+    } else {
+      tile('printify', 'Printify', '–', 'nicht verbunden');
+    }
+    $('ztiles').innerHTML = tiles.join('');
+
+    var netzwerke = (k && k.netzwerke) || {};
+    var names = Object.keys(netzwerke);
+    if (names.length) {
+      var rows = names.map(function (n) {
+        var x = netzwerke[n], best = (k.beste_zeiten || {})[n];
+        return '<tr><td>' + esc(NETZ_LABEL[n] || n) + '</td><td class="num">' + esc(num(x.follower)) + '</td><td class="num">' + delta(x.follower_7t) + '</td><td class="num">' + esc(num(x.reichweite_7t)) + '</td><td class="num">' + esc(num(x.interaktionen_7t)) + '</td><td class="num">' + esc(num(x.posts_7t)) + '</td><td>' + esc(best || '–') + '</td></tr>';
+      });
+      $('znetz').innerHTML = '<table class="z"><thead><tr><th>Netzwerk</th><th class="num">Follower</th><th class="num">+/− 7 T</th><th class="num">Reichweite 7 T</th><th class="num">Interaktionen</th><th class="num">Posts</th><th>Beste Zeit</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
+    } else $('znetz').innerHTML = '';
+    $('zsaetze').innerHTML = (k && k.saetze ? k.saetze : []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    var foot = [];
+    if (p && !p.ok && p.fehler) foot.push('<span class="err">Printify: ' + esc(p.fehler) + '</span>');
+    if (k && k.quelle) foot.push('Quelle: ' + esc(k.quelle));
+    foot.push('<a class="small" href="' + obsidianLink('Kennzahlen.md') + '">Kennzahlen-Notiz öffnen</a>');
+    $('zfoot').innerHTML = foot.join('');
+  }
+
   function render() {
     if (!state) return;
+    renderZentrale();
     // banners
     var danger = $('danger'), warn = $('warn');
     if (!state.health.ok) { danger.className = 'banner danger show'; danger.innerHTML = '<b>Aufseher gestoppt</b><br>' + state.health.problems.map(esc).join('<br>'); }
@@ -198,6 +299,13 @@
     fetch('/api/approve/' + encodeURIComponent(id), { method: 'POST' }).then(function () { refresh(); });
   };
   window.__open = function (id) { window.location.href = obsidianLink('Aufgaben/' + id + '.md'); };
+  $('refreshBtn').addEventListener('click', function () {
+    $('refreshBtn').disabled = true;
+    fetch('/api/kennzahlen/refresh', { method: 'POST' }).then(function (r) { return r.json(); }).then(function (res) {
+      if (res && res.ok === false) { alert('Zentrale: ' + (res.reason || 'nicht möglich')); }
+      refresh();
+    }).catch(function () { $('refreshBtn').disabled = false; });
+  });
   $('pauseBtn').addEventListener('click', function () {
     fetch(state && state.paused.active ? '/api/resume' : '/api/pause', { method: 'POST' }).then(function () { refresh(); });
   });
