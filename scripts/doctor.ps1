@@ -79,12 +79,31 @@ if ($claudeOk) {
   } catch { }
 }
 
-# Obsidian
-$obsidianExe = Join-Path $env:LOCALAPPDATA "Obsidian\Obsidian.exe"
-if (Test-Path $obsidianExe) {
-  $ov = (Get-Item $obsidianExe).VersionInfo.ProductVersion
-  Check ([version]($ov.Split("-")[0]) -ge [version]"1.14.0") "Obsidian >= 1.14 (Kanban-Ansicht in Bases) – ist $ov" "Obsidian aktualisieren"
-} else { Write-Host "  --  Obsidian-Version konnte nicht ermittelt werden (nicht unter $obsidianExe)" -ForegroundColor Yellow }
+# Obsidian – Installer-Varianten: Programs\Obsidian (Standard), LOCALAPPDATA\Obsidian (alt), Program Files, Store-App, Registry
+$obsidianVersion = ""
+$obsidianWhere = ""
+$candidates = @(
+  (Join-Path $env:LOCALAPPDATA "Programs\Obsidian\Obsidian.exe"),
+  (Join-Path $env:LOCALAPPDATA "Obsidian\Obsidian.exe"),
+  (Join-Path $env:ProgramFiles "Obsidian\Obsidian.exe")
+)
+foreach ($c in $candidates) {
+  if (-not $obsidianVersion -and (Test-Path $c)) { $obsidianVersion = (Get-Item $c).VersionInfo.ProductVersion; $obsidianWhere = $c }
+}
+if (-not $obsidianVersion) {
+  try {
+    $reg = Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*" -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like "Obsidian*" } | Select-Object -First 1
+    if ($reg -and $reg.DisplayVersion) { $obsidianVersion = [string]$reg.DisplayVersion; $obsidianWhere = "Registry" }
+  } catch { }
+}
+if (-not $obsidianVersion) {
+  try { $appx = Get-AppxPackage -Name "*Obsidian*" -ErrorAction SilentlyContinue | Select-Object -First 1; if ($appx) { $obsidianVersion = [string]$appx.Version; $obsidianWhere = "Microsoft Store" } } catch { }
+}
+if ($obsidianVersion) {
+  $ovClean = ($obsidianVersion.Split("-")[0] -replace "[^\d\.]", "")
+  $parts = $ovClean.Split("."); if ($parts.Count -gt 3) { $ovClean = ($parts[0..2] -join ".") }
+  Check ([version]$ovClean -ge [version]"1.14.0") "Obsidian >= 1.14 (Kanban-Ansicht in Bases) – ist $obsidianVersion ($obsidianWhere)" "Obsidian aktualisieren (obsidian.md/download)"
+} else { Write-Host "  --  Obsidian-Version konnte nicht ermittelt werden – bitte in Obsidian unter Einstellungen > Info prüfen (mindestens 1.14)" -ForegroundColor Yellow }
 
 # Aufgabenplanung
 $task = Get-ScheduledTask -TaskName "LimitlessOS" -ErrorAction SilentlyContinue

@@ -253,10 +253,23 @@ if (-not $NoTask) {
   $trigger   = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
   $settings  = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew -StartWhenAvailable
   $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
-  Register-ScheduledTask -TaskName "LimitlessOS" -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description "Limitless OS Aufseher – startet bei Anmeldung" -Force | Out-Null
-  Ok "Aufgabe 'LimitlessOS' registriert (Bei Anmeldung, nur wenn du angemeldet bist, Neustart bei Fehler)"
-  Start-ScheduledTask -TaskName "LimitlessOS"
-  Ok "Aufseher gestartet"
+  # Eine laufende Aufgabe aus einer früheren Einrichtung lässt sich nicht überschreiben (Zugriff verweigert,
+  # 0x80070005). Deshalb erst stoppen und entfernen; schlägt das Neuanlegen trotzdem fehl, die bestehende behalten.
+  $existing = Get-ScheduledTask -TaskName "LimitlessOS" -ErrorAction SilentlyContinue
+  if ($existing) {
+    try { Stop-ScheduledTask -TaskName "LimitlessOS" -ErrorAction SilentlyContinue } catch { }
+    try { Unregister-ScheduledTask -TaskName "LimitlessOS" -Confirm:$false -ErrorAction Stop; Ok "Alte Aufgabe 'LimitlessOS' entfernt" } catch { Warn "Alte Aufgabe konnte nicht entfernt werden – sie wird weiterverwendet." }
+  }
+  $registered = $false
+  try {
+    Register-ScheduledTask -TaskName "LimitlessOS" -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description "Limitless OS Aufseher – startet bei Anmeldung" -Force -ErrorAction Stop | Out-Null
+    $registered = $true
+    Ok "Aufgabe 'LimitlessOS' registriert (Bei Anmeldung, nur wenn du angemeldet bist, Neustart bei Fehler)"
+  } catch {
+    if (Get-ScheduledTask -TaskName "LimitlessOS" -ErrorAction SilentlyContinue) { Warn ("Aufgabe konnte nicht neu angelegt werden (" + $_.Exception.Message.Trim() + ") – die vorhandene Aufgabe 'LimitlessOS' bleibt.") }
+    else { throw }
+  }
+  try { Start-ScheduledTask -TaskName "LimitlessOS" -ErrorAction Stop; Ok "Aufseher gestartet" } catch { Warn ("Aufseher konnte nicht gestartet werden: " + $_.Exception.Message.Trim() + " – manuell: Start-ScheduledTask LimitlessOS oder npm start") }
 } else {
   Warn "Autostart übersprungen (-NoTask). Manuell starten: npm start"
 }
