@@ -47,3 +47,13 @@ Bios (aus der Content-Bank): Instagram „LimitlessPoster | Gerahmte Poster“ �
 - Instagram: 1 Post/Tag – Reel (gleicher Clip, eigene Caption) oder Karussell, Story optional
 - LinkedIn: Autolist läuft (alle 2–3 Tage); zusätzlich 1×/Woche Gründer-Post, nie am Autolist-Tag
 - Google-Unternehmensprofil: Autolist läuft; zusätzlich nur bei Produkt-/Angebotsnews
+
+## Alte Automatik (abgeschaltet am 23.10.2026)
+Vor Limitless OS lief eine eigene Kette: Wochenplanung (Cloud, Sa 17:50), Tagesproduktion (PC, 06:00),
+Multi-Plattform-Automatik (Cloud, 06:45), Wochen-Review (Cloud, Mo 07:22) und Flows-Cockpit (Cloud, 07:10).
+Die Produktion hing seit dem 19.10., deshalb ging seit ~20.10. nichts mehr raus. Julius hat am 23.10.2026
+entschieden: **alles läuft über Limitless OS.** Die vier Cloud-Aufgaben sind deaktiviert (nicht gelöscht),
+die PC-Aufgabe ebenfalls. Nur die Metricool-Autolist 546926 (LinkedIn + Google) läuft weiter.
+Folgen für die Stationen: Niemand sonst postet auf Instagram/TikTok – Dubletten-Prüfung nur gegen den eigenen
+[[Pläne/Content-Kalender]] und `getScheduledPosts`. Wer die alte Kette wieder braucht, sagt es Julius; sie
+lässt sich mit einem Klick wieder einschalten.

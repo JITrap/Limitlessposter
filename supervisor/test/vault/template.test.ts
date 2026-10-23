@@ -51,7 +51,7 @@ describe('vault template', () => {
       daily_post_limit: 3,
       daily_shop_change_limit: 5,
     })
-    expect((data.autopilot as Record<string, number>).content).toBe(1)
+    expect((data.autopilot as Record<string, number>).content).toBe(2)
     expect((data.autopilot as Record<string, number>)['shop-analyst']).toBe(1)
     expect(body).toContain('## Wertleiter')
     expect(body.match(/^\| \d+ \|/gm)?.length).toBe(12)

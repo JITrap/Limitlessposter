@@ -28,9 +28,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 ## Übersicht
 | Tag | ID | Format | Titel | Produkte (Handle) | Status | Geplant für | plannerUrl |
 |---|---|---|---|---|---|---|---|
-| 1 | `p01` | Einzelpost | Willkommen bei LimitlessPoster | – | offen | | |
-| 1 | `r01` | Reel · Chat-Story | Dein Kumpel sieht dein Zimmer | `focus-skulptur-poster` | offen | | |
-| 2 | `s01` | Slideshow / Karussell | 5 Poster, die dich jeden Morgen pushen | `we-aint-rich-yet-poster`, `focus-skulptur-poster`, `you-vs-you-berg-poster`, `dont-quit-motivationsposter`, `no-excuses-just-results-motivationsposter` | offen | | |
+| 1 | `p01` | Einzelpost | Willkommen bei LimitlessPoster | – | geplant 2026-10-24 (Aufgabe) | 2026-10-24 | |
+| 1 | `r01` | Reel · Chat-Story | Dein Kumpel sieht dein Zimmer | `focus-skulptur-poster` | geplant 2026-10-24 (Aufgabe) | 2026-10-24 | |
+| 2 | `s01` | Slideshow / Karussell | 5 Poster, die dich jeden Morgen pushen | `we-aint-rich-yet-poster`, `focus-skulptur-poster`, `you-vs-you-berg-poster`, `dont-quit-motivationsposter`, `no-excuses-just-results-motivationsposter` | geplant 2026-10-25 (Aufgabe) | 2026-10-25 | |
 | 3 | `q02` | Reel · Motivations-Clip | Don't quit → Do it | `dont-quit-motivationsposter` | offen | | |
 | 4 | `p02` | Einzelpost | This or That: FOCUS oder Focus on You | `focus-skulptur-poster`, `focus-on-you-panther-poster` | offen | | |
 | 5 | `r02` | Reel · Chat-Story | 5:30 Uhr aufstehen | `we-aint-rich-yet-poster` | offen | | |

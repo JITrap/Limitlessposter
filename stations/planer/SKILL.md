@@ -26,8 +26,9 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
    die Karten mit Status `offen` in Tagesreihenfolge (pro Kalendertag das Reel des Tages, dazu die
    Slideshow bzw. den Post, wenn einer an diesem Tag steht; Tageslimit aus `Strategie.md` beachten).
    Pro Karte **eine** `content`-Aufgabe mit der Karten-ID im Titel (z. B. „Content-Bank r01: Dein Kumpel
-   sieht dein Zimmer“) und dem Hinweis „Caption und Hashtags unverändert aus der Content-Bank“; **keine**
-   Studio-Aufgabe, das Material existiert (Spalte Material/Medien-URL). Trage die Karte mit `geplant
+   sieht dein Zimmer“) und dem Hinweis „Caption und Hashtags unverändert aus der Content-Bank“, `needs_approval: false`
+   (Julius hat die Karten am 23.10.2026 freigegeben – Content auf Autopilot 2); **keine**
+   Studio-Aufgabe, das Material existiert (Zeile „Medien (öffentlich)“ der Karte). Trage die Karte mit `geplant
    <Datum>` in die Content-Bank-Tabelle ein. Erst wenn keine `offen`-Karte mehr passt: eigene Posts –
    pro Tag ein Reel **oder** ein Karussell (Mix etwa 60/40), nie Einzelbilder, zuerst `studio` (Assets),
    dann `content` mit `parent` = Studio-Aufgabe.

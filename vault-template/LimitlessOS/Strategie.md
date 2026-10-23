@@ -7,7 +7,7 @@ daily_shop_change_limit: 5
 max_open_tasks: 15
 autopilot:
   planer: 2
-  content: 1
+  content: 2
   shop-analyst: 1
   studio: 2
   reviewer: 2
@@ -66,7 +66,8 @@ der Planer liest es beim nächsten Lauf).
 - [ ] Shopify Email: Willkommen / Warenkorb / Nachkauf eingerichtet
 - [ ] Instagram-Produkt-Tags über Metas Shopify-Kanal
 - [x] Content-Bank (41 Karten) übernommen → [[Pläne/Content-Bank]] (23.10.2026)
-- [ ] Printify-API-Token in der `.env` (Zentrale)
+- [x] Alte Automatik (Wochenplanung, PC-Produktion 06:00, Multi-Plattform-Automatik 06:45, Wochen-Review, Flows-Cockpit) abgeschaltet – Limitless OS plant und postet allein (Julius, 23.10.2026)
+- [x] Printify-API-Token in der `.env` (Zentrale) (23.10.2026)
 - [ ] (optional) Druckdateien in `Assets/poster/` – sonst nutzt das Studio die Shopify-Bilder
 
 ## Was Julius entscheidet
@@ -81,3 +82,4 @@ Logo, Antworten auf Kundennachrichten. Das System legt dafür Karten auf deinen 
 - 2026-10-22 – Erstfassung aus der Spezifikation.
 - 2026-10-23 – System: Ziel und Wertleiter an das echte Sortiment angepasst (125 Produkte, 0 Bestellungen, TikTok vor Instagram); Sprosse 11 „Testbestellung“ ergänzt; Checkliste um Logins und Rechtliches erweitert.
 - 2026-10-23 – Julius: Produktfakten bestätigt (14 Tage Widerruf, Druck USA, Versand nur DE), Zielgruppe und Tonfall festgelegt, alle Motive freigegeben; Content-Bank mit 41 Karten als Sprosse 1 übernommen.
+- 2026-10-23 – Julius: alte Automatik abgeschaltet (alles läuft über Limitless OS), Content-Bank ohne Einzelfreigabe (Autopilot content = 2, Tageslimit 3 bleibt), Printify-Token eingetragen. System: erste drei Content-Bank-Karten (p01, r01 → 24.10., s01 → 25.10.) als Aufgaben angelegt.
