@@ -9,6 +9,7 @@ wall: "#e9e4dc"
 font_display: Anton
 font_body: Inter
 logo: Assets/marke/logo.png
+logo_url: https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-logo.png
 updated: 2026-10-23
 ---
 # Visuelle Sprache
@@ -20,7 +21,7 @@ updated: 2026-10-23
 - Schrift cremeweiß `#f4f1ea` (`fg`), gedämpft `#a8a399`, Stein `#cec8bd` (`stone`)
 - Akzent Crimson `#a32235` (`accent`) für Knöpfe/Flächen, als Textfarbe `#ef7083` (`accent_text`)
 - Wand hell `#e9e4dc` (`wall`) – Raum-Mockups
-- Logo: `Assets/marke/logo.png` (weiße Wortmarke auf transparent, 600×105) – kommt aus der Content-Bank
+- Logo: `Assets/marke/logo.png` (weiße Wortmarke auf transparent, 600×105) – kommt aus der Content-Bank; öffentlich: https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-logo.png
 
 ## Bildsprache
 - Poster immer **im Raum** zeigen (Mockup), nie nur freigestellt – außer auf Slide 1 als Hero.

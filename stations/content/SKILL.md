@@ -16,8 +16,8 @@ planst sie über Metricool ein, sobald das erlaubt ist.
    Fehlen Assets, erzeuge sie selbst mit dem Studio-Adapter (siehe Vorgehen 3).
 6. **Content-Bank-Karten** (Titel „Content-Bank <id>: …“): Karte in `Pläne/Content-Bank.md` lesen.
    Caption und Hashtags für TikTok und Instagram **wörtlich übernehmen** (nur Preis/Versand gegen
-   `Marke/Produkte.md` prüfen und ggf. korrigieren). Material: Spalte „Medien-URL“ (öffentlich, für
-   Metricool) oder Datei unter `Assets/content-bank/`. Reels mit Trend-Sound-Hinweis kann Metricool
+   `Marke/Produkte.md` prüfen und ggf. korrigieren). Material: Zeile „Medien (öffentlich)“ der Karte –
+   fertige CDN-Links, direkt als `media` für Metricool; kein Studio, kein Upload. Reels mit Trend-Sound-Hinweis kann Metricool
    für TikTok nicht hochladen: Instagram über Metricool planen, für TikTok im Ergebnis „TikTok: Datei
    `…mp4` + Caption von Julius in der App hochladen, Uhrzeit …“ vermerken. Nach dem Lauf in der
    Content-Bank-Tabelle den Status setzen (`geplant <Datum>` bzw. `veröffentlicht`).
@@ -38,7 +38,7 @@ planst sie über Metricool ein, sobald das erlaubt ist.
 5. **Veröffentlichen nur wenn beides gilt:** „Freigabe nötig: nein“ **und** „Veröffentlichen heute
    erlaubt: ja“. Dann:
    a. Jede Asset-Datei hochladen: `node supervisor/dist/adapters/shopify.js upload-file "<Pfad>"`
-      → JSON mit `url`. Schlägt das fehl (Shop nicht verbunden), plane mit `autoPublish: false`
+      → JSON mit `url` (Content-Bank-Karten: Links aus „Medien (öffentlich)“ nehmen, nichts hochladen). Schlägt das fehl (Shop nicht verbunden), plane mit `autoPublish: false`
       (Metricool schickt Julius eine Push-Nachricht, er hängt die Medien an) und sage das im Ergebnis.
    b. `createScheduledPost` mit `blogId`, `date` (ISO mit Offset), `info` als JSON-String:
       `text`, `media: [urls]`, `providers: [{"network":"instagram"},{"network":"tiktok"},…]`,

@@ -7,10 +7,13 @@ reels: 21
 slideshows: 8
 posts: 8
 skripte: 4
+medien_basis: https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-
+medien_dateien: 161
+medien_hochgeladen: 2026-10-23
 ---
 # Content-Bank
 
-> [!info] Das ist Julius' fertige Content-Bank: 41 Karten für TikTok und Instagram, ein Tag im Voraus produziert, mit Captions, Hashtags, Sound-Hinweisen und Tipps. **Der Planer nimmt zuerst diese Karten in Tagesreihenfolge**, bevor er neue Posts erfindet; das Content-Studio übernimmt Caption und Hashtags **unverändert** (nur Preis-/Versand-Fakten gegen [[Marke/Produkte]] prüfen). Die Medien liegen unter `Assets/content-bank/` (bzw. als öffentliche Links in der Spalte „Medien-URL“ der Tabelle unten, sobald hochgeladen). Status-Spalte pflegt das Content-Studio: `offen` · `geplant <Datum>` · `veröffentlicht` · `übersprungen`.
+> [!info] Das ist Julius' fertige Content-Bank: 41 Karten für TikTok und Instagram, ein Tag im Voraus produziert, mit Captions, Hashtags, Sound-Hinweisen und Tipps. **Der Planer nimmt zuerst diese Karten in Tagesreihenfolge**, bevor er neue Posts erfindet; das Content-Studio übernimmt Caption und Hashtags **unverändert** (nur Preis-/Versand-Fakten gegen [[Marke/Produkte]] prüfen). Die Medien liegen öffentlich auf dem Shopify-CDN (Zeile „Medien (öffentlich)“ in jeder Karte; Basis-URL `medien_basis` im Frontmatter, hochgeladen am 23.10.2026). Das Content-Studio hängt diese Links direkt an die Metricool-Posts – lokale Kopien braucht es nicht. Status-Spalte pflegt das Content-Studio: `offen` · `geplant <Datum>` · `veröffentlicht` · `übersprungen`.
 
 ## Profil (Metricool / Bio)
 - Instagram-Name: LimitlessPoster | Gerahmte Poster
@@ -71,6 +74,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 ### p01 · Willkommen bei LimitlessPoster
 - **Format:** Einzelpost · Tag 1 · Zusatz-Karte
 - **Material:** `media/p01.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p01.jpg
 - **Tipp:** Als allerersten Feed-Post auf Instagram veröffentlichen, am selben Tag wie Reel 1.
 - **TikTok-Caption:**
   ```
@@ -93,6 +97,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Chat-Story · Tag 1
 - **Produkte:** FOCUS – Skulptur-Poster (`focus-skulptur-poster`)
 - **Material:** `media/r01.mp4` (19.03 s), Vorschau `media/r01.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r01.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r01.jpg
 - **Sound:** Lockerer Trend-Sound mit entspanntem Beat, so wie im Original-Reel.
 - **Tipp:** Extra-Version wie im Original: Spiel das Video auf deinem Monitor ab und filme den Bildschirm im dunklen Zimmer. Erste Sekunde: kurz dein Gesicht.
 - **TikTok-Caption:**
@@ -117,6 +122,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 2
 - **Produkte:** Get Up, We Ain't Rich Yet (`we-aint-rich-yet-poster`), FOCUS – Skulptur (`focus-skulptur-poster`), You vs You – Berg (`you-vs-you-berg-poster`), Don't Quit (`dont-quit-motivationsposter`), No Excuses, Just Results (`no-excuses-just-results-motivationsposter`)
 - **Material:** 7 Slides: `media/s01_tt_01..07.jpg` (9:16) und `media/s01_ig_01..07.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_ig_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_ig_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_ig_07.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_tt_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_tt_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s01_tt_07.jpg
 - **Sound:** Ruhiger, motivierender Sound (Piano oder langsamer Beat).
 - **Tipp:** Auf TikTok als Foto-Beitrag posten (die 9:16-Bilder), auf Instagram als Karussell (die 4:5-Bilder).
 - **TikTok-Caption:**
@@ -139,6 +147,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Motivations-Clip · Tag 3
 - **Produkte:** Don't Quit – Minimal (`dont-quit-motivationsposter`)
 - **Material:** `media/q02.mp4` (8.73 s), Vorschau `media/q02.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q02.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q02.jpg
 - **Sound:** Dramatischer Sound mit klarem Drop – der Drop sollte auf „Do it.“ fallen.
 - **Tipp:** Ideal für den Loop: Viele schauen zweimal, um den Trick zu sehen.
 - **TikTok-Caption:**
@@ -163,6 +172,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Einzelpost · Tag 4
 - **Produkte:** FOCUS – Skulptur (`focus-skulptur-poster`), Focus on You – Panther (`focus-on-you-panther-poster`)
 - **Material:** `media/p02.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p02.jpg
 - **Tipp:** Antworte auf jeden Kommentar – das pusht den Post.
 - **TikTok-Caption:**
   ```
@@ -184,6 +194,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Chat-Story · Tag 5
 - **Produkte:** Get Up, We Ain't Rich Yet (`we-aint-rich-yet-poster`)
 - **Material:** `media/r02.mp4` (19.0 s), Vorschau `media/r02.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r02.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r02.jpg
 - **Sound:** Lustiger oder lockerer Trend-Sound.
 - **Tipp:** Am besten sonntagabends posten – da nehmen sich alle das frühe Aufstehen vor.
 - **TikTok-Caption:**
@@ -208,6 +219,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 6
 - **Produkte:** Born to Win – Panther (`born-to-win-panther-poster`), Focus on You – Panther (`focus-on-you-panther-poster`), Go Get That Dream (`go-get-that-dream-leopard-poster`), Don't Wait to Be Happy (`dont-wait-to-be-happy-poster`)
 - **Material:** 6 Slides: `media/s02_tt_01..06.jpg` (9:16) und `media/s02_ig_01..06.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_ig_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_ig_06.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_tt_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s02_tt_06.jpg
 - **Sound:** Trend-Sound mit Quiz- oder „Which one are you“-Vibe.
 - **Tipp:** Kommentare sind hier das Ziel: Beantworte die ersten Kommentare mit einem Augenzwinkern.
 - **TikTok-Caption:**
@@ -229,6 +243,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Wand-Reveal · Tag 7
 - **Produkte:** FOCUS – Skulptur (`focus-skulptur-poster`), Born to Win (`born-to-win-panther-poster`), Get Up, We Ain't Rich Yet (`we-aint-rich-yet-poster`), Don't Quit (`dont-quit-motivationsposter`), You vs You (`you-vs-you-berg-poster`)
 - **Material:** `media/w01.mp4` (7.6 s), Vorschau `media/w01.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-w01.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-w01.jpg
 - **Sound:** Satisfying-Sound oder Beat, bei dem jedes Poster auf einen Schlag „aufgehängt“ wird.
 - **Tipp:** Frag in der Caption nach dem Lieblingsmotiv – gute Vorlage für Kommentare.
 - **TikTok-Caption:**
@@ -253,6 +268,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Motivations-Clip · Tag 8
 - **Produkte:** FOCUS – Skulptur-Poster (`focus-skulptur-poster`)
 - **Material:** `media/q05.mp4` (7.4 s), Vorschau `media/q05.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q05.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q05.jpg
 - **Sound:** Treibender Motivations-Beat; die Wörter wechseln etwa alle 0,8 Sekunden.
 - **Tipp:** Passt perfekt in Oktober bis Dezember – das Jahresende ist gerade Thema.
 - **TikTok-Caption:**
@@ -277,6 +293,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 9
 - **Produkte:** Leopard mit Perlenkette (`leopard-mit-perlenkette-poster`), Tiger im Pool (`tiger-im-pool-vintage-poster`), Yacht auf offener See (`yacht-auf-offener-see-poster`), Schwanensee (`schwanensee-aquarell-poster`), Dobermann unter Schafen (`dobermann-unter-schafen-poster`)
 - **Material:** 7 Slides: `media/s03_tt_01..07.jpg` (9:16) und `media/s03_ig_01..07.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_ig_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_ig_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_ig_07.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_tt_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_tt_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s03_tt_07.jpg
 - **Sound:** Ruhiger, eleganter Sound (Jazz, Lounge oder Piano).
 - **Tipp:** Speichern ist hier die wichtigste Interaktion – „Speichern für später“ steht deshalb in der Caption.
 - **TikTok-Caption:**
@@ -298,6 +317,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Einzelpost · Tag 10
 - **Produkte:** Don't Quit – Minimal (`dont-quit-motivationsposter`)
 - **Material:** `media/p04.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p04.jpg
 - **Tipp:** Frag in der Story nach: „Hast du's beim ersten Mal gesehen?“
 - **TikTok-Caption:**
   ```
@@ -320,6 +340,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Chat-Story · Tag 11
 - **Produkte:** Queens Don't Compete – Leopard (`queens-dont-compete-leoparden-poster`)
 - **Material:** `media/r03.mp4` (19.73 s), Vorschau `media/r03.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r03.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r03.jpg
 - **Sound:** Selbstbewusster Trend-Sound mit Girl-Power-Vibe.
 - **Tipp:** Spricht eher Frauen an – gut zum Testen, wie die Queens-Kollektion ankommt.
 - **TikTok-Caption:**
@@ -344,6 +365,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 12
 - **Produkte:** Queens Don't Compete (`queens-dont-compete-leoparden-poster`), Go Get That Dream (`go-get-that-dream-leopard-poster`), Your Only Limit Is Your Mind (`your-only-limit-floral-poster`), Jaguar in Blüten (`jaguar-in-blueten-wildlife-poster`), Dressurpferd (`dressurpferd-equestrian-poster`), Don't Wait to Be Happy (`dont-wait-to-be-happy-poster`)
 - **Material:** 8 Slides: `media/s04_tt_01..08.jpg` (9:16) und `media/s04_ig_01..08.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_07.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_ig_08.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_07.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s04_tt_08.jpg
 - **Sound:** Selbstbewusster, femininer Trend-Sound.
 - **Tipp:** Auf Instagram zusätzlich in die Story teilen und mit einer Umfrage fragen, welches Motiv gewinnt.
 - **TikTok-Caption:**
@@ -365,6 +389,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Motivations-Clip · Tag 13
 - **Produkte:** Get Up, We Ain't Rich Yet (`we-aint-rich-yet-poster`)
 - **Material:** `media/q01.mp4` (9.13 s), Vorschau `media/q01.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q01.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q01.jpg
 - **Sound:** Wecker-Sound am Anfang, danach harter Beat oder Motivations-Speech.
 - **Tipp:** Früh morgens posten (6–7 Uhr) – genau dann, wenn alle auf Schlummern drücken.
 - **TikTok-Caption:**
@@ -388,6 +413,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 ### p06 · Warum LimitlessPoster?
 - **Format:** Einzelpost · Tag 14
 - **Material:** `media/p06.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p06.jpg
 - **Tipp:** Diesen Post oben im Profil anpinnen – er beantwortet die häufigsten Fragen.
 - **TikTok-Caption:**
   ```
@@ -412,6 +438,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Chat-Story · Tag 15
 - **Produkte:** Leopard mit Perlenkette (`leopard-mit-perlenkette-poster`)
 - **Material:** `media/r04.mp4` (19.73 s), Vorschau `media/r04.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r04.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-r04.jpg
 - **Sound:** Eleganter Trend-Sound mit Old-Money-Vibe.
 - **Tipp:** Danach die Quiet-Luxury-Slideshow posten – gleiche Zielgruppe.
 - **TikTok-Caption:**
@@ -436,6 +463,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 16
 - **Produkte:** Don't Quit (`dont-quit-motivationsposter`), A Lot Can Happen in a Year (`a-lot-can-happen-poster`), Don't Wait to Be Happy (`dont-wait-to-be-happy-poster`), La Dolce Vita (`la-dolce-vita-italien-poster`), You vs You (`you-vs-you-berg-poster`)
 - **Material:** 7 Slides: `media/s05_tt_01..07.jpg` (9:16) und `media/s05_ig_01..07.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_ig_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_ig_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_ig_07.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_tt_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_tt_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s05_tt_07.jpg
 - **Sound:** Ruhiger Sound, gern mit sanfter Gitarre oder Piano.
 - **Tipp:** Typo-Poster funktionieren auch in Stories gut – einzelne Slides dort teilen.
 - **TikTok-Caption:**
@@ -457,6 +487,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Motivations-Clip · Tag 17
 - **Produkte:** You vs You – Berg (`you-vs-you-berg-poster`)
 - **Material:** `media/q04.mp4` (8.03 s), Vorschau `media/q04.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q04.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q04.jpg
 - **Sound:** Epischer, ruhiger Aufbau (Orchester oder Piano mit Drop).
 - **Tipp:** Gute Vorlage für eine Story-Frage: „Mit wem vergleichst du dich?“
 - **TikTok-Caption:**
@@ -481,6 +512,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Einzelpost · Tag 18
 - **Produkte:** Leopard mit Perlenkette (`leopard-mit-perlenkette-poster`), Tiger im Pool (`tiger-im-pool-vintage-poster`)
 - **Material:** `media/p03.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p03.jpg
 - **Tipp:** Story dazu: Umfrage-Sticker „Leopard oder Tiger?“
 - **TikTok-Caption:**
   ```
@@ -502,6 +534,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Wand-Reveal · Tag 19
 - **Produkte:** Leopard mit Perlenkette (`leopard-mit-perlenkette-poster`), Dobermann unter Schafen (`dobermann-unter-schafen-poster`), Schwanensee (`schwanensee-aquarell-poster`), Yacht auf offener See (`yacht-auf-offener-see-poster`)
 - **Material:** `media/w02.mp4` (6.97 s), Vorschau `media/w02.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-w02.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-w02.jpg
 - **Sound:** Eleganter, ruhiger Sound (Jazz oder Lounge).
 - **Tipp:** Zeigt die weißen Rahmen – viele wissen nicht, dass es beide Farben gibt.
 - **TikTok-Caption:**
@@ -526,6 +559,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 20
 - **Produkte:** Born to Win (`born-to-win-panther-poster`), Focus on You (`focus-on-you-panther-poster`), Queens Don't Compete (`queens-dont-compete-leoparden-poster`), Leopard auf Ast (`leopard-auf-ast-minimal-poster`), Jaguar in Blüten (`jaguar-in-blueten-wildlife-poster`), Leopard mit Perlenkette (`leopard-mit-perlenkette-poster`)
 - **Material:** 8 Slides: `media/s07_tt_01..08.jpg` (9:16) und `media/s07_ig_01..08.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_07.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_ig_08.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_07.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s07_tt_08.jpg
 - **Sound:** Trend-Sound mit lässigem, selbstbewusstem Vibe.
 - **Tipp:** Frag nach der Stimmung des Tages – lädt zum Kommentieren ein.
 - **TikTok-Caption:**
@@ -547,6 +583,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Motivations-Clip · Tag 21
 - **Produkte:** No Excuses, Just Results (`no-excuses-just-results-motivationsposter`)
 - **Material:** `media/q03.mp4` (8.73 s), Vorschau `media/q03.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q03.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q03.jpg
 - **Sound:** Harter Gym-Beat oder Phonk; die Durchstreich-Momente auf die Schläge legen.
 - **Tipp:** Gym-Zielgruppe: Montagmorgen posten.
 - **TikTok-Caption:**
@@ -570,6 +607,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 ### p07 · Größen-Guide
 - **Format:** Einzelpost · Tag 22
 - **Material:** `media/p07.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p07.jpg
 - **Tipp:** Gut zum Anpinnen neben „Warum LimitlessPoster?“ – nimmt Kaufzweifel bei der Größe.
 - **TikTok-Caption:**
   ```
@@ -619,6 +657,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: POV am Monitor · Premium · Tag 23 · Zusatz-Karte
 - **Produkte:** Go Get That Dream – Leopard (`go-get-that-dream-leopard-poster`)
 - **Material:** `media/v01.mp4` (21.65 s), Vorschau `media/v01.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-v01.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-v01.jpg
 - **Sound:** Entspannter Trend-Sound, wie im Original-Video.
 - **Tipp:** Das Format aus deinem Beispiel-Video in der Premium-Version (60 fps). Für die 100 % echte Version: die Querformat-Werbung im Vollbild auf deinem Monitor abspielen und mit dem Handy filmen.
 - **TikTok-Caption:**
@@ -643,6 +682,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 24
 - **Produkte:** Money Talks (`money-talks-franklin-poster`), Watching Eyes (`watching-eyes-money-poster`), Get Up, We Ain't Rich Yet (`we-aint-rich-yet-poster`), Crystal OK (`crystal-ok-art-poster`), No Excuses, Just Results (`no-excuses-just-results-motivationsposter`)
 - **Material:** 7 Slides: `media/s08_tt_01..07.jpg` (9:16) und `media/s08_ig_01..07.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_ig_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_ig_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_ig_07.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_tt_05.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_tt_06.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s08_tt_07.jpg
 - **Sound:** Selbstbewusster Hip-Hop- oder Hustle-Sound.
 - **Tipp:** Zielgruppe Unternehmer und Trader – gut für Home-Office-Hashtags.
 - **TikTok-Caption:**
@@ -664,6 +706,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Motivations-Clip · Tag 25
 - **Produkte:** A Lot Can Happen in a Year (`a-lot-can-happen-poster`)
 - **Material:** `media/q06.mp4` (8.2 s), Vorschau `media/q06.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q06.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-q06.jpg
 - **Sound:** Nostalgischer, emotionaler Sound mit Aufbau.
 - **Tipp:** Frag in der Caption nach den letzten 12 Monaten – Leute erzählen gern ihre Story.
 - **TikTok-Caption:**
@@ -688,6 +731,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Einzelpost · Tag 26
 - **Produkte:** You vs You – Berg (`you-vs-you-berg-poster`)
 - **Material:** `media/p05.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p05.jpg
 - **Tipp:** Zitat-Posts werden oft gespeichert und geteilt – gut auch für die Story.
 - **TikTok-Caption:**
   ```
@@ -708,6 +752,9 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Slideshow / Karussell · Tag 27
 - **Produkte:** Matchday von oben (`matchday-von-oben-tennis-poster`), Green Court von oben (`green-court-von-oben-tennis-poster`), Tennis Court Aerial (`tennis-court-aerial-poster`)
 - **Material:** 5 Slides: `media/s06_tt_01..05.jpg` (9:16) und `media/s06_ig_01..05.jpg` (4:5)
+- **Medien (öffentlich):**
+  - Instagram (4:5): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_ig_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_ig_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_ig_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_ig_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_ig_05.jpg
+  - TikTok (9:16): https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_tt_01.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_tt_02.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_tt_03.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_tt_04.jpg · https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-s06_tt_05.jpg
 - **Sound:** Ruhiger Sommer-Sound, gern mit Tennisball-Geräuschen.
 - **Tipp:** Am besten während eines großen Tennis-Turniers posten.
 - **TikTok-Caption:**
@@ -729,6 +776,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Einzelpost · Tag 28
 - **Produkte:** Born to Win (`born-to-win-panther-poster`), Money Talks (`money-talks-franklin-poster`), Queens Don't Compete (`queens-dont-compete-leoparden-poster`)
 - **Material:** `media/p08.jpg` (4:5)
+- **Medien (öffentlich):** Bild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-p08.jpg
 - **Tipp:** Ab November mehrmals posten – Geschenke sind dann das große Thema.
 - **TikTok-Caption:**
   ```
@@ -751,6 +799,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Neon 3D · Hyperspace · Tag 29
 - **Produkte:** Born to Win – Panther (`born-to-win-panther-poster`)
 - **Material:** `media/n01.mp4` (14.0 s), Vorschau `media/n01.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n01.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n01.jpg
 - **Sound:** Harter Bass-Drop oder Phonk – den Drop genau auf den Einschlag bei Sekunde 2 legen.
 - **Tipp:** Loopt nahtlos: Das Ende fliegt direkt in den Anfang. Nicht kürzen, sonst bricht der Loop.
 - **TikTok-Caption:**
@@ -776,6 +825,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Neon 3D · Karussell · Tag 30
 - **Produkte:** No Excuses, Just Results (`no-excuses-just-results-motivationsposter`), You vs You – Berg (`you-vs-you-berg-poster`), Go Get That Dream – Leopard (`go-get-that-dream-leopard-poster`), Queens Don't Compete – Leopard (`queens-dont-compete-leoparden-poster`), Focus on You – Panther (`focus-on-you-panther-poster`)
 - **Material:** `media/n02.mp4` (15.0 s), Vorschau `media/n02.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n02.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n02.jpg
 - **Sound:** Trend-Sound mit klarem Beat – die Stopps kommen alle 2 Sekunden.
 - **Tipp:** Engagement-Video: Auf jeden Kommentar mit der Nummer antworten (z. B. „03 = Go Get That Dream 🔥 Link in Bio“). Das pusht die Reichweite.
 - **TikTok-Caption:**
@@ -805,6 +855,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Neon 3D · Tunnel-Flug · Tag 31
 - **Produkte:** Yacht auf offener See (`yacht-auf-offener-see-poster`), Money Talks (`money-talks-franklin-poster`), Jaguar in Blüten (`jaguar-in-blueten-wildlife-poster`), La Dolce Vita (`la-dolce-vita-italien-poster`)
 - **Material:** `media/n03.mp4` (15.0 s), Vorschau `media/n03.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n03.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n03.jpg
 - **Sound:** Schneller Electro- oder Phonk-Beat – die Tunnel-Rahmen pulsieren im 120-BPM-Takt.
 - **Tipp:** Die Schlussfrage „Welche Welt holst du dir?“ zusätzlich als angepinnten Kommentar posten.
 - **TikTok-Caption:**
@@ -830,6 +881,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Kinetic Type · Neon-Schild · Tag 32
 - **Produkte:** Don't Quit – Minimal (`dont-quit-motivationsposter`)
 - **Material:** `media/n04.mp4` (13.5 s), Vorschau `media/n04.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n04.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-n04.jpg
 - **Sound:** Ruhiger Start, der Drop kommt, wenn das Neon-Schild angeht (Sekunde 3,4).
 - **Tipp:** Im Video steht „Lies es nochmal“ – das bringt Rewatches. In der Caption nicht verraten, was passiert.
 - **TikTok-Caption:**
@@ -854,6 +906,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Galerie · Kinetic Type auf dem Beat · Tag 33
 - **Produkte:** Born to Win – Panther (`born-to-win-panther-poster`), No Excuses, Just Results (`no-excuses-just-results-motivationsposter`), You vs You – Berg (`you-vs-you-berg-poster`), Go Get That Dream – Leopard (`go-get-that-dream-leopard-poster`), Queens Don't Compete – Leopard (`queens-dont-compete-leoparden-poster`), La Dolce Vita (`la-dolce-vita-italien-poster`), Money Talks (`money-talks-franklin-poster`), Jaguar in Blüten (`jaguar-in-blueten-wildlife-poster`)
 - **Material:** `media/g01.mp4` (12.0 s), Vorschau `media/g01.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g01.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g01.jpg
 - **Sound:** Sound mit klarer Kick bei 120 BPM – jedes Wort und jedes Poster landet auf einem Schlag. Schick mir die Beat-Zeiten deines Sounds, dann schneide ich exakt darauf.
 - **Tipp:** Die Bilderwand am Ende ist ein Kommentar-Magnet: In der Caption nach dem Lieblingsposter fragen.
 - **TikTok-Caption:**
@@ -878,6 +931,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Galerie · Größen & Preise (animierte Daten) · Tag 34
 - **Produkte:** Born to Win – Panther (`born-to-win-panther-poster`)
 - **Material:** `media/g02.mp4` (13.0 s), Vorschau `media/g02.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g02.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g02.jpg
 - **Sound:** Ruhiger Beat – alle 1 s wächst das Poster in die nächste Größe.
 - **Tipp:** Größen und Preise kommen aus einer CSV aus deinem Shop. Ändern sich Preise, kann das Video in Minuten neu gerendert werden.
 - **TikTok-Caption:**
@@ -902,6 +956,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Galerie · Shop-Intro aus der Website (4 Szenen) · Tag 35
 - **Produkte:** La Dolce Vita (`la-dolce-vita-italien-poster`), Leopard auf Ast (`leopard-auf-ast-minimal-poster`), Focus – Gym-Poster (`focus-gym-poster`), Don't Quit – Minimal (`dont-quit-motivationsposter`)
 - **Material:** `media/g03.mp4` (20.0 s), Vorschau `media/g03.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g03.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g03.jpg
 - **Sound:** Ruhiger, edler Beat – die 4 Szenen wechseln alle 5 s mit einem Kameraschwenk.
 - **Tipp:** Ideal als angepinntes Video oben im Profil: erklärt in 20 Sekunden den ganzen Shop. Alle Texte stammen von deiner Website.
 - **TikTok-Caption:**
@@ -926,6 +981,7 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 - **Format:** Reel · Stil: Galerie · Website-Demo (Raum-Vorschau) · Tag 36
 - **Produkte:** Born to Win – Panther (`born-to-win-panther-poster`), Queens Don't Compete – Leopard (`queens-dont-compete-leoparden-poster`), Tiger im Pool (`tiger-im-pool-vintage-poster`), Don't Quit – Minimal (`dont-quit-motivationsposter`)
 - **Material:** `media/g04.mp4` (14.0 s), Vorschau `media/g04.jpg`
+- **Medien (öffentlich):** Video https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g04.mp4 · Vorschaubild https://cdn.shopify.com/s/files/1/0976/9979/1181/files/limitlessos-cb-g04.jpg
 - **Sound:** Beat mit 120 BPM – die Poster in der Vorschau wechseln auf jedem Schlag.
 - **Tipp:** Zeigt die echte Raum-Vorschau deiner Website. Perfekt als Story mit Link-Sticker.
 - **TikTok-Caption:**
