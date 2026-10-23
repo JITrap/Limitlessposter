@@ -30,6 +30,8 @@ Was das System damit tut:
 - **Schreiben** (nur nach Freigabe, höchstens 5 pro Tag): `update-product` mit **nur** Titel und
   Beschreibung. Preise, Varianten, Bilder und Sichtbarkeit sind der Station per Anweisung verboten;
   solange eine Aufgabe auf Freigabe wartet, ist das Werkzeug zusätzlich technisch gesperrt.
+- **Nie erlaubt**, für keinen Arbeiter, technisch gesperrt: `switch-shop` (würde deine Anmeldung
+  widerrufen), `graphql_mutation`, Produkte anlegen, Preise, Lager, Rabatte, Kollektionen, Sichtbarkeit.
 
 ## Weg B (optional, 10 Minuten): eigene App für den Datei-Upload
 

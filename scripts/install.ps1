@@ -56,12 +56,21 @@ if (-not $SkipInstall) {
   if (-not (Has "ffmpeg")) { winget install --id Gyan.FFmpeg -e --accept-source-agreements --accept-package-agreements | Out-Null; RefreshPath }
   if (Has "ffmpeg") { Ok "ffmpeg (für Clips)" } else { Warn "ffmpeg fehlt – das Studio kann dann keine Clips rendern, Bilder schon." }
 
-  if (-not (Has "claude")) {
+  $nativeClaude = Join-Path $env:USERPROFILE ".local\bin\claude.exe"
+  if (-not (Has "claude") -and -not (Test-Path $nativeClaude)) {
     Write-Host "    Installiere Claude Code (nativ) …"
     Invoke-RestMethod https://claude.ai/install.ps1 | Invoke-Expression
-    RefreshPath
   }
-  if (-not (Has "claude")) { throw "Claude Code wurde nicht gefunden. Bitte Terminal neu öffnen und Skript erneut starten." }
+  # Der Installer trägt .local\bin nicht selbst in PATH ein (Doku: "prints the fix but doesn't change PATH").
+  $localBin = Join-Path $env:USERPROFILE ".local\bin"
+  $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+  if ((Test-Path $nativeClaude) -and (-not ($userPath -split ";" | Where-Object { $_.TrimEnd("\") -ieq $localBin }))) {
+    [Environment]::SetEnvironmentVariable("Path", ($userPath.TrimEnd(";") + ";" + $localBin), "User")
+    Ok "PATH: $localBin ergänzt"
+  }
+  RefreshPath
+  if (-not (Has "claude") -and -not (Test-Path $nativeClaude)) { throw "Claude Code wurde nicht gefunden. Bitte Terminal neu öffnen und Skript erneut starten." }
+  if (-not (Has "claude")) { Set-Alias -Name claude -Value $nativeClaude -Scope Script }
   $claudeVersion = (& claude --version) -replace "[^\d\.]", ""
   Ok "Claude Code $claudeVersion"
   if ([version]($claudeVersion.Split(" ")[0]) -lt [version]"2.1.302") { Warn "Claude Code ist älter als 2.1.302 – bitte 'claude update' ausführen." }
@@ -160,14 +169,31 @@ foreach ($key in $keys) {
 }
 [IO.File]::WriteAllText($claudeJsonPath, ($claudeJson | ConvertTo-Json -Depth 20), (New-Object System.Text.UTF8Encoding $false))
 Ok "~/.claude.json aktualisiert"
+# Die MCP-Server aus .mcp.json (metricool, shopify) auch über die Benutzer-Einstellungen freigeben – das gilt
+# unabhängig vom Vertrauensstatus des Ordners und erspart die Nachfrage in interaktiven Sitzungen.
+$userSettingsDir = Join-Path $env:USERPROFILE ".claude"
+$userSettingsPath = Join-Path $userSettingsDir "settings.json"
+New-Item -ItemType Directory -Force -Path $userSettingsDir | Out-Null
+$userSettings = [pscustomobject]@{}
+if (Test-Path $userSettingsPath) { try { $userSettings = Get-Content $userSettingsPath -Raw | ConvertFrom-Json } catch { Warn "~/.claude/settings.json war nicht lesbar und wird neu angelegt." } }
+if (-not $userSettings) { $userSettings = [pscustomobject]@{} }
+$userSettings | Add-Member -NotePropertyName enableAllProjectMcpServers -NotePropertyValue $true -Force
+[IO.File]::WriteAllText($userSettingsPath, ($userSettings | ConvertTo-Json -Depth 20), (New-Object System.Text.UTF8Encoding $false))
+Ok "~/.claude/settings.json: enableAllProjectMcpServers = true"
 
 # --- 5. .env -------------------------------------------------------------------------
 Step ".env anlegen"
 $envPath = Join-Path $RepoRoot ".env"
 if (-not (Test-Path $envPath)) { Copy-Item (Join-Path $RepoRoot ".env.example") $envPath }
-$claudeCmd = Get-Command claude -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-if (-not $claudeCmd) { $claudeCmd = Get-Command claude }
-$claudeBin = $claudeCmd.Source
+# Immer die native claude.exe bevorzugen: eine alte Claude-Desktop-Version kann ein "Claude.exe" in WindowsApps
+# vor die CLI in den PATH legen, und npm-Installationen liefern nur eine .cmd-Hülle, die Node nicht direkt starten kann.
+$nativeClaude = Join-Path $env:USERPROFILE ".local\bin\claude.exe"
+if (Test-Path $nativeClaude) { $claudeBin = $nativeClaude }
+else {
+  $claudeCmd = Get-Command claude -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+  if (-not $claudeCmd) { $claudeCmd = Get-Command claude }
+  $claudeBin = $claudeCmd.Source
+}
 $envText = Get-Content $envPath -Raw
 if ($envText -match "(?m)^LIMITLESS_CLAUDE_BIN=.*$") {
   $envText = [regex]::Replace($envText, "(?m)^LIMITLESS_CLAUDE_BIN=.*$", "LIMITLESS_CLAUDE_BIN=$claudeBin")

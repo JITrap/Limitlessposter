@@ -3,7 +3,7 @@ import { mkdtemp, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildArgs, buildPrompt, resolveClaudeBin, runWorker, type RunnerConfig } from '../../src/runner/claude.js'
+import { buildArgs, buildPrompt, resolveClaudeBin, runWorker, scopeTools, NEVER_TOOLS, type RunnerConfig } from '../../src/runner/claude.js'
 import type { Station } from '../../src/stations/loader.js'
 import type { Task } from '../../src/types.js'
 import type { StreamEvent } from '../../src/runner/stream.js'
@@ -110,26 +110,44 @@ describe('buildArgs', () => {
       '--add-dir', '/vault/LimitlessOS',
       '--no-session-persistence',
       '--allowedTools', 'Read', 'Write(///vault/LimitlessOS/**)', 'mcp__metricool__*',
+      '--disallowedTools', ...NEVER_TOOLS,
     ])
   })
 
   it('scopes bare Write/Edit to the vault (Windows paths become forward slashes)', () => {
     const args = buildArgs('P', task, { ...station, tools: ['Read', 'Write', 'Edit'] }, { ...cfg, vaultRoot: 'C:\\Users\\Julius\\Vault\\LimitlessOS' })
-    expect(args.slice(args.indexOf('--allowedTools') + 1)).toEqual(['Read', 'Write(//C:/Users/Julius/Vault/LimitlessOS/**)', 'Edit(//C:/Users/Julius/Vault/LimitlessOS/**)'])
+    const from = args.indexOf('--allowedTools') + 1
+    expect(args.slice(from, args.indexOf('--disallowedTools'))).toEqual(['Read', 'Write(//C:/Users/Julius/Vault/LimitlessOS/**)', 'Edit(//C:/Users/Julius/Vault/LimitlessOS/**)'])
   })
 
-  it('removes the outward tools with --disallowedTools when gated', () => {
+  it('always blocks the never-tools and adds the outward tools to --disallowedTools when gated', () => {
     const gated = buildArgs('P', task, station, cfg, { gated: true })
     const i = gated.indexOf('--disallowedTools')
     expect(i).toBeGreaterThan(0)
     expect(gated.slice(i + 1)).toEqual([
+      ...NEVER_TOOLS,
       'mcp__metricool__createScheduledPost',
       'mcp__metricool__updateScheduledPost',
       'mcp__shopify__update-product',
       'Bash(node supervisor/dist/adapters/shopify.js update-product*)',
       'Bash(node supervisor/dist/adapters/shopify.js upload-file*)',
+      'PowerShell(node supervisor/dist/adapters/shopify.js update-product*)',
+      'PowerShell(node supervisor/dist/adapters/shopify.js upload-file*)',
     ])
-    expect(buildArgs('P', task, station, cfg, { gated: false })).not.toContain('--disallowedTools')
+    const open = buildArgs('P', task, station, cfg, { gated: false })
+    const j = open.indexOf('--disallowedTools')
+    expect(open.slice(j + 1)).toEqual(NEVER_TOOLS)
+    expect(NEVER_TOOLS).toContain('mcp__shopify__switch-shop')
+    expect(NEVER_TOOLS).toContain('mcp__shopify__graphql_mutation')
+    expect(open).not.toContain('mcp__shopify__update-product')
+  })
+
+  it('mirrors Bash rules as PowerShell rules for Windows machines without Git Bash', () => {
+    expect(scopeTools(['Read', 'Bash(node supervisor/dist/adapters/studio.js *)'], '/v')).toEqual([
+      'Read',
+      'Bash(node supervisor/dist/adapters/studio.js *)',
+      'PowerShell(node supervisor/dist/adapters/studio.js *)',
+    ])
   })
 
   it('adds the fallback model for premium tasks', () => {

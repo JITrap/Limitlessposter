@@ -24,7 +24,14 @@
       "Edit(./scripts/**)",
       "Write(./scripts/**)",
       "Edit(./limitless.config.json)",
-      "Write(./limitless.config.json)"
+      "Write(./limitless.config.json)",
+      "PowerShell(git push*)",
+      "PowerShell(git commit*)",
+      "PowerShell(Remove-Item*)",
+      "PowerShell(rm *)",
+      "PowerShell(del *)",
+      "PowerShell(rmdir*)",
+      "Bash(rmdir*)"
     ]
   }
 }

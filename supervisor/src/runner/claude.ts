@@ -44,12 +44,48 @@ export const OUTWARD_TOOLS = [
   'mcp__shopify__update-product',
   'Bash(node supervisor/dist/adapters/shopify.js update-product*)',
   'Bash(node supervisor/dist/adapters/shopify.js upload-file*)',
+  'PowerShell(node supervisor/dist/adapters/shopify.js update-product*)',
+  'PowerShell(node supervisor/dist/adapters/shopify.js upload-file*)',
 ]
 
-/** Bare `Write`/`Edit` rules are scoped to the vault so a worker can never touch the repo (spec §11). */
+/**
+ * Shopify-MCP tools no worker may ever call, gated or not: `switch-shop` revokes the stored
+ * store authorization (one stray call and Julius has to sign in again), the rest create,
+ * price, publish or restructure things the stations are not allowed to touch.
+ */
+export const NEVER_TOOLS = [
+  'mcp__shopify__switch-shop',
+  'mcp__shopify__graphql_mutation',
+  'mcp__shopify__create-product',
+  'mcp__shopify__bulk-update-product-status',
+  'mcp__shopify__set-inventory',
+  'mcp__shopify__create-discount',
+  'mcp__shopify__create-collection',
+  'mcp__shopify__update-collection',
+  'mcp__shopify__add-to-collection',
+  'mcp__shopify__import-mock-shop-catalog',
+  'mcp__shopify__create-digital-product',
+  'mcp__shopify__create-digital-product-from-link',
+  'mcp__shopify__publish-digital-product',
+  'mcp__shopify__upload-digital-product-file',
+  'mcp__shopify__upload-digital-product-media',
+  'mcp__shopify__open-digital-products-install',
+]
+
+/**
+ * Bare `Write`/`Edit` rules are scoped to the vault so a worker can never touch the repo (spec §11).
+ * Every `Bash(...)` rule is mirrored as `PowerShell(...)`: on Windows without Git Bash, Claude Code
+ * swaps the Bash tool for a PowerShell tool with its own permission rules.
+ */
 export function scopeTools(tools: string[], vaultRoot: string): string[] {
   const root = vaultRoot.replace(/\\/g, '/').replace(/\/+$/, '')
-  return tools.map((t) => (t === 'Write' || t === 'Edit' || t === 'MultiEdit' ? `${t}(//${root}/**)` : t))
+  const out: string[] = []
+  for (const t of tools) {
+    if (t === 'Write' || t === 'Edit' || t === 'MultiEdit') out.push(`${t}(//${root}/**)`)
+    else out.push(t)
+    if (t.startsWith('Bash(')) out.push(`PowerShell(${t.slice('Bash('.length)}`)
+  }
+  return out
 }
 
 /** `LIMITLESS_CLAUDE_BIN` wins; otherwise the native install's binary name per platform. */
@@ -103,7 +139,7 @@ export function buildArgs(prompt: string, task: Task, station: Station, cfg: Run
   ]
   if (m.fallbackModel) args.push('--fallback-model', m.fallbackModel)
   if (station.tools.length) args.push('--allowedTools', ...scopeTools(station.tools, cfg.vaultRoot))
-  if (opts.gated) args.push('--disallowedTools', ...OUTWARD_TOOLS)
+  args.push('--disallowedTools', ...NEVER_TOOLS, ...(opts.gated ? OUTWARD_TOOLS : []))
   return args
 }
 
