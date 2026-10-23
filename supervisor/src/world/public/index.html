@@ -77,8 +77,8 @@
   .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
   .tile { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
   .tile .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-  .tile .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
-  .tile .v small { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .tile .v { font-size: 22px; font-weight: 700; margin-top: 4px; white-space: nowrap; }
+  .tile .v small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; white-space: normal; margin-top: 2px; }
   .tile.src-shop { border-top: 3px solid #7bd389; } .tile.src-social { border-top: 3px solid #5aa9ff; } .tile.src-printify { border-top: 3px solid #d98cff; }
   table.z { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
   table.z th, table.z td { text-align: left; padding: 6px 8px; border-bottom: 1px dashed var(--line); }
@@ -204,7 +204,7 @@
       tile('printify', 'Printify offen', esc(de(p.auftraege.offen)), p.auftraege.in_produktion + ' in Produktion');
       tile('printify', 'Versendet 28 T', esc(de(p.auftraege.versendet_28t)), p.auftraege.mit_problemen ? p.auftraege.mit_problemen + ' mit Problemen' : '');
       tile('printify', 'Marge 28 T', esc(money(p.auftraege.marge_28t, '€')), 'Umsatz − Printify-Kosten');
-      tile('printify', 'Ø Marge je Variante', esc(money(p.produkte.marge_durchschnitt, '€')), p.produkte.marge_min != null ? p.produkte.marge_min.toFixed(2) + ' bis ' + p.produkte.marge_max.toFixed(2) : '');
+      tile('printify', 'Ø Marge je Variante', esc(money(p.produkte.marge_durchschnitt, '€')), p.produkte.marge_min != null ? money(p.produkte.marge_min, '€') + ' bis ' + money(p.produkte.marge_max, '€') : '');
     } else {
       tile('printify', 'Printify', '–', 'nicht verbunden');
     }
