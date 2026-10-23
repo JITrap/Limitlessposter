@@ -114,7 +114,10 @@ describe('vault template', () => {
       expect(body).toContain('## Auftrag')
       expect(body).toContain('## Offene Fragen an Julius')
       stations.add(String(data.station))
-      if (data.station === 'content' || data.station === 'shop-analyst') expect(data.needs_approval).toBe(true)
+      const contentBank = data.station === 'content' && String(data.title).startsWith('Content-Bank ')
+      // Julius approved the Content-Bank cards wholesale on 23.10.2026; everything else outward starts gated
+      if (contentBank) expect(data.needs_approval).toBe(false)
+      else if (data.station === 'content' || data.station === 'shop-analyst') expect(data.needs_approval).toBe(true)
     }
     expect([...stations].sort()).toEqual(['content', 'manual', 'shop-analyst', 'studio'])
   })
