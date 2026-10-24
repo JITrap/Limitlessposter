@@ -23,6 +23,7 @@ autopilot:
   studio: 2
   reviewer: 2
   berichter: 2
+  produktion: 2
 updated: 2026-10-23
 ---
 # Strategie – Limitless Poster
@@ -41,6 +42,7 @@ Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsor
 
 | # | Bedingung | Aktion (erzeugte Aufgaben) | Abkühlzeit |
 |---|---|---|---|
+| 0 | Jeden Tag ab 05:30 (und sobald die Warteschlange leer ist) | **Tagesproduktion für morgen**: je Netzwerk die Soll-Menge aus `daily_targets` als `produktion`-Aufgaben (Format-Rotation und Slots laut [[Pläne/Produktion]]), dazu je Video/Karussell eine `content`-Aufgabe, die am Slot über den geprüften Metricool-Weg plant | täglich |
 | 1 | Content-Kalender < 7 Tage voraus | **zuerst Karten aus [[Pläne/Content-Bank]] in Tagesreihenfolge** (Reel pro Tag, Slideshow/Post an ihren Tagen; Captions unverändert); erst wenn die Bank leer ist: je Tag 1 Reel oder Karussell (Mix 60/40), nie Einzelbild; Studio-Aufgabe nur, wenn Material fehlt | – |
 | 2 | `Marke/Produkte.md` älter als 3 Tage | shop-analyst: Shop-Snapshot (Bestseller, Lager, neue Produkte) | 3 Tage |
 | 3 | Produkte mit Spalte „Sprache“ = EN oder „Titel optimiert?“ leer | shop-analyst: 3 Produkte überarbeiten (zuerst die englischen) | 2 Tage |
@@ -68,6 +70,11 @@ Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsor
 - Nach außen (Posts, Shop) nur mit Freigabe, solange die Station auf Autopilot 1 steht.
 - Nachts (00–07 Uhr) keine Premium-Aufgaben (Opus) – die sind für Tagesplanung und Wochenstrategie.
 - 30 % des Kontingents bleiben für Julius' eigene Arbeit frei (`reserve_for_julius`).
+
+## Fabrik läuft immer
+Die Warteschlange darf nie leer sein, solange Budget da ist: Ist keine startbare Aufgabe mehr da, stößt der Aufseher
+den Planer sofort an (höchstens alle 30 Minuten), zusätzlich um 05:30 die Tagesproduktion. Was gerade passiert, warum
+niemand arbeitet und wann der nächste Auslöser kommt, steht in der Welt unter „Fabrik“.
 
 ## Autopilot-Stufen
 0 = nur Entwürfe · 1 = veröffentlichen/ändern nach deiner Freigabe · 2 = vollautomatisch.

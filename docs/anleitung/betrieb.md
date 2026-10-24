@@ -83,3 +83,19 @@ Content-Station nur als Entwurf, und der Aufseher stößt den Abgleich an. Vorau
 und `METRICOOL_USER_ID` in der `.env` (Metricool → Einstellungen → API). Ohne Key entstehen nur Entwürfe.
 
 Zähler je Netzwerk stehen in der Welt (Wandtafel) und in `Status.md` unter „Heute“.
+
+## Update mit einem Befehl
+
+Einmalig einen Klon anlegen (PowerShell): `git clone https://github.com/JITrap/Limitlessposter.git "$env:TEMP\limitlessos-git"`.
+Danach jedes Update so:
+
+```
+git -C "$env:TEMP\limitlessos-git" pull; & "$env:TEMP\limitlessos-git\scripts\update.ps1"
+```
+
+`update.ps1` kopiert den neuen Stand in den Installationsordner (`.env`, `limitless.config.json`, `supervisor\data` bleiben),
+baut Aufseher und Stationen, ersetzt im Vault nur die System-Notizen (Home, Dashboard, Strategie, Marke-Notizen außer
+Produkte, Content-Bank, Produktion – mit Sicherung unter `%TEMP%\limitlessos-vault-backup-<Zeit>`), ergänzt fehlende Dateien
+und startet die geplante Aufgabe „LimitlessOS“ neu. Nie angefasst: Status.md, Kennzahlen.md, Pläne\Veröffentlicht.md,
+Marke\Produkte.md, Kalender, Wochenplan, Aufgaben, Berichte, Assets\content. Parameter: `-Target <Ordner>`, `-NoRestart`,
+`-NoVault`, `-NoPull`.

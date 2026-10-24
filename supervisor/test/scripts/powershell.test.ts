@@ -4,7 +4,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
-const SCRIPTS = ['scripts/install.ps1', 'scripts/doctor.ps1', 'scripts/bootstrap.ps1']
+const SCRIPTS = ['scripts/install.ps1', 'scripts/doctor.ps1', 'scripts/bootstrap.ps1', 'scripts/update.ps1']
 
 describe('PowerShell scripts (Windows PowerShell 5.1 compatibility)', () => {
   it('start with a UTF-8 BOM so PS 5.1 does not read them as Windows-1252', async () => {
@@ -46,5 +46,19 @@ describe('PowerShell scripts (Windows PowerShell 5.1 compatibility)', () => {
     expect(text).toContain('Unblock-File')
     expect(text).toContain('archive/refs/heads/')
     expect(text).not.toMatch(/\bgit clone\b/)
+  })
+
+  it('update.ps1 keeps local config and live vault data, replaces only system notes with a backup', async () => {
+    const text = await readFile(join(repoRoot, 'scripts/update.ps1'), 'utf8')
+    expect(text).toContain('/XD "node_modules" "data" ".git" /XF ".env" "limitless.config.json"')
+    expect(text).toContain('git -C $Source pull --ff-only')
+    expect(text).toContain('npm run build:stations')
+    // replaced (with backup): brand notes, Home, Strategie, Content-Bank – never the live lists
+    expect(text).toMatch(/\$overwrite = @\([^)]*"Strategie\.md"[^)]*"Pläne\\Content-Bank\.md"/s)
+    expect(text).not.toMatch(/\$overwrite = @\([^)]*Veröffentlicht/s)
+    expect(text).not.toMatch(/\$overwrite = @\([^)]*Produkte\.md/s)
+    expect(text).not.toMatch(/\$overwrite = @\([^)]*Status\.md/s)
+    expect(text).toContain('Copy-Item $dest $bak -Force')
+    expect(text).not.toMatch(/Remove-Item|rm -r/)
   })
 })
