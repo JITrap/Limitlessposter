@@ -20,7 +20,14 @@ und Shop-Büro. Shopify läuft ohne Schlüssel über den offiziellen Shopify-MCP
 (`docs/anleitung/shopify-app.md`, Weg B) ist nur für den Datei-Upload nötig.
 
 Anleitungen: [Erste Schritte](docs/anleitung/erste-schritte.md) · [Betrieb](docs/anleitung/betrieb.md) ·
-[Shopify-App](docs/anleitung/shopify-app.md) · [Metricool](docs/anleitung/metricool-mcp.md)
+[Shopify-App](docs/anleitung/shopify-app.md) · [Metricool](docs/anleitung/metricool-mcp.md) ·
+[Produktion](docs/anleitung/produktion.md) · [Stimme](docs/anleitung/stimme.md)
+
+**Update auf den neuesten Stand** (zwei Zeilen in PowerShell, Einstellungen und Daten bleiben erhalten):
+```powershell
+git -C "$env:TEMP\limitlessos-git" pull
+& "$env:TEMP\limitlessos-git\scripts\update.ps1"
+```
 
 ## Aufbau
 ```
@@ -43,8 +50,14 @@ FAKE_CLAUDE=1 npm run dev  # Aufseher lokal mit Fake-Arbeitern
 Spezifikation: `docs/superpowers/specs/2026-10-22-limitless-os-design.md` ·
 Plan Phase 1: `docs/superpowers/plans/2026-10-22-limitless-os-phase1.md`
 
+## Produktion und Stimme
+Die Station **Produktion** baut täglich Reels und Karussells (Szenen in `stations/produktion/vorlagen`, gerendert in Chromium,
+gemischt mit ffmpeg) mit lokaler **Stimme** (`tools/stimme`: Chatterbox oder Piper, kein Cloud-Dienst, kein Schlüssel) und prüft
+sie am Qualitäts-Gate (`gate.js`). Anleitungen: `docs/anleitung/produktion.md`, `docs/anleitung/stimme.md`.
+Einrichten auf dem PC: `powershell -ExecutionPolicy Bypass -File tools\stimme\install.ps1`.
+
 ## Phase 2 (vorbereitet, noch nicht gebaut)
-Stimme (VoiceStudio-MCP), Bild/Video (ComfyUI), Pinterest, E-Mail-Flows, Skill-Schmied für Chat-Importe.
+Bild/Video (ComfyUI), Pinterest, E-Mail-Flows, Skill-Schmied für Chat-Importe.
 
 ## Dubletten-Schutz
 Veröffentlicht wird nur über `supervisor/dist/adapters/metricool.js schedule` – geprüft gegen `Pläne/Veröffentlicht.md` und die Tageslimits je Netzwerk. Details: `docs/anleitung/betrieb.md`.

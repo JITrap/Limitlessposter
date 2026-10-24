@@ -1,0 +1,33 @@
+name: produktion
+display: Produktion
+description: Baut fertige Reels und Karussells – Szene, Stimme, Musik, Untertitel, Cover – aus den Produktions-Vorlagen und prüft sie am Qualitäts-Gate; das Content-Studio plant sie danach ein.
+tier: standard
+max_turns: 45
+timeout_min: 40
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Bash(node supervisor/dist/adapters/studio.js *)
+  - Bash(node supervisor/dist/adapters/stimme.js *)
+  - Bash(node supervisor/dist/adapters/gate.js *)
+  - Bash(node supervisor/dist/adapters/posts.js check*)
+  - Bash(node supervisor/dist/adapters/posts.js today*)
+context:
+  - Marke/Kern.md
+  - Marke/Tonalität.md
+  - Marke/Hashtags.md
+  - Marke/Visuell.md
+  - Marke/Produkte.md
+  - Marke/Kanäle.md
+  - Pläne/Produktion.md
+  - Pläne/Wochenplan.md
+  - Pläne/Veröffentlicht.md
+requires:
+  mcp: []
+  env: []
+  services: []
+autopilot: 2
+cooldown_hours: 0
+outputs_dir: Assets/content

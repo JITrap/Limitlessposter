@@ -1,0 +1,81 @@
+<!doctype html>
+<!-- T03 Drei Fehler · 9:16 · 12 s
+  DATA: hook ("3 Fehler beim Poster aufhängen"), poster, fehler1..3 (kurze Sätze), rahmen, end, cta, domain, preiszeile
+  Der Rahmen zeigt je Fehler die Korrektur: zu hoch → auf Augenhöhe, zu klein → größer, ohne Rahmen → mit Rahmen. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  .hook { top: 180px; font-size: 104px; }
+  .frame { top: 520px; width: 480px; height: 672px; transform-origin: 50% 50%; }
+  .frame.none { background: transparent; padding: 0; box-shadow: 0 20px 40px rgba(0,0,0,.2); }
+  .frame img, .frame .ph { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .fehler { position: absolute; left: 60px; right: 60px; top: 1215px; }
+  #subs { top: 1420px; }
+  .fehler .card { position: relative; left: 0; right: 0; display: flex; align-items: center; gap: 28px; }
+  .fehler .num { flex: 0 0 auto; width: 84px; height: 84px; border-radius: 50%; background: var(--accent); color: #fff; font-family: var(--head); font-size: 54px; display: flex; align-items: center; justify-content: center; }
+  .fehler .txt { font-size: 42px; line-height: 1.22; }
+  .eye { position: absolute; left: 60px; right: 60px; top: 856px; height: 4px; background: var(--accent); opacity: 0; }
+  .eye span { position: absolute; right: 0; top: -52px; font-size: 32px; font-weight: 600; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="layer" id="room"><div class="wall"></div><div class="floor"></div><div class="sofa"></div><div class="grain"></div></div>
+  <div class="eye" id="eye"><span>Augenhöhe</span></div>
+  <div class="frame" id="frame"><img id="poster" alt=""></div>
+  <div class="hook light center" id="hook"></div>
+  <div class="fehler" id="f1"><div class="card"><div class="num">1</div><div class="txt" id="t1"></div></div></div>
+  <div class="fehler" id="f2"><div class="card"><div class="num">2</div><div class="txt" id="t2"></div></div></div>
+  <div class="fehler" id="f3"><div class="card"><div class="num">3</div><div class="txt" id="t3"></div></div></div>
+  <div class="endcard" id="end"><div class="big" id="endBig"></div><div class="rule"></div><div class="small" id="endSmall"></div><div class="domain" id="endDomain"></div><div class="price" id="endPrice"></div></div>
+  <div id="subs" class="light"></div>
+  <div class="layer" id="black" style="background:#000"></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    hook: '3 Fehler beim Poster aufhängen', poster: '',
+    fehler1: 'Zu hoch. Die Mitte gehört auf Augenhöhe, etwa 145 cm.',
+    fehler2: 'Zu klein. Das Bild braucht zwei Drittel der Möbelbreite.',
+    fehler3: 'Ohne Rahmen. Erst der Rahmen macht aus Papier ein Bild.',
+    rahmen: 'schwarz', end: 'Limitless Poster', cta: 'Gerahmt geliefert. Aufhängen, fertig.', domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  $('hook').textContent = D.hook; $('t1').textContent = D.fehler1; $('t2').textContent = D.fehler2; $('t3').textContent = D.fehler3;
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain; $('endPrice').textContent = D.preiszeile;
+  Lib.setPoster($('poster'), D.poster);
+  var words = Lib.splitWords($('hook'));
+  var E = Lib.E, P = Lib.prog, frame = $('frame');
+  var cards = [$('f1'), $('f2'), $('f3')], starts = [2.0, 5.0, 8.0];
+  window.DURATION = 12;
+  window.renderFrame = function (t) {
+    Lib.reveal(words, t, -0.45, { stagger: 0.06, dur: 0.5, out: 10.3 });
+    // Fehler-Karten
+    cards.forEach(function (c, i) {
+      var s = starts[i], p = P(t, s, 0.5, E.outQuint), o = i < 2 ? P(t, starts[i + 1] - 0.3, 0.3, E.inOutCubic) : P(t, 10.3, 0.3, E.inOutCubic);
+      c.style.opacity = Math.min(p, 1 - o);
+      c.style.transform = 'translateY(' + ((1 - p) * 60) + 'px)';
+    });
+    // Rahmen-Korrekturen: 1) zu hoch → rutscht auf Augenhöhe, 2) wächst, 3) Rahmen erscheint
+    var y = -170 * (1 - P(t, 3.0, 0.9, E.outBack));
+    var s = 0.72 + 0.28 * P(t, 6.0, 0.9, E.outBack);
+    var framed = P(t, 9.0, 0.5, E.outCubic);
+    frame.style.transform = 'translateX(-50%) translateY(' + y + 'px) scale(' + s + ')';
+    frame.style.opacity = P(t, 0.3, 0.5, E.outCubic);
+    frame.classList.toggle('none', t < 9.0);
+    frame.style.boxShadow = framed > 0 ? '0 40px 80px rgba(0,0,0,' + (0.35 * framed) + ')' : '';
+    Lib.frameColor(frame, D.rahmen);
+    var eye = P(t, 2.2, 0.4, E.outCubic) * (1 - P(t, 4.8, 0.3, E.inOutCubic));
+    $('eye').style.opacity = eye;
+    var end = P(t, 10.4, 0.5, E.outCubic);
+    $('end').style.opacity = end;
+    $('black').style.opacity = 1 - Lib.fadeOut(t, 12, 0.4);
+    Lib.subs(t);
+  };
+})();
+</script>
+</body>
+</html>

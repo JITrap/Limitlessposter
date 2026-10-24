@@ -1,0 +1,997 @@
+{
+ "captionTemplates": {
+  "facebook": {
+   "post": "{hook}\n\n{body}\n\n{seen}: {product_name}, gerahmt geliefert, Rahmen in Schwarz oder Weiß, {sizes}.\n{price_line}\n\nDirekt zum Motiv: {link}\n\n{tags}",
+   "reel": "{hook}\n\n{body}\n\n{seen}: {product_name}, gerahmt geliefert, Rahmen in Schwarz oder Weiß, {sizes}.\n{price_line}\n\nDirekt zum Motiv: {link}\n\n{tags}",
+   "story": null,
+   "tags": [
+    "#postermitrahmen",
+    "#wanddeko"
+   ]
+  },
+  "gbp": {
+   "tags": [],
+   "update": "{hook}\n{seen}: {product_name}, gerahmt geliefert, Rahmen in Schwarz oder Weiß, {sizes}.\n{price_line}\nJetzt ansehen: {link}"
+  },
+  "linkedin": {
+   "bodyPool": {
+    "closing": "Was wir anders machen: kein Rahmen zum Selberbauen, kein Poster in der Rolle.",
+    "default": "An Arbeitsplätzen wirkt ein Motiv dann, wenn es dem Raum einen Fixpunkt gibt, ohne ihn zu bestimmen. Deshalb gibt es jedes Motiv in mehreren Größen, damit es zur Wand passt und nicht umgekehrt.",
+    "mindset-words-ambition": "Im Büro hängt ein Satz wie dieser dort, wo man morgens als Erstes hinschaut: über dem Schreibtisch, neben dem Kalender, im Flur zum Besprechungsraum. Ein Motiv aus MINDSET — Words & Ambition gibt dem Platz eine Richtung, ohne laut zu werden."
+   },
+   "document": "{hook}\n\n{li_body}\n\n{seen}: {product_name}. Gerahmt geliefert, Rahmen in Schwarz oder Weiß, {sizes}. {price_line}.\n\nDer Link zum Motiv steht im ersten Kommentar.\n\n{tags}",
+   "image": "{hook}\n\n{li_body}\n\n{seen}: {product_name}. Gerahmt geliefert, Rahmen in Schwarz oder Weiß, {sizes}. {price_line}.\n\nDer Link zum Motiv steht im ersten Kommentar.\n\n{tags}",
+   "tags": [
+    "#Wandgestaltung",
+    "#Arbeitsplatz",
+    "#LimitlessPoster"
+   ],
+   "video": "{hook}\n\n{li_body}\n\n{seen}: {product_name}. Gerahmt geliefert, Rahmen in Schwarz oder Weiß, {sizes}. {price_line}.\n\nDer Link zum Motiv steht im ersten Kommentar.\n\n{tags}"
+  },
+  "tiktok": {
+   "photos": "{hook} {question}\n{tags}",
+   "questions": {
+    "photos": [
+     "Welches ist deins? 1–7 👇",
+     "Stopp bei deinem Favoriten 👇"
+    ],
+    "video": [
+     "Welche Wand bei dir?",
+     "Links oder rechts?",
+     "Welche Zahl hattest du?",
+     "Schwarz oder Weiß?"
+    ]
+   },
+   "tags": [
+    "#posterliebe",
+    "#wanddeko",
+    "#zimmerdeko",
+    "#roomdecor",
+    "#wohnideen",
+    "#postermitrahmen",
+    "#wandbilder",
+    "#bilderwand",
+    "#einrichten",
+    "#homedecor",
+    "#dekoideen",
+    "#wgzimmer"
+   ],
+   "video": "{hook} {question}\n{tags}"
+  }
+ },
+ "crosspost": {
+  "poster": {
+   "facebook": "story",
+   "gbp": "image",
+   "linkedin": false,
+   "tiktok": false
+  },
+  "reel": {
+   "facebook": "reel",
+   "gbp": false,
+   "linkedin": "video",
+   "tiktok": "flag"
+  },
+  "slides.ig": {
+   "facebook": "post",
+   "gbp": "image",
+   "linkedin": "document",
+   "tiktok": false
+  },
+  "slides.tt": {
+   "facebook": "story",
+   "gbp": false,
+   "linkedin": false,
+   "tiktok": "photos"
+  }
+ },
+ "gate": {
+  "allowedSizes": [
+   [
+    28,
+    36
+   ],
+   [
+    30,
+    46
+   ],
+   [
+    36,
+    28
+   ],
+   [
+    41,
+    51
+   ],
+   [
+    46,
+    30
+   ],
+   [
+    46,
+    61
+   ],
+   [
+    51,
+    41
+   ],
+   [
+    51,
+    76
+   ],
+   [
+    61,
+    46
+   ],
+   [
+    61,
+    91
+   ],
+   [
+    76,
+    51
+   ],
+   [
+    91,
+    61
+   ]
+  ],
+  "allowedWords": [
+   "barcode",
+   "basal",
+   "codex",
+   "dresscode",
+   "farbcode",
+   "hundertprozent",
+   "ideal",
+   "jerusalem",
+   "kolossal",
+   "mühsal",
+   "papierkram",
+   "qrcode",
+   "rinnsal",
+   "salem",
+   "salento",
+   "salerno",
+   "schicksal",
+   "sparen",
+   "sparsam",
+   "sparst",
+   "spartan",
+   "sparte",
+   "universal",
+   "zipcode"
+  ],
+  "brands": [
+   "nike",
+   "adidas",
+   "ikea",
+   "disney",
+   "marvel",
+   "ferrari",
+   "apple",
+   "samsung",
+   "netflix",
+   "lego",
+   "porsche",
+   "marlboro",
+   "batman",
+   "wimbledon",
+   "formula 1",
+   "formula one",
+   "formel 1",
+   "formel eins",
+   "f1",
+   "just do it",
+   "red bull",
+   "mercedes",
+   "bmw",
+   "audi",
+   "lamborghini",
+   "rolex",
+   "gucci",
+   "louis vuitton",
+   "chanel",
+   "dior",
+   "supreme"
+  ],
+  "deliveryPairs": [
+   [
+    "\\b(\\d{1,3}|(?:(?:ein|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun)?(?:hundert|tausend)(?:(?:ein|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun)und)?(?:(?:zwanzig|drei(?:ß|ss)ig|vierzig|f(?:ü|ue)nfzig|sechzig|siebzig|achtzig|neunzig)|(?:dreizehn|vierzehn|f(?:ü|ue)nfzehn|sechzehn|siebzehn|achtzehn|neunzehn|eins|ein|eine|einer|einem|einen|eines|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun|zehn|elf|zw(?:ö|oe)lf))?|(?:ein|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun)und(?:zwanzig|drei(?:ß|ss)ig|vierzig|f(?:ü|ue)nfzig|sechzig|siebzig|achtzig|neunzig)|(?:zwanzig|drei(?:ß|ss)ig|vierzig|f(?:ü|ue)nfzig|sechzig|siebzig|achtzig|neunzig)|(?:dreizehn|vierzehn|f(?:ü|ue)nfzehn|sechzehn|siebzehn|achtzehn|neunzehn|eins|ein|eine|einer|einem|einen|eines|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun|zehn|elf|zw(?:ö|oe)lf)einhalb|eineinhalb|anderthalb|(?:dreizehn|vierzehn|f(?:ü|ue)nfzehn|sechzehn|siebzehn|achtzehn|neunzehn|eins|ein|eine|einer|einem|einen|eines|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun|zehn|elf|zw(?:ö|oe)lf)|paar|wenige|wenigen|weniger|einige|einigen|einiger))(?:\\s*(?:bis|–|-)?\\s*(?:\\d{1,3}|(?:(?:ein|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun)?(?:hundert|tausend)(?:(?:ein|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun)und)?(?:(?:zwanzig|drei(?:ß|ss)ig|vierzig|f(?:ü|ue)nfzig|sechzig|siebzig|achtzig|neunzig)|(?:dreizehn|vierzehn|f(?:ü|ue)nfzehn|sechzehn|siebzehn|achtzehn|neunzehn|eins|ein|eine|einer|einem|einen|eines|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun|zehn|elf|zw(?:ö|oe)lf))?|(?:ein|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun)und(?:zwanzig|drei(?:ß|ss)ig|vierzig|f(?:ü|ue)nfzig|sechzig|siebzig|achtzig|neunzig)|(?:zwanzig|drei(?:ß|ss)ig|vierzig|f(?:ü|ue)nfzig|sechzig|siebzig|achtzig|neunzig)|(?:dreizehn|vierzehn|f(?:ü|ue)nfzehn|sechzehn|siebzehn|achtzehn|neunzehn|eins|ein|eine|einer|einem|einen|eines|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun|zehn|elf|zw(?:ö|oe)lf)einhalb|eineinhalb|anderthalb|(?:dreizehn|vierzehn|f(?:ü|ue)nfzehn|sechzehn|siebzehn|achtzehn|neunzehn|eins|ein|eine|einer|einem|einen|eines|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun|zehn|elf|zw(?:ö|oe)lf)|paar|wenige|wenigen|weniger|einige|einigen|einiger)))?[\\s+]*(h|std|stunden?|(?:werk\\s*|arbeits\\s*|gesch(?:ä|ae)fts\\s*)?tag(?:e|en|es)?|tg|t(?:ä|ae)gig\\w*|wochen?)\\b",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|dauert|dauer\\b|\\braus\\b|\\bda\\b|bestellung|unterwegs|auf dem weg|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm)",
+    false
+   ],
+   [
+    "schnell",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm|ist dein poster da)",
+    true
+   ],
+   [
+    "\\bsofort",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm|ist dein poster da)",
+    true
+   ],
+   [
+    "\\bsame day\\b",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm|ist dein poster da)",
+    true
+   ],
+   [
+    "\\bam\\s+(?:n(?:ä|ae)chsten|gleichen|selben|folgenden)\\s+tag\\b",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|dauert|dauer\\b|\\braus\\b|\\bda\\b|bestellung|unterwegs|auf dem weg|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm)",
+    true
+   ],
+   [
+    "\\b(?:vor|bis|zu|zum|bis zum|noch vor)\\s+(?:dem\\s+|den\\s+|der\\s+|das\\s+|die\\s+)?(?:weihnachten|heiligabend|ostern|nikolaus|valentinstag|muttertag|vatertag|silvester|neujahr|fest|feiertagen|feiertage|advent)\\b",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm|ist dein poster da)",
+    true
+   ],
+   [
+    "\\b(?:bis|vor|sp(?:ä|ae)testens)\\s+(?:zum\\s+|am\\s+|dem\\s+)?\\d{1,2}\\s+(?:januar|februar|m(?:ä|ae)rz|april|mai|juni|juli|august|september|oktober|november|dezember|\\d{1,2})\\b",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm|ist dein poster da)",
+    true
+   ],
+   [
+    "\\b(?:rechtzeitig|p(?:ü|ue)nktlich|puenktlich)\\b",
+    "(?:(?:liefer|versand|verschick|versend|zustell|zugestellt|schick)|bei dir|an deiner wand|garantiert|komm\\w*\\b.{0,24}\\ban\\b|ankomm|angekomm|ist dein poster da)",
+    true
+   ],
+   [
+    "\\b(?:rechtzeitig|p(?:ü|ue)nktlich|puenktlich)\\s+(?:zu|zum|vor|f(?:ü|ue)r|f(?:ü|ue)rs|zur)\\s+(?:dem\\s+|den\\s+|der\\s+|das\\s+|die\\s+)?(?:weihnachten|heiligabend|ostern|nikolaus|valentinstag|muttertag|vatertag|silvester|neujahr|fest|feiertagen|feiertage|advent)\\b",
+    ".",
+    true
+   ]
+  ],
+  "deliveryPatterns": [
+   "(?<!jeden )(?<!am )(?<!guten )(?<!den )(?<!der )(?<!jeder )(?<!diesen )(?<!jedem )\\b(?:morgen|(?:ü|ue)bermorgen)\\s+(?:ist es\\s+|schon\\s+)?(?:bei dir|an deiner wand)\\b",
+   "(?<!jeden )(?<!am )(?<!guten )(?<!den )(?<!der )(?<!jeder )(?<!diesen )(?<!jedem )\\b(?:morgen|(?:ü|ue)bermorgen)\\s+(?:ist es\\s+|schon\\s+)?da\\b(?!\\s+an\\b)",
+   "\\bheute bestellt\\b",
+   "\\b(?:lieferzeit|lieferdauer|versanddauer|versandzeit|expressversand|expresslieferung|schnellversand|sofortversand|sofort lieferbar)",
+   "\\bexpress\\b",
+   "\\bwerkt(?:ä|ae)g",
+   "\\bwerktag"
+  ],
+  "discountRules": [
+   [
+    "sale",
+    "in"
+   ],
+   [
+    "code",
+    "start"
+   ],
+   [
+    "code",
+    "end"
+   ],
+   [
+    "deal",
+    "in"
+   ],
+   [
+    "spar",
+    "start"
+   ],
+   [
+    "rabatt",
+    "in"
+   ],
+   [
+    "gutschein",
+    "in"
+   ],
+   [
+    "coupon",
+    "in"
+   ],
+   [
+    "kupon",
+    "in"
+   ],
+   [
+    "gratis",
+    "in"
+   ],
+   [
+    "discount",
+    "in"
+   ],
+   [
+    "schnäppchen",
+    "in"
+   ],
+   [
+    "promocode",
+    "in"
+   ],
+   [
+    "aktionscode",
+    "in"
+   ],
+   [
+    "blackfriday",
+    "in"
+   ],
+   [
+    "blackweek",
+    "in"
+   ],
+   [
+    "cyberweek",
+    "in"
+   ],
+   [
+    "cybermonday",
+    "in"
+   ],
+   [
+    "prozent",
+    "in"
+   ],
+   [
+    "angebot",
+    "in"
+   ],
+   [
+    "aktion",
+    "start"
+   ],
+   [
+    "sonderpreis",
+    "in"
+   ],
+   [
+    "einführungspreis",
+    "in"
+   ],
+   [
+    "vorteilspreis",
+    "in"
+   ],
+   [
+    "kennenlernpreis",
+    "in"
+   ],
+   [
+    "bestpreis",
+    "in"
+   ],
+   [
+    "aktionspreis",
+    "in"
+   ],
+   [
+    "nachlass",
+    "end"
+   ],
+   [
+    "nachlass",
+    "word"
+   ],
+   [
+    "nachlässe",
+    "end"
+   ],
+   [
+    "nachlasses",
+    "end"
+   ],
+   [
+    "nachlässen",
+    "end"
+   ],
+   [
+    "herbstaktion",
+    "in"
+   ],
+   [
+    "weihnachtsaktion",
+    "in"
+   ],
+   [
+    "sparaktion",
+    "in"
+   ],
+   [
+    "rabattaktion",
+    "in"
+   ],
+   [
+    "sommeraktion",
+    "in"
+   ],
+   [
+    "winteraktion",
+    "in"
+   ],
+   [
+    "osteraktion",
+    "in"
+   ],
+   [
+    "adventsaktion",
+    "in"
+   ],
+   [
+    "nikolausaktion",
+    "in"
+   ],
+   [
+    "sonderaktion",
+    "in"
+   ],
+   [
+    "neujahrsaktion",
+    "in"
+   ],
+   [
+    "aktionswoche",
+    "in"
+   ],
+   [
+    "2für1",
+    "in"
+   ],
+   [
+    "3für2",
+    "in"
+   ],
+   [
+    "blackweekend",
+    "in"
+   ],
+   [
+    "zum preis von",
+    "seq"
+   ],
+   [
+    "2 für 1",
+    "seq"
+   ],
+   [
+    "3 für 2",
+    "seq"
+   ],
+   [
+    "drei für zwei",
+    "seq"
+   ],
+   [
+    "zwei für eins",
+    "seq"
+   ],
+   [
+    "halben preis",
+    "seq"
+   ],
+   [
+    "halber preis",
+    "seq"
+   ],
+   [
+    "cyber week",
+    "seq"
+   ],
+   [
+    "cyber monday",
+    "seq"
+   ],
+   [
+    "black friday",
+    "seq"
+   ],
+   [
+    "black week",
+    "seq"
+   ],
+   [
+    "black weekend",
+    "seq"
+   ],
+   [
+    "kostenlos dazu",
+    "seq"
+   ],
+   [
+    "geschenkt dazu",
+    "seq"
+   ],
+   [
+    "statt",
+    "word"
+   ]
+  ],
+  "forbiddenWords": [
+   "2 für 1",
+   "2für1",
+   "3 für 2",
+   "3für2",
+   "acryl",
+   "adventsaktion",
+   "aktion",
+   "aktionscode",
+   "aktionspreis",
+   "aktionswoche",
+   "alu",
+   "aluminium",
+   "alurahmen",
+   "angebot",
+   "bestpreis",
+   "black friday",
+   "black week",
+   "black weekend",
+   "blackfriday",
+   "blackweek",
+   "blackweekend",
+   "canvas",
+   "code",
+   "coupon",
+   "cyber monday",
+   "cyber week",
+   "cybermonday",
+   "cyberweek",
+   "deal",
+   "discount",
+   "drei für zwei",
+   "echtglas",
+   "echtholz",
+   "eiche",
+   "eichenrahmen",
+   "einführungspreis",
+   "entspiegelt",
+   "fine art",
+   "fineart",
+   "geschenkt dazu",
+   "glas",
+   "glases",
+   "glasscheibe",
+   "gratis",
+   "gutschein",
+   "halben preis",
+   "halber preis",
+   "herbstaktion",
+   "hinter glas",
+   "hochwertig",
+   "holzrahmen",
+   "kennenlernpreis",
+   "kostenlos dazu",
+   "kunststoff",
+   "kunststoffrahmen",
+   "kupon",
+   "leinwand",
+   "leinwänd",
+   "lichtecht",
+   "massivholz",
+   "material",
+   "mdf",
+   "metallrahmen",
+   "museumsglas",
+   "museumsgläs",
+   "museumsqualität",
+   "nachlass",
+   "nachlasses",
+   "nachlässe",
+   "nachlässen",
+   "neujahrsaktion",
+   "nikolausaktion",
+   "osteraktion",
+   "papier",
+   "plastik",
+   "plexiglas",
+   "premium",
+   "promocode",
+   "prozent",
+   "rabatt",
+   "rabattaktion",
+   "sale",
+   "schnäppchen",
+   "sommeraktion",
+   "sonderaktion",
+   "sonderpreis",
+   "spar",
+   "sparaktion",
+   "statt",
+   "säurefrei",
+   "vorteilspreis",
+   "weihnachtsaktion",
+   "winteraktion",
+   "zum preis von",
+   "zwei für eins"
+  ],
+  "materialRules": [
+   [
+    "premium",
+    "in"
+   ],
+   [
+    "material",
+    "in"
+   ],
+   [
+    "hochwertig",
+    "in"
+   ],
+   [
+    "museumsqualität",
+    "in"
+   ],
+   [
+    "museumsglas",
+    "in"
+   ],
+   [
+    "holzrahmen",
+    "in"
+   ],
+   [
+    "alurahmen",
+    "in"
+   ],
+   [
+    "metallrahmen",
+    "in"
+   ],
+   [
+    "eichenrahmen",
+    "in"
+   ],
+   [
+    "kunststoffrahmen",
+    "in"
+   ],
+   [
+    "massivholz",
+    "in"
+   ],
+   [
+    "echtholz",
+    "in"
+   ],
+   [
+    "acryl",
+    "in"
+   ],
+   [
+    "plexiglas",
+    "in"
+   ],
+   [
+    "echtglas",
+    "in"
+   ],
+   [
+    "glasscheibe",
+    "in"
+   ],
+   [
+    "hinter glas",
+    "seq"
+   ],
+   [
+    "leinwand",
+    "in"
+   ],
+   [
+    "leinwänd",
+    "in"
+   ],
+   [
+    "museumsgläs",
+    "in"
+   ],
+   [
+    "canvas",
+    "in"
+   ],
+   [
+    "mdf",
+    "start"
+   ],
+   [
+    "aluminium",
+    "start"
+   ],
+   [
+    "alu",
+    "word"
+   ],
+   [
+    "plastik",
+    "start"
+   ],
+   [
+    "papier",
+    "in"
+   ],
+   [
+    "fineart",
+    "in"
+   ],
+   [
+    "fine art",
+    "seq"
+   ],
+   [
+    "entspiegelt",
+    "start"
+   ],
+   [
+    "glas",
+    "word"
+   ],
+   [
+    "glases",
+    "word"
+   ],
+   [
+    "kunststoff",
+    "start"
+   ],
+   [
+    "eiche",
+    "word"
+   ],
+   [
+    "lichtecht",
+    "in"
+   ],
+   [
+    "säurefrei",
+    "start"
+   ]
+  ],
+  "persons": [
+   "messi",
+   "ronaldo",
+   "cristiano",
+   "neymar",
+   "jordan",
+   "franklin",
+   "federer",
+   "nadal",
+   "djokovic",
+   "dokovic",
+   "schumacher",
+   "verstappen",
+   "hamilton",
+   "senna",
+   "kobe",
+   "lebron",
+   "mbappé",
+   "mbappe",
+   "haaland",
+   "jobs",
+   "musk",
+   "einstein",
+   "ali"
+  ],
+  "price": "79,99",
+  "priceLine": "Endpreis, gem. § 19 UStG ohne USt.-Ausweis"
+ },
+ "platforms": {
+  "facebook": {
+   "cadenceDays": [
+    "mo",
+    "di",
+    "mi",
+    "do",
+    "fr",
+    "sa",
+    "so"
+   ],
+   "collection": "days-fb",
+   "daily": {
+    "post": 1,
+    "reel": 3,
+    "story": 4
+   },
+   "draft": false,
+   "enabled": true,
+   "firstComment": "Direkt zum Motiv: {link} · gerahmt geliefert, kostenloser Versand in Deutschland 🖤",
+   "gate": {
+    "hashtags": [
+     0,
+     2
+    ],
+    "hookMax": 125,
+    "links": "required",
+    "maxLen": 900,
+    "minLen": 300,
+    "noPrice": false,
+    "priceLine": true
+   },
+   "metricoolNetwork": "facebook",
+   "network": {},
+   "storyOffsetMin": [
+    15,
+    45
+   ],
+   "types": [
+    "reel",
+    "post",
+    "story"
+   ]
+  },
+  "gbp": {
+   "cadenceDays": [
+    "di",
+    "do",
+    "sa"
+   ],
+   "collection": "days-gbp",
+   "daily": {
+    "update": 1
+   },
+   "draft": false,
+   "enabled": true,
+   "firstComment": null,
+   "gate": {
+    "hashtags": [
+     0,
+     0
+    ],
+    "hookMax": null,
+    "links": "required",
+    "maxLen": 600,
+    "minLen": 0,
+    "noPrice": false,
+    "priceLine": true
+   },
+   "metricoolNetwork": "gmb",
+   "network": {
+    "type": "publication"
+   },
+   "storyOffsetMin": null,
+   "types": [
+    "update"
+   ]
+  },
+  "instagram": {
+   "cadenceDays": [
+    "mo",
+    "di",
+    "mi",
+    "do",
+    "fr",
+    "sa",
+    "so"
+   ],
+   "collection": "days",
+   "daily": {
+    "post": 1,
+    "reel": 3,
+    "story": 4
+   },
+   "draft": false,
+   "enabled": true,
+   "firstComment": "Alle Motive gerahmt geliefert, kostenloser Versand in Deutschland: limitlessposter.com 🖤",
+   "gate": {
+    "altRequired": false,
+    "hashtags": [
+     3,
+     5
+    ],
+    "hookMax": 125,
+    "links": "none",
+    "maxLen": 2200,
+    "minLen": 0,
+    "noPrice": false,
+    "priceLine": true
+   },
+   "metricoolNetwork": "instagram",
+   "network": {
+    "collaborators": [],
+    "isAiGenerated": false,
+    "showReelOnFeed": true
+   },
+   "storyOffsetMin": [
+    15,
+    45
+   ],
+   "types": [
+    "reel",
+    "post",
+    "story"
+   ]
+  },
+  "linkedin": {
+   "cadenceDays": [
+    "mo",
+    "mi",
+    "fr"
+   ],
+   "collection": "days-li",
+   "daily": {
+    "post": 1
+   },
+   "draft": true,
+   "enabled": true,
+   "firstComment": "Das Motiv in allen Größen: {link}",
+   "gate": {
+    "hashtags": [
+     0,
+     3
+    ],
+    "hookMax": 210,
+    "links": "firstComment",
+    "maxLen": 1300,
+    "minLen": 600,
+    "noPrice": false,
+    "priceLine": true
+   },
+   "metricoolNetwork": "linkedin",
+   "network": {
+    "previewIncluded": false,
+    "publishImagesAsPDF": true,
+    "type": "post"
+   },
+   "rotation": [
+    "document",
+    "image",
+    "document",
+    "video"
+   ],
+   "storyOffsetMin": null,
+   "types": [
+    "document",
+    "image",
+    "video"
+   ]
+  },
+  "tiktok": {
+   "cadenceDays": [
+    "mo",
+    "di",
+    "mi",
+    "do",
+    "fr",
+    "sa",
+    "so"
+   ],
+   "collection": "days-tt",
+   "daily": {
+    "photos": 1,
+    "video": 3
+   },
+   "draft": true,
+   "enabled": true,
+   "firstComment": null,
+   "gate": {
+    "hashtags": [
+     3,
+     5
+    ],
+    "hookMax": null,
+    "links": "none",
+    "maxLen": 150,
+    "minLen": 0,
+    "noPrice": true,
+    "priceLine": false
+   },
+   "metricoolNetwork": "tiktok",
+   "network": {
+    "autoAddMusic": true,
+    "commercialContentOwnBrand": true,
+    "commercialContentThirdParty": false,
+    "disableComment": false,
+    "disableDuet": false,
+    "disableStitch": false,
+    "isAigc": false,
+    "photoCoverIndex": 0,
+    "privacyOption": "PUBLIC_TO_EVERYONE",
+    "thumbnail": false
+   },
+   "storyOffsetMin": null,
+   "types": [
+    "video",
+    "photos"
+   ]
+  }
+ },
+ "shop": {
+  "domain": "limitlessposter.com",
+  "productUrl": "https://limitlessposter.com/products/{handle}"
+ },
+ "updatedAt": "2026-10-16T07:47:32+02:00",
+ "version": 1
+}

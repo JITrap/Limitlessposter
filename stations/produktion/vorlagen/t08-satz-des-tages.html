@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- T08 Satz des Tages · 9:16 · 10 s
+  DATA: zeilen ["Disziplin", "schlägt", "Motivation."] (2–4 Zeilen, kinetische Typo), poster, produkt, rahmen, end, cta, domain, preiszeile
+  Dunkler Grund, Zeilen kommen Wort für Wort im Takt, dann das Poster als Quelle des Satzes. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  .quote { position: absolute; left: 60px; right: 60px; top: 300px; font-family: var(--head); text-transform: uppercase; line-height: .95; color: var(--fg); }
+  .quote .ln { display: block; }
+  .quote .ln.l0 { font-size: 150px; }
+  .quote .ln.l1 { font-size: 118px; color: var(--stone); }
+  .quote .ln.l2 { font-size: 170px; color: var(--accent-text); }
+  .quote .ln.l3 { font-size: 118px; }
+  .bar { position: absolute; left: 60px; top: 262px; width: 0; height: 10px; background: var(--accent); }
+  .src { position: absolute; left: 0; right: 0; top: 1040px; text-align: center; }
+  .src .frame { position: relative; left: auto; top: auto; transform: none; display: inline-block; width: 300px; height: 420px; padding: 12px; }
+  .src .frame img, .src .frame .ph { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .src .lab { margin-top: 26px; font-size: 36px; font-weight: 600; color: var(--stone); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="layer" style="background:var(--bg)"><div class="grain"></div></div>
+  <div class="bar" id="bar"></div>
+  <div class="quote" id="quote"></div>
+  <div class="src" id="src"><div class="frame" id="frame"><img id="poster" alt=""></div><div class="lab" id="lab"></div></div>
+  <div class="endcard" id="end"><div class="big" id="endBig"></div><div class="rule"></div><div class="small" id="endSmall"></div><div class="domain" id="endDomain"></div><div class="price" id="endPrice"></div></div>
+  <div id="subs"></div>
+  <div class="layer" id="black" style="background:#000"></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    zeilen: ['Disziplin', 'schlägt', 'Motivation.'], poster: '', produkt: 'Satz des Tages',
+    rahmen: 'schwarz', end: 'Limitless Poster', cta: 'Sätze, die an der Wand bleiben.', domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  var lines = (D.zeilen || []).slice(0, 4);
+  var wordSets = lines.map(function (txt, i) {
+    var el = document.createElement('div'); el.className = 'ln l' + i; el.textContent = txt; $('quote').appendChild(el);
+    return Lib.splitWords(el);
+  });
+  $('lab').textContent = D.produkt;
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain; $('endPrice').textContent = D.preiszeile;
+  Lib.setPoster($('poster'), D.poster); Lib.frameColor($('frame'), D.rahmen);
+  var E = Lib.E, P = Lib.prog;
+  var total = wordSets.reduce(function (n, w) { return n + w.length; }, 0);
+  window.DURATION = 10;
+  window.renderFrame = function (t) {
+    // Erste Zeile ab Bild 0 lesbar, die weiteren im Takt (ein Wort je halben Beat)
+    var k = 0, beat = 60 / Lib.BPM;
+    wordSets.forEach(function (ws, li) {
+      var start = li === 0 ? -0.45 : 0.6 + k * beat * 0.5;
+      Lib.reveal(ws, t, start, { stagger: beat * 0.5, dur: 0.45, out: 8.2 });
+      k += ws.length;
+    });
+    $('bar').style.width = (880 * P(t, 0, 0.9, E.outExpo)) + 'px';
+    $('bar').style.opacity = 1 - P(t, 8.2, 0.3, E.inOutCubic);
+    // Poster als Quelle
+    var s = P(t, 5.2, 0.7, E.outBack) * (1 - P(t, 8.2, 0.3, E.inOutCubic));
+    $('src').style.opacity = s;
+    $('src').style.transform = 'translateY(' + ((1 - s) * 90) + 'px)';
+    var end = P(t, 8.4, 0.5, E.outCubic);
+    $('end').style.opacity = end;
+    $('black').style.opacity = 1 - Lib.fadeOut(t, 10, 0.4);
+    Lib.subs(t);
+  };
+})();
+</script>
+</body>
+</html>

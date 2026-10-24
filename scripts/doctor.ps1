@@ -28,6 +28,8 @@ Check (Has "node") "Node.js vorhanden" "scripts\install.ps1 ausführen"
 if (Has "node") { $major = [int]((& node --version).TrimStart("v").Split(".")[0]); Check ($major -ge 22) "Node.js >= 22 (ist $major)" "Node LTS installieren" }
 Check (Has "git") "Git für Windows (Bash-Werkzeug für Claude)" "winget install Git.Git"
 Check (Has "ffmpeg") "ffmpeg (Clips)" "winget install Gyan.FFmpeg"
+Check ((Has "python") -or (Has "py")) "Python 3 (Stimme, Qualitäts-Gate)" "winget install Python.Python.3.12"
+Check (Test-Path (Join-Path $RepoRoot "tools\stimme\.venv\Scripts\python.exe")) "Stimme eingerichtet (tools\stimme\.venv)" "powershell -ExecutionPolicy Bypass -File tools\stimme\install.ps1"
 
 # Claude
 $claudeOk = Has "claude"

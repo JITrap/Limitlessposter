@@ -564,6 +564,8 @@ export class Supervisor {
     // Planner: keep the queue filled – only when thin, at most every 2 h (spec §5.1 step 6).
     const openNonManual = tasks.filter((t) => t.fm.status === 'todo' && t.fm.station !== 'manual').length
     const plannerOpen = has((t) => t.fm.station === 'planer' && (t.fm.status === 'todo' || t.fm.status === 'doing'))
+    // Nie zwei Planer gleichzeitig: legt dieser Tick einen an, wartet die Tagesproduktion bis zum nächsten.
+    let plannerOpenNow = plannerOpen
     const last = this.state.lastPlannerCreated ? new Date(this.state.lastPlannerCreated).getTime() : null
     const since = last === null ? Infinity : now.getTime() - last
     const plannerAvailable = this.availability.get('planer')?.available ?? false
@@ -579,6 +581,7 @@ export class Supervisor {
       this.state.lastPlannerCreated = nowStamp(now)
       this.pushTicker('Planer angestoßen: Warteschlange füllen')
       created = true
+      plannerOpenNow = true
     } else if (plannerAvailable && !plannerOpen && this.lastDecision?.mode !== 'paused' && !this.pausedView.active) {
       // Die Fabrik darf nie stillstehen: nichts startbar und niemand bei der Arbeit → Planer (alle 30 min;
       // nach zwei Planer-Läufen ohne neue Aufgaben gedrosselt auf 2 h, damit kein Budget verbrennt).
@@ -588,6 +591,7 @@ export class Supervisor {
         await this.createPlannerTask(now, 'leer')
         this.pushTicker(throttled ? 'Fabrik leer – Planer (gedrosselt: die letzten Läufe brachten keine Aufgaben)' : 'Fabrik leer – Planer füllt die Warteschlange')
         created = true
+        plannerOpenNow = true
       }
     }
 
@@ -635,8 +639,10 @@ export class Supervisor {
         .then(() => this.pushTicker('Wochenbericht angestoßen')),
     )
     // Tagesproduktion: um 05:30 plant der Planer die Beiträge für morgen (Station `produktion` nötig).
+    // Läuft gerade ein anderer Planer, wartet der Auslöser auf den nächsten Tick – zwei Planer parallel
+    // würden dieselben Beiträge doppelt anlegen.
     const produktionGeladen = this.deps.stations.some((s) => s.name === 'produktion')
-    await fire(`tagesproduktion:${day}`, plannerAvailable && minutes >= PRODUKTION_TRIGGER_MINUTES, async () => {
+    await fire(`tagesproduktion:${day}`, plannerAvailable && !plannerOpenNow && minutes >= PRODUKTION_TRIGGER_MINUTES, async () => {
       if (!produktionGeladen) {
         this.pushTicker('Tagesproduktion: Station „produktion“ nicht geladen – heute keine automatische Produktionsplanung')
         return

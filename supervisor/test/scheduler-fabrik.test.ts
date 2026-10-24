@@ -264,6 +264,31 @@ describe('Fabrik läuft immer', () => {
     expect(sup.getState().fabrik.naechsteAusloeser.find((a) => a.name === 'Tagesproduktion planen')!.wann).toBe('2026-11-07T05:30:00')
   })
 
+  it('holds the Tagesproduktion back while another planner task is open – never two planners at once', async () => {
+    // Thin queue + 05:30 passed on the same tick: the regular planner is created, the production planner waits.
+    await seedState({ lastPlannerCreated: null })
+    now = new Date('2026-11-06T06:00:00')
+    sup = await build({ stations: [...stations, station('produktion', { autopilot: 2 })] })
+    await sup.tick()
+    let p = await planners()
+    expect(p).toHaveLength(1)
+    expect(p[0].fm.title).toBe('Planung: Warteschlange füllen')
+
+    // Planner still running → still waiting.
+    now = new Date('2026-11-06T06:01:00')
+    await sup.tick()
+    expect(await planners()).toHaveLength(1)
+    expect(runs.filter((r) => r.station.name === 'planer')).toHaveLength(1)
+
+    // Planner done → the next tick creates the production planner for tomorrow.
+    runs[0].resolve(ok())
+    await settle()
+    now = new Date('2026-11-06T06:02:00')
+    await sup.tick()
+    p = await planners()
+    expect(p.map((t) => t.fm.title).sort()).toEqual(['Planung: Warteschlange füllen', 'Produktion für 2026-11-07 planen'])
+  })
+
   it('exposes Fabrik, Kalender (−3/+7 days), Medien and Stimme in the world state', async () => {
     await savePublog(vault, {
       synced: '2026-11-06T09:30:00',

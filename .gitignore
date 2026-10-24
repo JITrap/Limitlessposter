@@ -24,3 +24,8 @@ Thumbs.db
 
 # Worktrees der Bau-Agenten (nie einchecken)
 .claude/worktrees/
+
+# Stimme (lokale Sprachausgabe): Python-Umgebung, Modelle, Caches
+tools/stimme/.venv/
+tools/stimme/data/
+tools/stimme/__pycache__/

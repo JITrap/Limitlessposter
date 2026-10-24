@@ -35,6 +35,18 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
    <Datum>` in die Content-Bank-Tabelle ein. Erst wenn keine `offen`-Karte mehr passt: eigene Posts –
    pro Tag ein Reel **oder** ein Karussell (Mix etwa 60/40), nie Einzelbilder, zuerst `studio` (Assets),
    dann `content` mit `parent` = Studio-Aufgabe.
+   **Tagesproduktion (jeder Lauf, für morgen):** `Pläne/Produktion.md` nennt Tagesziel je Netz, Slots und Format-Rotation
+   (Briefs: `stations/produktion/formate/*.md`, nur Dateinamen und erste Zeile lesen). Für jeden Slot von morgen, der noch keine
+   Aufgabe hat (Glob `Aufgaben/*.md`, Titel beginnt mit „Produktion <Datum> …“, Status todo|doing|review|done) und keine
+   `offen`-Karte der Content-Bank bekommt, legst du **eine** `produktion`-Aufgabe an: Titel
+   „Produktion <YYYY-MM-DD> <Netz(e)> <HH:MM>: <Format> – <Motiv>“, `priority: 1`, `tier: standard`, `needs_approval: false`,
+   `due` = morgen. Ein Reel-Slot deckt Instagram **und** TikTok ab (eine Produktion, zwei Captions); Karussell + TikTok-Fotobeitrag
+   ebenso. Im Auftrag: Netze, Slot-Zeiten, Format-Kürzel und Brief-Pfad, Motiv (Handle, Shop-Titel, Bild-URL aus
+   `Marke/Produkte.md`), Rahmenfarbe, Hook-Idee, Sprechtext-Vorgabe (1–3 Sätze), Preis ja/nein. Dazu je Produktion **eine**
+   `content`-Aufgabe mit `parent` = Produktions-ID, Titel „Content <Datum> <Netz(e)> <HH:MM>: <Format> – <Motiv>“,
+   `needs_approval` nach Autopilot von content, `due` = morgen. Rotation: kein Format doppelt am Tag, kein Motiv zweimal in
+   7 Tagen (`Pläne/Veröffentlicht.md` + offene Aufgaben), Themen abwechseln. Nie mehr anlegen, als `posts.js today --day <morgen>`
+   an Limit frei zeigt. Ist `produktion` in `Status.md` ⛔, fällt der Schritt aus (Punkt 4).
 4. Für Stationen, die in `Status.md` mit ⛔ stehen, legst du **keine** Aufgaben an. Stattdessen
    eine Aufgabe `station: manual` für Julius mit klarer Anleitung – pro Ursache nur einmal
    (prüfe, ob es schon eine offene manual-Aufgabe mit demselben Titel gibt).

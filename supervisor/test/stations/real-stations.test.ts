@@ -15,6 +15,7 @@ const EXPECTED: Record<string, { tier: string; autopilot: number }> = {
   reviewer: { tier: 'cheap', autopilot: 2 },
   berichter: { tier: 'cheap', autopilot: 2 },
   kennzahlen: { tier: 'cheap', autopilot: 2 },
+  produktion: { tier: 'standard', autopilot: 2 },
 }
 
 describe('real stations/ folder', () => {

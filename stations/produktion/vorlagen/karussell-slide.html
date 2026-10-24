@@ -1,0 +1,69 @@
+<!doctype html>
+<!-- Karussell-Slide · 4:5 (1080×1350) · statisch (render-still)
+  DATA: art (hero|raum|text|cta), hook, text (nur art=text), poster, produkt, preis, index ("1/6"),
+        rahmen, end, cta, domain, preiszeile
+  hero: großes Poster + Hook · raum: Poster im Raum + Chip · text: dunkle Fläche, Hook + Fließtext · cta: Endcard -->
+<html lang="de" class="square">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  body { height: 1350px; }
+  .idx { position: absolute; right: 60px; top: 60px; font-size: 32px; font-weight: 600; color: var(--stone); z-index: 5; }
+  .hook { top: 110px; }
+  .v-hero .frame { top: 400px; width: 620px; height: 868px; }
+  .v-hero .wall { background: var(--bg); }
+  .v-raum .frame { top: 330px; width: 520px; height: 728px; }
+  .v-raum .chip { position: absolute; left: 50%; top: 1180px; transform: translateX(-50%); font-size: 36px; white-space: nowrap; }
+  .v-text .hook { top: 120px; }
+  .v-text .body { position: absolute; left: 60px; right: 60px; top: 560px; font-size: 50px; line-height: 1.3; color: var(--stone); }
+  .v-text .line { top: 500px; width: 160px; }
+  .frame img, .frame .ph { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .endcard .big { font-size: 130px; }
+</style>
+</head>
+<body class="square">
+<div class="stage" id="stage">
+  <div class="idx" id="idx"></div>
+  <div class="layer" id="room"><div class="wall" id="wall"></div><div class="floor" id="floor"></div><div class="sofa" id="sofa"></div><div class="grain"></div></div>
+  <div class="frame" id="frame"><img id="poster" alt=""></div>
+  <div class="hook center" id="hook"></div>
+  <div class="line" id="line"></div>
+  <div class="body" id="body"></div>
+  <span class="chip" id="chip"></span>
+  <div class="endcard" id="end"><div class="big" id="endBig"></div><div class="rule"></div><div class="small" id="endSmall"></div><div class="domain" id="endDomain"></div><div class="price" id="endPrice"></div></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    art: 'hero', hook: '', text: '', poster: '', produkt: '', preis: '', index: '',
+    rahmen: 'schwarz', end: 'Limitless Poster', cta: 'Gerahmt. In 6 Größen.', domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  var art = ['hero', 'raum', 'text', 'cta'].indexOf(D.art) >= 0 ? D.art : 'hero';
+  $('stage').className = 'stage v-' + art;
+  $('idx').textContent = D.index;
+  $('hook').textContent = D.hook;
+  $('body').textContent = D.text;
+  $('chip').textContent = [D.produkt, D.preis].filter(Boolean).join(' · ');
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain; $('endPrice').textContent = D.preiszeile;
+  Lib.setPoster($('poster'), D.poster); Lib.frameColor($('frame'), D.rahmen);
+  var words = Lib.splitWords($('hook'));
+  var light = art === 'raum';
+  $('hook').classList.toggle('light', light);
+  Lib.show($('room'), art === 'hero' || art === 'raum');
+  Lib.show($('floor'), art === 'raum'); Lib.show($('sofa'), art === 'raum');
+  Lib.show($('frame'), art === 'hero' || art === 'raum');
+  Lib.show($('line'), art === 'text'); Lib.show($('body'), art === 'text');
+  Lib.show($('chip'), art === 'raum' && !!$('chip').textContent);
+  Lib.show($('end'), art === 'cta');
+  $('end').style.opacity = 1;
+  window.DURATION = 1;
+  window.renderFrame = function (t) {
+    Lib.reveal(words, t, -1, { stagger: 0, dur: 0.1 });
+  };
+})();
+</script>
+</body>
+</html>

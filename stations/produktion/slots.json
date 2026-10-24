@@ -1,0 +1,226 @@
+{
+ "table": {
+  "di": {
+   "fb": {
+    "post": "09:00",
+    "reels": [
+     "12:00",
+     "15:30",
+     "18:30"
+    ]
+   },
+   "gbp": {
+    "post": "10:00"
+   },
+   "ig": {
+    "post": "07:30",
+    "reels": [
+     "12:30",
+     "16:30",
+     "20:00"
+    ]
+   },
+   "li": null,
+   "tt": {
+    "post": "07:30",
+    "reels": [
+     "12:30",
+     "16:30",
+     "20:30"
+    ]
+   }
+  },
+  "do": {
+   "fb": {
+    "post": "09:00",
+    "reels": [
+     "12:00",
+     "15:30",
+     "18:30"
+    ]
+   },
+   "gbp": {
+    "post": "10:00"
+   },
+   "ig": {
+    "post": "07:30",
+    "reels": [
+     "12:30",
+     "16:30",
+     "20:00"
+    ]
+   },
+   "li": null,
+   "tt": {
+    "post": "07:30",
+    "reels": [
+     "13:00",
+     "16:30",
+     "20:00"
+    ]
+   }
+  },
+  "fr": {
+   "fb": {
+    "post": "09:00",
+    "reels": [
+     "12:00",
+     "15:30",
+     "18:30"
+    ]
+   },
+   "gbp": null,
+   "ig": {
+    "post": "07:30",
+    "reels": [
+     "13:00",
+     "17:00",
+     "21:00"
+    ]
+   },
+   "li": {
+    "post": "08:15"
+   },
+   "tt": {
+    "post": "07:30",
+    "reels": [
+     "13:00",
+     "17:00",
+     "20:30"
+    ]
+   }
+  },
+  "mi": {
+   "fb": {
+    "post": "09:00",
+    "reels": [
+     "12:00",
+     "15:30",
+     "18:30"
+    ]
+   },
+   "gbp": null,
+   "ig": {
+    "post": "07:30",
+    "reels": [
+     "12:00",
+     "16:00",
+     "19:30"
+    ]
+   },
+   "li": {
+    "post": "08:15"
+   },
+   "tt": {
+    "post": "07:30",
+    "reels": [
+     "12:30",
+     "16:30",
+     "20:30"
+    ]
+   }
+  },
+  "mo": {
+   "fb": {
+    "post": "09:00",
+    "reels": [
+     "12:00",
+     "15:30",
+     "18:30"
+    ]
+   },
+   "gbp": null,
+   "ig": {
+    "post": "07:30",
+    "reels": [
+     "12:30",
+     "16:30",
+     "19:30"
+    ]
+   },
+   "li": {
+    "post": "08:15"
+   },
+   "tt": {
+    "post": "07:30",
+    "reels": [
+     "12:30",
+     "16:30",
+     "20:00"
+    ]
+   }
+  },
+  "sa": {
+   "fb": {
+    "post": "09:30",
+    "reels": [
+     "12:00",
+     "16:00",
+     "19:30"
+    ]
+   },
+   "gbp": {
+    "post": "10:00"
+   },
+   "ig": {
+    "post": "09:30",
+    "reels": [
+     "12:00",
+     "16:30",
+     "20:30"
+    ]
+   },
+   "li": null,
+   "tt": {
+    "post": "09:30",
+    "reels": [
+     "12:00",
+     "16:00",
+     "19:30"
+    ]
+   }
+  },
+  "so": {
+   "fb": {
+    "post": "17:00",
+    "reels": [
+     "10:30",
+     "14:30",
+     "20:30"
+    ]
+   },
+   "gbp": null,
+   "ig": {
+    "post": "17:30",
+    "reels": [
+     "10:00",
+     "14:00",
+     "21:00"
+    ]
+   },
+   "li": null,
+   "tt": {
+    "post": "17:00",
+    "reels": [
+     "10:00",
+     "14:00",
+     "20:00"
+    ]
+   }
+  }
+ },
+ "rules": [
+  "Reels auf derselben Plattform mindestens 3 Stunden auseinander, der Post mindestens 2,5 Stunden neben jedem Reel.",
+  "Reel 3 (Abend) ist das Hero-Reel: stärkstes Motiv, stärkster Hook.",
+  "Dasselbe Video darf gleichzeitig auf TikTok und Instagram laufen – immer die Originaldatei ohne Wasserzeichen hochladen.",
+  "Keine Zeit? Für beide Plattformen die Instagram-Zeit nehmen. Auf TikTok kostet das laut Daten fast nichts.",
+  "Bis 26.10. rotieren die Reel-Formate durch die Slots (Messphase). Nach 14 Tagen werden Slots mit Slot-Index unter 0,85 um 60–90 Minuten verschoben, höchstens ein Slot pro Plattform und Woche.",
+  "Die Zeitumstellung am 25.10.2026 ändert nichts: alle Zeiten sind deutsche Ortszeit.",
+  "Instagram, TikTok, Facebook, LinkedIn und Google plant die Automatik über Metricool (geplante Aufgabe 06:45); kein manueller Weg über die Instagram-App oder TikTok Studio – sonst läuft ein Beitrag doppelt.",
+  "Produkt-Tags gibt es bei geplanten Instagram-Beiträgen nicht; bei TikTok-Produktvideos setzt die Automatik „Inhalte offenlegen → Deine Marke“ (commercialContentOwnBrand).",
+  "Stories 15–45 Minuten nach ihrem Feed-Beitrag.",
+  "Mindestabstände gelten nur innerhalb desselben Netzwerks: Feed-Beiträge 2 Stunden.",
+  "Nach 22:00 wird nichts mehr eingeplant; der Beitrag wird als ausgelassen notiert."
+ ],
+ "updated": "15.10.2026"
+}

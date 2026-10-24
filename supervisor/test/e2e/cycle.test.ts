@@ -43,12 +43,19 @@ describe('end-to-end cycle with the real stations and vault template', () => {
     const { readdir, rm } = await import('node:fs/promises')
     for (const f of await readdir(join(vault, 'Aufgaben'))) if (f.endsWith('.md')) await rm(join(vault, 'Aufgaben', f))
     const dataDir = join(root, 'data')
-    // The Zentrale trigger (every 6 h) is covered by test/zentrale.test.ts; keep this cycle focused.
+    // The Zentrale trigger (every 6 h) is covered by test/zentrale.test.ts and the 05:30 Tagesproduktion
+    // by test/scheduler-fabrik.test.ts; keep this cycle focused.
     const { mkdir: mkdirp } = await import('node:fs/promises')
     await mkdirp(dataDir, { recursive: true })
     await writeFile(
       join(dataDir, 'state.json'),
-      JSON.stringify({ inboxSeen: [], fired: { 'kennzahlen:2026-11-06-1': 'seed', 'kennzahlen:2026-11-06-2': 'seed' }, lastPlannerCreated: null, lastArchive: null, known: [] }),
+      JSON.stringify({
+        inboxSeen: [],
+        fired: { 'kennzahlen:2026-11-06-1': 'seed', 'kennzahlen:2026-11-06-2': 'seed', 'tagesproduktion:2026-11-06': 'seed' },
+        lastPlannerCreated: null,
+        lastArchive: null,
+        known: [],
+      }),
       'utf8',
     )
     let now = new Date('2026-11-06T09:00:00') // Friday
