@@ -55,7 +55,7 @@ describe('vault template', () => {
     expect((data.autopilot as Record<string, number>).content).toBe(2)
     expect((data.autopilot as Record<string, number>)['shop-analyst']).toBe(1)
     expect(body).toContain('## Wertleiter')
-    expect(body.match(/^\| \d+ \|/gm)?.length).toBe(12)
+    expect(body.match(/^\| \d+ \|/gm)?.length).toBe(13)
   })
 
   it('Content-Bank.md lists all 41 cards of Julius\' content bank with a status column', async () => {
