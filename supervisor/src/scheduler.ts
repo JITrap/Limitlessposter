@@ -18,6 +18,9 @@ import { loadKennzahlen, type KennzahlenCache } from './kennzahlen.js'
 import { printifySummary, type PrintifySummary } from './adapters/printify.js'
 import { countForDay, isStale, loadPublogCached, type PublogCache } from './publog.js'
 import { loadLimits, parseLimits, totalLimit, type Limits } from './limits.js'
+import { computeFabrik, runnableTasks, PLANER_LEER_INTERVAL_MS, type FabrikView } from './fabrik.js'
+import { listMedienCached, loadStimmeCached, STIMME_LEER, type MedienCache, type StimmeCache } from './medien.js'
+import type { KalenderTag } from './status/writer.js'
 
 export interface SupervisorDeps {
   repo: TaskRepo
@@ -64,6 +67,12 @@ const AVAILABILITY_EVERY_TICKS = 10
 const HEALTH_EVERY_TICKS = 20
 const PLANNER_MIN_OPEN = 5
 const PLANNER_MIN_INTERVAL_MS = 2 * 60 * 60_000
+/** Fabrik leer (nichts startbar, niemand arbeitet): Planer spätestens alle 30 min, nicht in der Budget-Pause. */
+const PLANNER_EMPTY_INTERVAL_MS = PLANER_LEER_INTERVAL_MS
+/** 05:30 – der Planer legt die Produktion für morgen an (Station `produktion`, Fork A). */
+const PRODUKTION_TRIGGER_MINUTES = 5 * 60 + 30
+const KALENDER_TAGE_ZURUECK = 3
+const KALENDER_TAGE_VORAUS = 7
 const TICKER_MAX = 50
 const ARCHIVE_DAYS = 30
 const OUTWARD_STATIONS = new Set(['content', 'shop-analyst', 'pinterest', 'email'])
@@ -124,6 +133,9 @@ export class Supervisor {
   private publog: PublogCache | null = null
   private limits: Limits = {}
   private limitOverride: Limits = {}
+  private fabrik: FabrikView = { leer: true, leerSeit: null, grund: 'noch kein Tick', naechsteAusloeser: [], letzterPlaner: null }
+  private medien: MedienCache | null = null
+  private stimme: StimmeCache | null = null
   private health: SupervisorState['health'] = { ok: true, problems: [] }
   private kennzahlen: KennzahlenCache | null = null
   private printify: PrintifySummary | null = null
@@ -241,6 +253,7 @@ export class Supervisor {
     this.updateCounters(tasks, now)
     await this.readShopCounter(now)
     await this.refreshZentrale(now)
+    await this.refreshProduktion(now)
 
     const canStart = this.health.ok && !pauseFile && decision.mode !== 'paused'
     if (canStart) {
@@ -263,7 +276,56 @@ export class Supervisor {
     }
 
     if (!this.deps.only) await this.archiveIfDue(now)
+    this.updateFabrik(tasks, now)
     await this.publish(now, tasks)
+  }
+
+  /** Läuft die Fabrik? Nach dem Starten der Arbeiter gerechnet, damit „leer“ wirklich leer heißt. */
+  private updateFabrik(tasks: Task[], now: Date): void {
+    const available = new Map([...this.availability.entries()].map(([n, a]) => [n, a.available]))
+    this.fabrik = computeFabrik({
+      tasks,
+      available,
+      running: this.running.size,
+      paused: { active: this.pausedView.active, reason: this.pausedView.reason },
+      budgetMode: this.lastDecision?.mode ?? null,
+      healthOk: this.health.ok,
+      prevLeerSeit: this.fabrik.leerSeit,
+      now,
+      nowStamp: nowStamp(now),
+      lastPlannerCreated: this.state.lastPlannerCreated,
+      produktionGeladen: this.deps.stations.some((s) => s.name === 'produktion'),
+    })
+  }
+
+  /** Medien-Galerie (Assets/content, alle 30 s) und Stimme (`stimme.json`, nach mtime) für die Welt. */
+  private async refreshProduktion(now: Date): Promise<void> {
+    try {
+      this.medien = await listMedienCached(this.cfg.vaultRoot, this.medien, now)
+    } catch {
+      // Galerie ist nur Anzeige – ein Lesefehler stoppt nichts
+    }
+    try {
+      this.stimme = await loadStimmeCached(this.cfg.dataDir, this.stimme)
+    } catch {
+      // dito
+    }
+  }
+
+  /** Kalender für die Welt: 3 Tage zurück, 7 voraus, aus der Veröffentlichungs-Liste. */
+  private kalender(now: Date): KalenderTag[] {
+    const entries = this.publog?.value.entries ?? []
+    const tage: KalenderTag[] = []
+    for (let i = -KALENDER_TAGE_ZURUECK; i < KALENDER_TAGE_VORAUS; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)
+      const datum = todayStamp(d)
+      const eintraege = entries
+        .filter((e) => e.date.startsWith(datum))
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((e) => ({ zeit: e.date.slice(11, 16), netzwerk: e.network, typ: e.type, status: e.status, text: e.text, url: e.url }))
+      tage.push({ datum, heute: i === 0, eintraege })
+    }
+    return tage
   }
 
   private async applyRow(r: PatchRow): Promise<void> {
@@ -507,6 +569,14 @@ export class Supervisor {
       this.state.lastPlannerCreated = nowStamp(now)
       this.pushTicker('Planer angestoßen: Warteschlange füllen')
       created = true
+    } else if (plannerAvailable && !plannerOpen && since >= PLANNER_EMPTY_INTERVAL_MS && this.lastDecision?.mode !== 'paused' && !this.pausedView.active) {
+      // Die Fabrik darf nie stillstehen: nichts startbar und niemand bei der Arbeit → Planer sofort (alle 30 min).
+      const available = new Map([...this.availability.entries()].map(([n, a]) => [n, a.available]))
+      if (this.running.size === 0 && runnableTasks(tasks, available).length === 0) {
+        await this.createPlannerTask(now, 'leer')
+        this.pushTicker('Fabrik leer – Planer füllt die Warteschlange')
+        created = true
+      }
     }
 
     const fire = async (key: string, cond: boolean, make: () => Promise<void>): Promise<void> => {
@@ -552,6 +622,17 @@ export class Supervisor {
         })
         .then(() => this.pushTicker('Wochenbericht angestoßen')),
     )
+    // Tagesproduktion: um 05:30 plant der Planer die Beiträge für morgen (Station `produktion` nötig).
+    const produktionGeladen = this.deps.stations.some((s) => s.name === 'produktion')
+    await fire(`tagesproduktion:${day}`, plannerAvailable && minutes >= PRODUKTION_TRIGGER_MINUTES, async () => {
+      if (!produktionGeladen) {
+        this.pushTicker('Tagesproduktion: Station „produktion“ nicht geladen – heute keine automatische Produktionsplanung')
+        return
+      }
+      await this.createPlannerTask(now, 'produktion')
+      this.pushTicker('Tagesproduktion angestoßen: Planer legt die Beiträge für morgen an')
+    })
+
     await fire(`wochenstrategie:${week}`, plannerAvailable && now.getDay() === 3 && minutes >= 20 * 60, () =>
       this.deps.repo
         .create({
@@ -570,6 +651,44 @@ export class Supervisor {
       return this.deps.repo.list()
     }
     return tasks
+  }
+
+  /**
+   * Planer-Aufgabe anlegen. `leer` = die Fabrik steht (Welt-Knopf oder 30-min-Regel), `produktion` =
+   * der 05:30-Trigger für morgen. Beide verweisen auf die Soll-Mengen in Strategie.md und die
+   * Produktionsnotiz der Station `produktion` (Fork A legt sie an; der Planer prüft selbst, ob sie da ist).
+   */
+  private async createPlannerTask(now: Date, art: 'leer' | 'produktion'): Promise<void> {
+    const morgen = todayStamp(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1))
+    const auftrag =
+      art === 'produktion'
+        ? `Plane die Tagesproduktion für ${morgen}: je Netzwerk die Soll-Menge aus Strategie.md (Frontmatter daily_targets, Limits daily_post_limits) als Aufgaben für die Station produktion (Reels, Karussells, Stimme) und danach content (Einplanen). Formate, Slots und Regeln stehen in Pläne/Produktion.md – fehlt die Notiz, plane nach Strategie.md und vermerke das. Dubletten-Schutz: posts.js check vor jeder Aufgabe.`
+        : `Die Fabrik steht: keine startbare Aufgabe, niemand arbeitet. Fülle die Warteschlange sofort – zuerst die Tagesproduktion für heute und ${morgen} laut Strategie.md (daily_targets, daily_post_limits) und Pläne/Produktion.md (fehlt die Notiz: nach Strategie.md planen und das vermerken), dann die Wertleiter. Höchstens ${this.cfg.maxOpenPlannerTasks} offene Aufgaben insgesamt. Dubletten-Schutz: posts.js check vor jeder Aufgabe.`
+    await this.deps.repo.create({
+      title: art === 'produktion' ? `Produktion für ${morgen} planen` : 'Planung: Fabrik leer – Warteschlange füllen',
+      station: 'planer',
+      tier: 'standard',
+      priority: 1,
+      origin: 'system',
+      auftrag,
+      kontext: '[[Strategie]] · [[Pläne/Produktion]] · [[Pläne/Content-Kalender]] · [[Pläne/Veröffentlicht]] · [[Status]]',
+    })
+    this.state.lastPlannerCreated = nowStamp(now)
+  }
+
+  /** Welt-Knopf „Planer jetzt“: Planer-Aufgabe anlegen, wenn keine offen ist. */
+  async planNow(): Promise<{ ok: boolean; reason: string | null }> {
+    const plannerAvailable = this.availability.get('planer')?.available ?? false
+    if (!plannerAvailable) return { ok: false, reason: 'Station Planung nicht verfügbar' }
+    const tasks = await this.deps.repo.list()
+    if (tasks.some((t) => t.fm.station === 'planer' && (t.fm.status === 'todo' || t.fm.status === 'doing'))) {
+      return { ok: false, reason: 'Planer läuft bereits' }
+    }
+    const now = this.deps.clock()
+    await this.createPlannerTask(now, 'leer')
+    await this.saveState()
+    this.pushTicker('Planer angestoßen (Welt): Warteschlange füllen')
+    return { ok: true, reason: null }
   }
 
   private async createKennzahlenTask(now: Date, priority: 1 | 2 | 3 | 4): Promise<void> {
@@ -836,6 +955,10 @@ export class Supervisor {
         aktualisierung_laeuft: [...this.running.values()].some((r) => r.station.name === 'kennzahlen'),
         links: ZENTRALE_LINKS,
       },
+      fabrik: this.fabrik,
+      kalender: { tage: this.kalender(now), heute: this.today.byNetwork },
+      medien: this.medien?.value ?? [],
+      stimme: this.stimme?.value ?? STIMME_LEER,
     }
   }
 

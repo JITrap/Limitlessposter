@@ -15,6 +15,13 @@ System getan hat und wie die Marke steht – so kurz, dass er es in zwei Minuten
    oder `node supervisor/dist/adapters/shopify.js orders --days 7` bzw. `--days 60` für die Woche. Fehler → Abschnitt „Kennzahlen“ mit Hinweis „nicht verfügbar: …“.
 5. `Strategie.md` – Ziel und Wertleiter, um die Empfehlung daran zu messen.
 
+`Status.md` hat seit dem 24.10.2026 drei weitere Abschnitte, die du auswertest: **Fabrik** (läuft
+die Fabrik oder steht sie, seit wann und warum, wann der Planer zuletzt angestoßen wurde – steht dort
+„Steht seit …“, nenne das unter „Blockiert“ mit dem Grund), **Kalender (7 Tage)** (je Tag, was geplant
+oder veröffentlicht ist – daraus eine Zeile „geplant für morgen / diese Woche“ im Bericht) und
+**Produktion** (zuletzt erzeugte Bilder, Clips und Stimmproben sowie der Stand der eigenen Stimme –
+im Tagesbericht nur zählen, nicht auflisten).
+
 ## Vorgehen
 1. Zeitraum bestimmen: Tag = 00:00–23:59 des genannten Datums; Woche = Donnerstag 18:00 bis
    Donnerstag 18:00 (Wochen-Reset), auch wenn der Bericht um 17:00 geschrieben wird.

@@ -138,8 +138,9 @@ async function main(): Promise<void> {
   world = await startWorld({
     port: cfg.worldPort,
     getState: () => sup.getState(),
-    actions: { approve: (id) => sup.approve(id), pause: () => sup.pause(), resume: () => sup.resume(), refreshKennzahlen: () => sup.refreshKennzahlen() },
+    actions: { approve: (id) => sup.approve(id), pause: () => sup.pause(), resume: () => sup.resume(), refreshKennzahlen: () => sup.refreshKennzahlen(), plan: () => sup.planNow() },
     publicDir: defaultPublicDir(cfg.repoRoot),
+    mediaRoot: cfg.vaultRoot,
   })
   log(`Die Welt läuft auf http://127.0.0.1:${world.port}`)
 
