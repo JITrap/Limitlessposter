@@ -56,6 +56,9 @@ if (-not $SkipInstall) {
   if (-not (Has "ffmpeg")) { winget install --id Gyan.FFmpeg -e --accept-source-agreements --accept-package-agreements | Out-Null; RefreshPath }
   if (Has "ffmpeg") { Ok "ffmpeg (für Clips)" } else { Warn "ffmpeg fehlt – das Studio kann dann keine Clips rendern, Bilder schon." }
 
+  if (-not (Has "python") -and -not (Has "py")) { winget install --id Python.Python.3.12 -e --accept-source-agreements --accept-package-agreements | Out-Null; RefreshPath }
+  if ((Has "python") -or (Has "py")) { Ok "Python 3 (Stimme und Qualitäts-Gate) – Stimme einrichten: powershell -File tools\stimme\install.ps1" } else { Warn "Python fehlt – Stimme und Gate laufen nicht. Später: winget install Python.Python.3.12, dann tools\stimme\install.ps1" }
+
   $nativeClaude = Join-Path $env:USERPROFILE ".local\bin\claude.exe"
   if (-not (Has "claude") -and -not (Test-Path $nativeClaude)) {
     Write-Host "    Installiere Claude Code (nativ) …"

@@ -1,0 +1,92 @@
+<!doctype html>
+<!-- T01 Vorher/Nachher · 9:16 · 10 s
+  DATA: hook ("Dein Zimmer. Vorher."), hook2 ("Nachher."), poster (Bild-URL/Pfad), produkt, preis ("ab 79,99 €"),
+        rahmen (schwarz|weiß|eiche), end ("Limitless Poster"), cta ("Gerahmt. In 6 Größen."), domain, preiszeile
+  Vertrag: window.DURATION, window.renderFrame(t); Untertitel über window.SUBS -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  .room { transform-origin: 50% 46%; }
+  .hook { top: 200px; }
+  .frame { top: 440px; width: 600px; height: 840px; }
+  .frame .clip { position: absolute; inset: 22px; overflow: hidden; }
+  .frame .clip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .nail { position: absolute; left: 50%; top: 428px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #6b6257; opacity: .9; }
+  .tag { position: absolute; left: 50%; top: 1480px; transform: translateX(-50%); white-space: nowrap; }
+  #subs { top: 1300px; }
+  .tag .chip { font-size: 40px; padding: 18px 34px; }
+  .tag .chip b { font-weight: 700; margin-left: 14px; opacity: .85; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="layer room" id="room">
+    <div class="wall" id="wall"></div>
+    <div class="floor"></div>
+    <div class="sofa"></div>
+    <div class="nail"></div>
+    <div class="frame" id="frame"><div class="clip" id="clip"><img id="poster" alt=""></div></div>
+    <div class="grain"></div>
+  </div>
+  <div class="hook light center" id="hook1"></div>
+  <div class="hook light center" id="hook2"></div>
+  <div class="tag" id="tag"><span class="chip"><span id="produkt"></span><b id="preis"></b></span></div>
+  <div class="endcard" id="end">
+    <div class="big" id="endBig"></div>
+    <div class="rule"></div>
+    <div class="small" id="endSmall"></div>
+    <div class="domain" id="endDomain"></div>
+    <div class="price" id="endPrice"></div>
+  </div>
+  <div id="subs" class="light"></div>
+  <div class="layer" id="black" style="background:#000;pointer-events:none"></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    hook: 'Dein Zimmer. Vorher.', hook2: 'Nachher.', poster: '', produkt: 'Gerahmtes Poster', preis: 'ab 79,99 €',
+    rahmen: 'schwarz', end: 'Limitless Poster', cta: 'Gerahmt. In 6 Größen. Fertig zum Aufhängen.',
+    domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  $('hook1').textContent = D.hook; $('hook2').textContent = D.hook2;
+  $('produkt').textContent = D.produkt; $('preis').textContent = D.preis;
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain;
+  $('endPrice').textContent = D.preiszeile;
+  Lib.setPoster($('poster'), D.poster);
+  Lib.frameColor($('frame'), D.rahmen);
+  var w1 = Lib.splitWords($('hook1')), w2 = Lib.splitWords($('hook2'));
+  var E = Lib.E, P = Lib.prog;
+  window.DURATION = 10;
+  window.renderFrame = function (t) {
+    // Hook 1 steht ab Bild 0, geht bei 1.8 s raus; Hook 2 kommt mit dem Poster
+    Lib.reveal(w1, t, -0.45, { stagger: 0.06, dur: 0.5, out: 1.8 });
+    Lib.reveal(w2, t, 2.05, { stagger: 0.08, dur: 0.5, out: 7.6 });
+    // Poster: Wischblende von links nach rechts + Feder auf dem Rahmen
+    var wipe = P(t, 2.0, 0.9, E.inOutCubic);
+    $('clip').style.clipPath = 'inset(0 ' + ((1 - wipe) * 100) + '% 0 0)';
+    var s = 0.96 + 0.04 * Lib.spring(t - 2.0, 2.2, 0.55);
+    $('frame').style.transform = 'translateX(-50%) scale(' + (t < 2.0 ? 0.96 : s) + ')';
+    $('frame').style.opacity = t < 2.0 ? 0 : 1;
+    // Produkt-Chip
+    var tagIn = P(t, 3.1, 0.6, E.outQuint), tagOut = P(t, 7.4, 0.4, E.inOutCubic);
+    $('tag').style.opacity = Math.min(tagIn, 1 - tagOut);
+    $('tag').style.transform = 'translate(-50%, ' + ((1 - tagIn) * 60) + 'px)';
+    // leichter Push-in
+    var z = 1 + 0.07 * P(t, 4.5, 3.5, E.inOutSine);
+    $('room').style.transform = 'scale(' + z + ')';
+    // Endcard
+    var end = P(t, 8.0, 0.5, E.outCubic);
+    $('end').style.opacity = end;
+    $('end').style.transform = 'scale(' + (0.98 + 0.02 * end) + ')';
+    // Bild 0 bleibt hell (Cover) – nur am Ende kurz auf Schwarz für die Schleife
+    $('black').style.opacity = 1 - Lib.fadeOut(t, 10, 0.4);
+    Lib.subs(t);
+  };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<!-- T02 Tippe & entscheide · 9:16 · 10 s
+  DATA: hook ("Links oder rechts?"), poster, poster2, name1, name2, frage ("Welches hängst du auf?"),
+        rahmen, end, cta, domain, preiszeile
+  Zwei Poster im Wechsel hervorgehoben (im Takt), dann die Frage. Vertrag: DURATION + renderFrame(t) -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  .hook { top: 190px; }
+  .duo { position: absolute; left: 0; right: 0; top: 560px; height: 820px; }
+  .opt { position: absolute; top: 0; width: 470px; height: 680px; transform-origin: 50% 60%; }
+  .opt.a { left: 60px; } .opt.b { right: 60px; }
+  .opt .frame { position: absolute; left: 0; top: 0; width: 470px; height: 660px; transform: none; padding: 18px; }
+  .opt .frame img, .opt .frame .ph { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .opt .name { position: absolute; left: 0; right: 0; top: 690px; text-align: center; font-weight: 700; font-size: 38px; color: var(--fg); }
+  .opt .ring { position: absolute; inset: -16px -16px 4px -16px; border: 8px solid var(--accent); border-radius: 10px; opacity: 0; }
+  .opt .letter { position: absolute; left: 50%; top: -74px; transform: translateX(-50%); font-family: var(--head); font-size: 64px; color: var(--stone); }
+  .frage { position: absolute; left: 60px; right: 60px; top: 1380px; text-align: center; }
+  .frage .chip { font-size: 44px; padding: 20px 40px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="layer"><div class="wall dark"></div><div class="floor"></div><div class="grain"></div></div>
+  <div class="hook center" id="hook"></div>
+  <div class="duo">
+    <div class="opt a" id="optA"><div class="letter">A</div><div class="frame" id="frameA"><img id="posterA" alt=""></div><div class="ring"></div><div class="name" id="nameA"></div></div>
+    <div class="opt b" id="optB"><div class="letter">B</div><div class="frame" id="frameB"><img id="posterB" alt=""></div><div class="ring"></div><div class="name" id="nameB"></div></div>
+  </div>
+  <div class="frage" id="frage"><span class="chip" id="frageText"></span></div>
+  <div class="endcard" id="end"><div class="big" id="endBig"></div><div class="rule"></div><div class="small" id="endSmall"></div><div class="domain" id="endDomain"></div><div class="price" id="endPrice"></div></div>
+  <div id="subs"></div>
+  <div class="layer" id="black" style="background:#000"></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    hook: 'Links oder rechts?', poster: '', poster2: '', name1: 'A', name2: 'B', frage: 'Tippe auf dein Poster',
+    rahmen: 'schwarz', end: 'Limitless Poster', cta: 'Beide gibt es gerahmt in 6 Größen.', domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  $('hook').textContent = D.hook; $('nameA').textContent = D.name1; $('nameB').textContent = D.name2;
+  $('frageText').textContent = D.frage;
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain; $('endPrice').textContent = D.preiszeile;
+  Lib.setPoster($('posterA'), D.poster); Lib.setPoster($('posterB'), D.poster2 || D.poster);
+  Lib.frameColor($('frameA'), D.rahmen); Lib.frameColor($('frameB'), D.rahmen);
+  var words = Lib.splitWords($('hook'));
+  var E = Lib.E, P = Lib.prog, beat = 60 / Lib.BPM;
+  var opts = [$('optA'), $('optB')];
+  window.DURATION = 10;
+  window.renderFrame = function (t) {
+    Lib.reveal(words, t, -0.45, { stagger: 0.07, dur: 0.5, out: 7.9 });
+    // Einflug der beiden Poster
+    var inA = P(t, 0.4, 0.7, E.outBack), inB = P(t, 0.6, 0.7, E.outBack);
+    // Wechselnde Hervorhebung von 1.8 s bis 7.4 s, jeder Beat
+    var active = -1;
+    if (t >= 1.8 && t < 7.4) active = Math.floor((t - 1.8) / beat) % 2;
+    opts.forEach(function (el, i) {
+      var p = i ? inB : inA;
+      var on = active === i;
+      var since = active >= 0 ? (t - 1.8) % beat : 0;
+      var pop = on ? 1 + 0.05 * (1 - P(since, 0, 0.35, E.outCubic)) + 0.03 : 1;
+      el.style.opacity = p;
+      el.style.transform = 'translateY(' + ((1 - p) * 120) + 'px) scale(' + (0.9 + 0.1 * p) * pop + ')';
+      el.querySelector('.ring').style.opacity = on ? 1 : 0;
+      el.style.filter = active >= 0 && !on ? 'brightness(.62)' : 'none';
+    });
+    var fIn = P(t, 7.4, 0.5, E.outQuint);
+    $('frage').style.opacity = Math.min(fIn, 1 - P(t, 8.3, 0.3, E.inOutCubic));
+    $('frage').style.transform = 'translateY(' + ((1 - fIn) * 50) + 'px)';
+    var end = P(t, 8.4, 0.5, E.outCubic);
+    $('end').style.opacity = end;
+    $('black').style.opacity = 1 - Lib.fadeOut(t, 10, 0.4);
+    Lib.subs(t);
+  };
+})();
+</script>
+</body>
+</html>

@@ -30,6 +30,12 @@ planst sie über Metricool ein, sobald das erlaubt ist.
    Content-Bank auf `veröffentlicht` setzen, Aufgabe mit einer Zeile Zusammenfassung beenden. Exit 3 = Tageslimit
    dieses Netzwerks voll: anderen Tag wählen.
 
+8. **Produktions-Aufgaben** (`parent` zeigt auf eine `produktion`-Aufgabe): alles liegt fertig in `Assets/content/<parent-id>/` –
+   `clip.mp4` oder `slide-*.png`, `cover.jpg`, `caption-<netz>.txt`, `post-<netz>.json`, `gate.txt`. Du schreibst nichts neu:
+   Caption **wörtlich** aus der Datei, Medien hochladen (Schritt 5a), die öffentlichen URLs in `post-<netz>.json` unter `media`
+   eintragen (Reihenfolge: Video, dann Cover), dann Schritt 5b. Steht in `gate.txt` ein `SKIP`, planst du **nicht** – Entwurf,
+   Grund unter *Offene Fragen*. Schritte 1–3 entfallen.
+
 ## Vorgehen
 1. Lies alles oben. Entscheide Format: **Reel** (Video 9:16) oder **Karussell** (2–10 Slides 4:5).
    Einzelbild-Posts sind verboten.

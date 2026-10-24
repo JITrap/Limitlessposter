@@ -1,0 +1,66 @@
+<!doctype html>
+<!-- T07 Zoom ins Motiv · 9:16 · 10 s
+  DATA: hook ("Schau genauer hin"), poster, produkt, detail1 ("Mattes Papier, satte Farben"), detail2 ("Holzrahmen, Schwarz oder Weiß"),
+        rahmen, end, cta, domain, preiszeile
+  Langsame Kamerafahrt vom Raum ins Motiv, zwei Detail-Zeilen, Endcard. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  .room { transform-origin: 50% 46%; }
+  .hook { top: 190px; }
+  .frame { top: 520px; width: 440px; height: 616px; }
+  .frame img, .frame .ph { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .detail { position: absolute; left: 60px; right: 60px; top: 1280px; }
+  .detail .card { position: relative; font-size: 44px; }
+  .detail.two { top: 1420px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="layer room" id="room">
+    <div class="wall"></div><div class="floor"></div><div class="sofa"></div>
+    <div class="frame" id="frame"><img id="poster" alt=""></div>
+    <div class="grain"></div>
+  </div>
+  <div class="hook light center" id="hook"></div>
+  <div class="detail" id="d1"><div class="card" id="d1t"></div></div>
+  <div class="detail two" id="d2"><div class="card" id="d2t"></div></div>
+  <div class="endcard" id="end"><div class="big" id="endBig"></div><div class="rule"></div><div class="small" id="endSmall"></div><div class="domain" id="endDomain"></div><div class="price" id="endPrice"></div></div>
+  <div id="subs"></div>
+  <div class="layer" id="black" style="background:#000"></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    hook: 'Schau genauer hin', poster: '', produkt: '', detail1: 'Mattes Papier, satte Farben.', detail2: 'Holzrahmen in Schwarz oder Weiß.',
+    rahmen: 'schwarz', end: 'Limitless Poster', cta: 'Gerahmt. In 6 Größen.', domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  $('hook').textContent = D.hook; $('d1t').textContent = D.produkt ? D.produkt + ' – ' + D.detail1 : D.detail1; $('d2t').textContent = D.detail2;
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain; $('endPrice').textContent = D.preiszeile;
+  Lib.setPoster($('poster'), D.poster); Lib.frameColor($('frame'), D.rahmen);
+  var words = Lib.splitWords($('hook'));
+  var E = Lib.E, P = Lib.prog;
+  window.DURATION = 10;
+  window.renderFrame = function (t) {
+    Lib.reveal(words, t, -0.45, { stagger: 0.07, dur: 0.5, out: 2.4 });
+    // Kamerafahrt: 1.2 → 7.6 s von 1.0 auf 2.9, Ziel ist die Postermitte (y ≈ 828 px)
+    var z = 1 + 1.9 * P(t, 1.2, 6.4, E.inOutSine);
+    $('room').style.transformOrigin = '50% 43%';
+    $('room').style.transform = 'scale(' + z + ')';
+    var a = P(t, 3.6, 0.5, E.outQuint) * (1 - P(t, 7.9, 0.3, E.inOutCubic));
+    var b = P(t, 5.4, 0.5, E.outQuint) * (1 - P(t, 7.9, 0.3, E.inOutCubic));
+    $('d1').style.opacity = a; $('d1').style.transform = 'translateY(' + ((1 - a) * 40) + 'px)';
+    $('d2').style.opacity = b; $('d2').style.transform = 'translateY(' + ((1 - b) * 40) + 'px)';
+    var end = P(t, 8.2, 0.5, E.outCubic);
+    $('end').style.opacity = end;
+    $('black').style.opacity = 1 - Lib.fadeOut(t, 10, 0.4);
+    Lib.subs(t);
+  };
+})();
+</script>
+</body>
+</html>

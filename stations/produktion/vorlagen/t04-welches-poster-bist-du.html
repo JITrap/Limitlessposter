@@ -1,0 +1,85 @@
+<!doctype html>
+<!-- T04 Welches Poster bist du · 9:16 · 12 s
+  DATA: hook ("Welches Poster bist du?"), optionen [{poster, label}] (2–4), hinweis ("Screenshot, wenn es passt"),
+        ergebnis (Index 0–3, Endauswahl), rahmen, end, cta, domain, preiszeile -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  .hook { top: 180px; }
+  .grid { position: absolute; left: 60px; right: 60px; top: 520px; height: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .cell { position: relative; transform-origin: 50% 50%; }
+  .cell .frame { position: absolute; left: 0; top: 0; width: 100%; height: 360px; transform: none; padding: 14px; }
+  .cell .frame img, .cell .frame .ph { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cell .lab { position: absolute; left: 0; right: 0; top: 380px; text-align: center; font-size: 34px; font-weight: 600; color: var(--stone); }
+  .cell .ring { position: absolute; inset: -14px -14px 60px -14px; border: 8px solid var(--accent); border-radius: 10px; opacity: 0; }
+  .hinweis { position: absolute; left: 60px; right: 60px; top: 1360px; text-align: center; }
+  .hinweis .chip { font-size: 40px; padding: 18px 36px; }
+  #subs { top: 1460px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="layer"><div class="wall dark"></div><div class="grain"></div></div>
+  <div class="hook center" id="hook"></div>
+  <div class="grid" id="grid"></div>
+  <div class="hinweis" id="hinweis"><span class="chip ghost" id="hinweisText"></span></div>
+  <div class="endcard" id="end"><div class="big" id="endBig"></div><div class="rule"></div><div class="small" id="endSmall"></div><div class="domain" id="endDomain"></div><div class="price" id="endPrice"></div></div>
+  <div id="subs"></div>
+  <div class="layer" id="black" style="background:#000"></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    hook: 'Welches Poster bist du?', optionen: [], hinweis: 'Screenshot, wenn es passt', ergebnis: 0,
+    rahmen: 'schwarz', end: 'Limitless Poster', cta: 'Alle vier gibt es gerahmt in 6 Größen.', domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  var opts = (D.optionen && D.optionen.length ? D.optionen : [{ label: 'Ruhig' }, { label: 'Laut' }, { label: 'Fokus' }, { label: 'Frei' }]).slice(0, 4);
+  $('hook').textContent = D.hook; $('hinweisText').textContent = D.hinweis;
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain; $('endPrice').textContent = D.preiszeile;
+  var cells = opts.map(function (o) {
+    var c = document.createElement('div'); c.className = 'cell';
+    var f = document.createElement('div'); f.className = 'frame'; Lib.frameColor(f, D.rahmen);
+    var img = document.createElement('img'); img.alt = ''; Lib.setPoster(img, o.poster || '');
+    f.appendChild(img); c.appendChild(f);
+    var r = document.createElement('div'); r.className = 'ring'; c.appendChild(r);
+    var l = document.createElement('div'); l.className = 'lab'; l.textContent = o.label || ''; c.appendChild(l);
+    $('grid').appendChild(c);
+    return c;
+  });
+  var words = Lib.splitWords($('hook'));
+  var E = Lib.E, P = Lib.prog, n = cells.length;
+  var winner = Math.max(0, Math.min(n - 1, Number(D.ergebnis) || 0));
+  window.DURATION = 12;
+  window.renderFrame = function (t) {
+    Lib.reveal(words, t, -0.45, { stagger: 0.06, dur: 0.5, out: 10.3 });
+    // Zufalls-Lauf 2.0–8.4 s, dann Stopp auf dem Ergebnis
+    var active = -1, stopped = t >= 8.4;
+    if (t >= 2.0 && !stopped) {
+      var elapsed = t - 2.0, step = 0.5 - 0.3 * Math.min(1, elapsed / 6.4); // beschleunigt
+      active = Math.floor(elapsed / step) % n;
+    }
+    if (stopped) active = winner;
+    cells.forEach(function (c, i) {
+      var p = P(t, 0.3 + i * 0.12, 0.6, E.outBack);
+      var on = active === i, lift = stopped && on ? 1 + 0.06 * Lib.spring(t - 8.4, 2.5, 0.5) : 1;
+      c.style.opacity = p;
+      c.style.transform = 'translateY(' + ((1 - p) * 80) + 'px) scale(' + (0.9 + 0.1 * p) * lift + ')';
+      c.querySelector('.ring').style.opacity = on ? 1 : 0;
+      c.style.filter = active >= 0 && !on ? 'brightness(' + (stopped ? 0.4 : 0.7) + ')' : 'none';
+    });
+    var h = P(t, 2.4, 0.5, E.outQuint) * (1 - P(t, 8.2, 0.3, E.inOutCubic));
+    $('hinweis').style.opacity = h;
+    $('hinweis').style.transform = 'translateY(' + ((1 - h) * 40) + 'px)';
+    var end = P(t, 10.4, 0.5, E.outCubic);
+    $('end').style.opacity = end;
+    $('black').style.opacity = 1 - Lib.fadeOut(t, 12, 0.4);
+    Lib.subs(t);
+  };
+})();
+</script>
+</body>
+</html>

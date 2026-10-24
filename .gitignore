@@ -21,3 +21,8 @@ node_modules/
 # Betriebssystem / Editor
 .DS_Store
 Thumbs.db
+
+# Stimme (lokale Sprachausgabe): Python-Umgebung, Modelle, Caches
+tools/stimme/.venv/
+tools/stimme/data/
+tools/stimme/__pycache__/
