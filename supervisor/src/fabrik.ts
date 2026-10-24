@@ -31,6 +31,8 @@ export interface FabrikInput {
   nowStamp: string
   lastPlannerCreated: string | null
   produktionGeladen: boolean
+  /** two planner runs in a row produced nothing → the empty nudge waits 2 h */
+  plannerBackoff?: boolean
 }
 
 /** Startbar = `todo`, keine manuelle Station, Station verfügbar. */
@@ -48,13 +50,13 @@ export function computeFabrik(i: FabrikInput): FabrikView {
   else if (leer) {
     const blocked = i.tasks.filter((t) => t.fm.status === 'todo' && t.fm.station !== 'manual' && i.available.get(t.fm.station) !== true)
     const stations = [...new Set(blocked.map((t) => t.fm.station))]
-    grund = stations.length ? `Stationen nicht verbunden: ${stations.join(', ')}` : 'keine Aufgaben'
+    grund = stations.length ? `Stationen nicht verbunden: ${stations.join(', ')}` : i.plannerBackoff ? 'keine Aufgaben – Planer gedrosselt (letzte Läufe brachten nichts Neues)' : 'keine Aufgaben'
   } else if (i.running === 0 && i.budgetMode === 'cheap-only') grund = 'nur günstige Aufgaben (Budget)'
   return {
     leer,
     leerSeit: leer ? (i.prevLeerSeit ?? i.nowStamp) : null,
     grund,
-    naechsteAusloeser: naechsteAusloeser(i.now, { lastPlannerCreated: i.lastPlannerCreated, leer, produktionGeladen: i.produktionGeladen }),
+    naechsteAusloeser: naechsteAusloeser(i.now, { lastPlannerCreated: i.lastPlannerCreated, leer, produktionGeladen: i.produktionGeladen, backoff: i.plannerBackoff === true }),
     letzterPlaner: i.lastPlannerCreated,
   }
 }
@@ -82,7 +84,7 @@ export const PLANER_INTERVAL_MS = 2 * 60 * 60_000
 export const PLANER_LEER_INTERVAL_MS = 30 * 60_000
 
 /** Die bekannten Auslöser des Aufsehers, aufsteigend nach Zeit. */
-export function naechsteAusloeser(now: Date, o: { lastPlannerCreated: string | null; leer: boolean; produktionGeladen: boolean }): Ausloeser[] {
+export function naechsteAusloeser(now: Date, o: { lastPlannerCreated: string | null; leer: boolean; produktionGeladen: boolean; backoff?: boolean }): Ausloeser[] {
   const out: Ausloeser[] = []
   const slotHours = 6
   const nextSlot = new Date(now.getFullYear(), now.getMonth(), now.getDate(), (Math.floor(now.getHours() / slotHours) + 1) * slotHours, 0, 0, 0)
@@ -92,7 +94,7 @@ export function naechsteAusloeser(now: Date, o: { lastPlannerCreated: string | n
   out.push({ name: 'Wochenstrategie', wann: stamp(nextWeekly(now, 3, 20, 0)) })
   if (o.produktionGeladen) out.push({ name: 'Tagesproduktion planen', wann: stamp(nextDaily(now, 5, 30)) })
   const last = o.lastPlannerCreated ? new Date(o.lastPlannerCreated).getTime() : null
-  const interval = o.leer ? PLANER_LEER_INTERVAL_MS : PLANER_INTERVAL_MS
+  const interval = o.leer && !o.backoff ? PLANER_LEER_INTERVAL_MS : PLANER_INTERVAL_MS
   const planer = last === null || Number.isNaN(last) ? now : new Date(Math.max(now.getTime(), last + interval))
   out.push({ name: o.leer ? 'Planer (Fabrik leer)' : 'Planer (Warteschlange prüfen)', wann: stamp(planer) })
   return out.sort((a, b) => a.wann.localeCompare(b.wann))

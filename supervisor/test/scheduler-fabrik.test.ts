@@ -182,6 +182,28 @@ describe('Fabrik läuft immer', () => {
     expect(await planners()).toHaveLength(2)
   })
 
+  it('throttles the empty-factory nudge to 2 h after two planner runs that produced nothing', async () => {
+    await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: null })
+    sup = await build()
+    await sup.tick() // 10:00 – never planned → planner #1
+    expect(await planners()).toHaveLength(1)
+    runs.find((r) => r.task.fm.station === 'planer')!.resolve(ok())
+    await settle()
+    now = new Date('2026-11-06T10:31:00')
+    await sup.tick() // 31 min, still empty → planner #2 (one empty run so far)
+    expect(await planners()).toHaveLength(2)
+    runs.filter((r) => r.task.fm.station === 'planer').at(-1)!.resolve(ok())
+    await settle()
+    now = new Date('2026-11-06T11:05:00')
+    await sup.tick() // two empty runs → throttled, nothing after 34 min
+    expect(await planners()).toHaveLength(2)
+    expect(sup.getState().fabrik.grund).toContain('gedrosselt')
+    expect(sup.getState().fabrik.naechsteAusloeser.find((a) => a.name.startsWith('Planer'))!.wann).toBe('2026-11-06T12:31:00')
+    now = new Date('2026-11-06T12:32:00')
+    await sup.tick() // 2 h later → planner #3
+    expect(await planners()).toHaveLength(3) // the regular 2-h planner takes over – a planner is a planner
+  })
+
   it('does not nudge the planner while something is runnable or the system is paused', async () => {
     await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: '2026-11-06T09:00:00' })
     sup = await build()

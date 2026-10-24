@@ -48,6 +48,8 @@ interface PersistedState {
   /** trigger key → stamp of the firing */
   fired: Record<string, string>
   lastPlannerCreated: string | null
+  /** planner runs in a row that left nothing runnable – ≥ 2 throttles the empty-factory nudge to 2 h */
+  plannerEmptyRuns: number
   lastArchive: string | null
   /** task ids already seen once; new tasks of autopilot<2 stations get needs_approval forced */
   known: string[]
@@ -90,7 +92,7 @@ const ZENTRALE_LINKS: ZentraleView['links'] = [
 ]
 const SECRET_KEY = /(SECRET|TOKEN|PASSWORD|PASSWD|API_KEY|APIKEY|PRIVATE)/i
 
-const emptyState = (): PersistedState => ({ inboxSeen: [], fired: {}, lastPlannerCreated: null, lastArchive: null, known: [] })
+const emptyState = (): PersistedState => ({ inboxSeen: [], fired: {}, lastPlannerCreated: null, plannerEmptyRuns: 0, lastArchive: null, known: [] })
 
 const de = (n: number): string => n.toLocaleString('de-DE')
 const usd = (n: number): string => `${n.toFixed(2).replace('.', ',')} $`
@@ -294,6 +296,7 @@ export class Supervisor {
       now,
       nowStamp: nowStamp(now),
       lastPlannerCreated: this.state.lastPlannerCreated,
+      plannerBackoff: (this.state.plannerEmptyRuns ?? 0) >= 2,
       produktionGeladen: this.deps.stations.some((s) => s.name === 'produktion'),
     })
   }
@@ -450,6 +453,13 @@ export class Supervisor {
       this.running.delete(taskId)
     }
     const tasks = await this.deps.repo.list()
+    if (r.station.name === 'planer') {
+      // Did the planner leave work behind? Two empty runs in a row throttle the empty-factory nudge (cost).
+      const available = new Map([...this.availability.entries()].map(([n, a]) => [n, a.available]))
+      const produced = runnableTasks(tasks, available).length > 0
+      this.state.plannerEmptyRuns = produced ? 0 : (this.state.plannerEmptyRuns ?? 0) + 1
+      await this.saveState()
+    }
     this.publog = await loadPublogCached(this.cfg.vaultRoot, this.publog)
 
     this.updateCounters(tasks, this.deps.clock())
@@ -569,12 +579,14 @@ export class Supervisor {
       this.state.lastPlannerCreated = nowStamp(now)
       this.pushTicker('Planer angestoßen: Warteschlange füllen')
       created = true
-    } else if (plannerAvailable && !plannerOpen && since >= PLANNER_EMPTY_INTERVAL_MS && this.lastDecision?.mode !== 'paused' && !this.pausedView.active) {
-      // Die Fabrik darf nie stillstehen: nichts startbar und niemand bei der Arbeit → Planer sofort (alle 30 min).
+    } else if (plannerAvailable && !plannerOpen && this.lastDecision?.mode !== 'paused' && !this.pausedView.active) {
+      // Die Fabrik darf nie stillstehen: nichts startbar und niemand bei der Arbeit → Planer (alle 30 min;
+      // nach zwei Planer-Läufen ohne neue Aufgaben gedrosselt auf 2 h, damit kein Budget verbrennt).
+      const throttled = (this.state.plannerEmptyRuns ?? 0) >= 2
       const available = new Map([...this.availability.entries()].map(([n, a]) => [n, a.available]))
-      if (this.running.size === 0 && runnableTasks(tasks, available).length === 0) {
+      if (since >= (throttled ? PLANNER_MIN_INTERVAL_MS : PLANNER_EMPTY_INTERVAL_MS) && this.running.size === 0 && runnableTasks(tasks, available).length === 0) {
         await this.createPlannerTask(now, 'leer')
-        this.pushTicker('Fabrik leer – Planer füllt die Warteschlange')
+        this.pushTicker(throttled ? 'Fabrik leer – Planer (gedrosselt: die letzten Läufe brachten keine Aufgaben)' : 'Fabrik leer – Planer füllt die Warteschlange')
         created = true
       }
     }
