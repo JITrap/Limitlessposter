@@ -1,7 +1,9 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
+import { createReadStream } from 'node:fs'
 import { readFile, stat } from 'node:fs/promises'
 import { extname, join, resolve, sep } from 'node:path'
 import type { SupervisorState } from '../status/writer.js'
+import { MEDIEN_MIME } from '../medien.js'
 
 export interface WorldActions {
   approve: (id: string) => Promise<void>
@@ -9,6 +11,8 @@ export interface WorldActions {
   resume: () => Promise<void>
   /** Zentrale button: collect fresh numbers now. Optional for older callers. */
   refreshKennzahlen?: () => Promise<{ ok: boolean; reason: string | null }>
+  /** Fabrik button: start a planner run now. Optional for older callers. */
+  plan?: () => Promise<{ ok: boolean; reason: string | null }>
 }
 
 export interface WorldOptions {
@@ -17,6 +21,8 @@ export interface WorldOptions {
   getState: () => SupervisorState
   actions: WorldActions
   publicDir: string
+  /** `<Vault>/LimitlessOS` – only its `Assets/` subtree is served under /media/ (previews in the Produktion panel). */
+  mediaRoot?: string
 }
 
 export interface WorldEvent {
@@ -78,6 +84,51 @@ export async function startWorld(opts: WorldOptions): Promise<WorldHandle> {
     }
   }
 
+  /**
+   * /media/Assets/… → `<mediaRoot>/Assets/…`. Only the Assets subtree, never `..`, only known
+   * media types; videos/audio get simple Range support so the browser can seek.
+   */
+  const assetsRoot = opts.mediaRoot ? resolve(opts.mediaRoot, 'Assets') : null
+  const serveMedia = async (urlPath: string, req: IncomingMessage, res: ServerResponse): Promise<void> => {
+    if (!assetsRoot) return json(res, 404, { error: 'Nicht gefunden' })
+    let rel: string
+    try {
+      rel = decodeURIComponent(urlPath.replace(/^\/media\/+/, ''))
+    } catch {
+      return json(res, 404, { error: 'Nicht gefunden' })
+    }
+    if (!rel.startsWith('Assets/') || rel.split(/[\\/]/).some((seg) => seg === '..' || seg === '' || seg.startsWith('.'))) {
+      return json(res, 404, { error: 'Nicht gefunden' })
+    }
+    const file = resolve(opts.mediaRoot!, rel)
+    if (!file.startsWith(assetsRoot + sep)) return json(res, 404, { error: 'Nicht gefunden' })
+    const mime = MEDIEN_MIME[extname(file).toLowerCase()]
+    if (!mime) return json(res, 404, { error: 'Nicht gefunden' })
+    let size: number
+    try {
+      const st = await stat(file)
+      if (!st.isFile()) throw new Error('not a file')
+      size = st.size
+    } catch {
+      return json(res, 404, { error: 'Nicht gefunden' })
+    }
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '')
+    if (range && (range[1] || range[2])) {
+      const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]))
+      const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1
+      if (Number.isNaN(start) || Number.isNaN(end) || start > end || start >= size) {
+        res.writeHead(416, { 'content-range': `bytes */${size}` })
+        res.end()
+        return
+      }
+      res.writeHead(206, { 'content-type': mime, 'content-length': end - start + 1, 'content-range': `bytes ${start}-${end}/${size}`, 'accept-ranges': 'bytes', 'cache-control': 'no-store' })
+      createReadStream(file, { start, end }).pipe(res)
+      return
+    }
+    res.writeHead(200, { 'content-type': mime, 'content-length': size, 'accept-ranges': 'bytes', 'cache-control': 'no-store' })
+    createReadStream(file).pipe(res)
+  }
+
   // State-changing requests must come from the page itself: a foreign Origin (any
   // website in Julius' browser) or a foreign Host (DNS rebinding) is refused.
   const isLocal = (value: string | undefined): boolean => {
@@ -131,8 +182,14 @@ export async function startWorld(opts: WorldOptions): Promise<WorldHandle> {
       await (path === '/api/pause' ? opts.actions.pause() : opts.actions.resume())
       return json(res, 200, { ok: true })
     }
+    if (path === '/api/planer') {
+      if (method !== 'POST') return json(res, 405, { error: 'Methode nicht erlaubt' })
+      if (!opts.actions.plan) return json(res, 404, { error: 'Nicht verfügbar' })
+      return json(res, 200, await opts.actions.plan())
+    }
     if (path.startsWith('/api/')) return json(res, 404, { error: 'Nicht gefunden' })
     if (method !== 'GET') return json(res, 405, { error: 'Methode nicht erlaubt' })
+    if (path.startsWith('/media/')) return serveMedia(path, req, res)
     return serveStatic(path, res)
   }
 

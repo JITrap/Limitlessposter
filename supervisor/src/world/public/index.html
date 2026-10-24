@@ -8,11 +8,11 @@
   :root {
     --bg: #0f1115; --panel: #171a21; --panel-2: #1e222b; --line: #2a2f3a;
     --text: #e8eaf0; --muted: #9aa3b2; --accent: #f5c542; --ok: #4cd680; --warn: #f0a04b; --bad: #ff5c5c;
-    --busy: #5aa9ff;
+    --busy: #5aa9ff; --ig: #e1306c; --tt: #69c9d0; --li: #0a66c2; --gmb: #34a853; --fb: #1877f2; --pin: #e60023;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-  header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 2; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 2; }
   header h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
   header h1 span { color: var(--accent); }
   .conn { font-size: 12px; color: var(--muted); }
@@ -20,11 +20,17 @@
   .conn.off::before { content: "● "; color: var(--bad); }
   button { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; font: inherit; }
   button:hover { border-color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
   button.primary { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+  /* Ampel-Zeile */
+  .ampel { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 12px; color: var(--muted); width: 100%; }
+  .ampel .dot::before { content: "● "; }
+  .ampel .ok::before { color: var(--ok); } .ampel .warn::before { color: var(--warn); } .ampel .bad::before { color: var(--bad); } .ampel .busy::before { color: var(--busy); }
   main { display: grid; grid-template-columns: 1fr 340px; gap: 16px; padding: 16px 20px 40px; max-width: 1400px; margin: 0 auto; }
   @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
   section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
   section.panel h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .full { grid-column: 1 / -1; }
   .banner { border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: none; }
   .banner.show { display: block; }
   .banner.danger { background: #3a1416; border: 1px solid var(--bad); }
@@ -67,8 +73,8 @@
   .ticker li { padding: 4px 0; border-bottom: 1px dashed var(--line); color: var(--muted); }
   .ticker li:first-child { color: var(--text); }
   .small { font-size: 12px; color: var(--muted); }
+  .bad { color: var(--bad); } .ok { color: var(--ok); } .warn { color: var(--warn); }
   /* Zentrale */
-  .zentrale { grid-column: 1 / -1; }
   .zhead { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .zhead h2 { margin: 0; }
   .links { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -89,6 +95,47 @@
   .saetze li { margin: 3px 0; }
   .zfoot { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--muted); }
   .zfoot .err { color: var(--warn); }
+  /* Kalender */
+  .kal { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+  .kday { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px; min-height: 90px; }
+  .kday.today { border-color: var(--accent); }
+  .kday.past { opacity: .7; }
+  .kday .d { font-size: 12px; font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .kday .d .n { color: var(--muted); font-weight: 400; }
+  .post { border-left: 3px solid var(--muted); background: var(--panel); border-radius: 6px; padding: 5px 7px; margin-bottom: 6px; font-size: 11px; line-height: 1.3; }
+  .post.instagram { border-left-color: var(--ig); } .post.tiktok { border-left-color: var(--tt); } .post.linkedin { border-left-color: var(--li); } .post.gmb { border-left-color: var(--gmb); } .post.facebook { border-left-color: var(--fb); } .post.pinterest { border-left-color: var(--pin); }
+  .post .h { display: flex; justify-content: space-between; gap: 6px; color: var(--muted); }
+  .post .h b { color: var(--text); font-weight: 600; text-transform: capitalize; }
+  .chip { display: inline-block; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 16px; background: #0b0d11; color: var(--muted); }
+  .chip.veröffentlicht { color: var(--ok); } .chip.geplant { color: var(--busy); } .chip.entwurf { color: var(--warn); } .chip.storniert { color: var(--bad); text-decoration: line-through; }
+  .post .x { margin-top: 3px; color: var(--text); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .post a { color: var(--muted); text-decoration: none; font-size: 10px; }
+  .post a:hover { color: var(--accent); }
+  .kcounts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  /* Medien */
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .media { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 11px; }
+  .media .frame { aspect-ratio: 4 / 5; background: #0b0d11; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .media img, .media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .media audio { width: 100%; }
+  .media .doc { color: var(--muted); font-size: 24px; }
+  .media .cap { padding: 6px 8px; }
+  .media .cap b { display: block; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .media .cap span { color: var(--muted); }
+  .media .cap a { color: var(--muted); text-decoration: none; }
+  .groupt { font-size: 12px; color: var(--muted); margin: 12px 0 6px; }
+  .groupt:first-child { margin-top: 0; }
+  /* Fabrik / Stimme */
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
+  .kv span:nth-child(odd) { color: var(--muted); }
+  .lamp { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .lamp.on { background: var(--ok); box-shadow: 0 0 10px var(--ok); } .lamp.off { background: var(--bad); box-shadow: 0 0 10px var(--bad); } .lamp.idle { background: var(--warn); }
+  .trig { list-style: none; margin: 8px 0 0; padding: 0; font-size: 12px; }
+  .trig li { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed var(--line); color: var(--muted); }
+  .trig li b { color: var(--text); font-weight: 500; }
+  .pub li { font-size: 12px; padding: 4px 0; border-bottom: 1px dashed var(--line); color: var(--muted); list-style: none; }
+  .pub { margin: 0; padding: 0; }
+  .pub a { color: var(--text); text-decoration: none; }
 </style>
 </head>
 <body>
@@ -99,10 +146,11 @@
     <button id="pauseBtn">Pause</button>
     <a class="small" id="vaultLink" href="#" title="Vault in Obsidian öffnen">Obsidian öffnen</a>
   </div>
+  <div class="ampel" id="ampel"></div>
 </header>
 
 <main>
-  <section class="panel zentrale">
+  <section class="panel full">
     <div class="zhead">
       <h2>Zentrale – Shop · Social · Produktion</h2>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
@@ -116,6 +164,13 @@
     <ul class="saetze" id="zsaetze"></ul>
     <div class="zfoot" id="zfoot"></div>
   </section>
+
+  <section class="panel full">
+    <div class="zhead"><h2>Kalender – was draußen ist und was kommt</h2><span class="small" id="kstand"></span></div>
+    <div class="kcounts" id="kcounts"></div>
+    <div class="kal" id="kal"></div>
+  </section>
+
   <div>
     <div id="danger" class="banner danger"></div>
     <div id="warn" class="banner warn"></div>
@@ -127,13 +182,29 @@
       <h2>Wartet auf dich</h2>
       <div id="waiting"></div>
     </section>
+    <section class="panel" style="margin-top:16px">
+      <div class="zhead"><h2>Produktion – was gerade entsteht</h2><span class="small" id="mstand"></span></div>
+      <div id="gallery"></div>
+    </section>
   </div>
   <aside>
-    <section class="panel board">
+    <section class="panel">
+      <div class="zhead"><h2>Fabrik</h2><button id="planBtn" title="Der Planer legt sofort neue Aufgaben an">Planer jetzt</button></div>
+      <div id="fabrik"></div>
+    </section>
+    <section class="panel board" style="margin-top:16px">
       <h2>Wandtafel</h2>
       <div id="board"></div>
       <div id="counts" class="counts"></div>
       <p class="small" id="reset"></p>
+    </section>
+    <section class="panel" style="margin-top:16px">
+      <h2>Stimme</h2>
+      <div id="stimme"></div>
+    </section>
+    <section class="panel" style="margin-top:16px">
+      <h2>Veröffentlicht – zuletzt</h2>
+      <ul class="pub" id="pub"></ul>
     </section>
     <section class="panel" style="margin-top:16px">
       <h2>Ticker</h2>
@@ -149,8 +220,11 @@
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); };
   var hhmm = function (stamp) { return stamp ? String(stamp).slice(11, 16) : ''; };
+  var dmy = function (stamp) { return stamp ? String(stamp).slice(8, 10) + '.' + String(stamp).slice(5, 7) + '. ' + hhmm(stamp) : '–'; };
   var pct = function (x) { return Math.round(Math.max(0, Math.min(9.99, x)) * 100) + ' %'; };
   var de = function (n) { return Number(n || 0).toLocaleString('de-DE'); };
+  var WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  var NETZ_LABEL = { instagram: 'Instagram', tiktok: 'TikTok', linkedin: 'LinkedIn', gmb: 'Google-Profil', pinterest: 'Pinterest', facebook: 'Facebook', youtube: 'YouTube' };
 
   function obsidianLink(file) {
     var vault = state && state.vaultName ? state.vaultName : '';
@@ -170,7 +244,24 @@
     var cls = n > 0 ? 'up' : n < 0 ? 'down' : '';
     return '<span class="delta ' + cls + '">' + (n > 0 ? '+' : '') + de(n) + '</span>';
   }
-  var NETZ_LABEL = { instagram: 'Instagram', tiktok: 'TikTok', linkedin: 'LinkedIn', gmb: 'Google-Profil', pinterest: 'Pinterest', facebook: 'Facebook', youtube: 'YouTube' };
+  function tagLabel(datum) {
+    var d = new Date(datum + 'T12:00:00');
+    return (isNaN(d.getTime()) ? '' : WD[d.getDay()] + ' ') + datum.slice(8, 10) + '.' + datum.slice(5, 7) + '.';
+  }
+  function kb(n) { return n > 1048576 ? (n / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
+
+  function renderAmpel() {
+    var f = state.fabrik || {}, d = state.decision, w = (state.workers || []).length;
+    var items = [];
+    items.push('<span class="dot ' + (f.leer ? 'warn' : 'ok') + '">' + (f.leer ? 'Fabrik steht – ' + esc(f.grund) : 'Fabrik läuft') + '</span>');
+    items.push('<span class="dot ' + (w ? 'busy' : 'warn') + '">' + w + ' Arbeiter</span>');
+    items.push('<span class="dot ' + (state.today.publogStale ? 'bad' : 'ok') + '">' + (state.today.publogStale ? 'Liste veraltet' : 'Dubletten-Liste aktuell') + '</span>');
+    var mode = d ? d.mode : null;
+    items.push('<span class="dot ' + (mode === 'normal' ? 'ok' : mode === 'cheap-only' ? 'warn' : 'bad') + '">Budget ' + esc({ normal: 'normal', 'cheap-only': 'nur günstig', paused: 'Pause' }[mode] || 'unbekannt') + '</span>');
+    if (state.paused && state.paused.active) items.push('<span class="dot bad">Pause</span>');
+    if (!state.health.ok) items.push('<span class="dot bad">Aufseher gestoppt</span>');
+    $('ampel').innerHTML = items.join('');
+  }
 
   function renderZentrale() {
     var z = state.zentrale || {};
@@ -227,9 +318,89 @@
     $('zfoot').innerHTML = foot.join('');
   }
 
+  function renderKalender() {
+    var kal = state.kalender || { tage: [], heute: {} };
+    var heute = kal.heute || state.today.byNetwork || {};
+    $('kcounts').innerHTML = Object.keys(heute).map(function (n) { var v = heute[n]; return '<span><b>' + esc(NETZ_LABEL[n] || n) + '</b> heute ' + v.used + '/' + v.limit + '</span>'; }).join('');
+    $('kstand').innerHTML = (state.today.publogStale ? '<span class="bad">Liste veraltet</span>' : 'Liste von ' + esc(String(state.today.publogSynced || '–').replace('T', ' ').slice(0, 16))) + ' · <a class="small" href="' + obsidianLink('Pläne/Veröffentlicht.md') + '">Liste öffnen</a>';
+    $('kal').innerHTML = (kal.tage || []).map(function (t) {
+      var isPast = !t.heute && t.datum < (kal.tage.filter(function (x) { return x.heute; })[0] || {}).datum;
+      var posts = (t.eintraege || []).map(function (e) {
+        return '<div class="post ' + esc(e.netzwerk) + '"><div class="h"><b>' + esc(NETZ_LABEL[e.netzwerk] || e.netzwerk) + '</b><span>' + esc(e.zeit) + ' <span class="chip ' + esc(e.status) + '">' + esc(e.status) + '</span></span></div>' +
+          '<div class="x" title="' + esc(e.text) + '">' + esc(e.text) + '</div>' + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + (e.url.indexOf('metricool') >= 0 ? 'in Metricool öffnen' : 'Beitrag öffnen') + '</a>' : '') + '</div>';
+      }).join('');
+      return '<div class="kday' + (t.heute ? ' today' : '') + (isPast ? ' past' : '') + '"><div class="d"><span>' + esc(tagLabel(t.datum)) + (t.heute ? ' · heute' : '') + '</span><span class="n">' + (t.eintraege || []).length + '</span></div>' + (posts || '<div class="small">–</div>') + '</div>';
+    }).join('') || '<div class="empty">Noch keine Einträge in der Veröffentlichungs-Liste.</div>';
+  }
+
+  function renderMedien() {
+    var list = state.medien || [];
+    $('mstand').textContent = list.length ? list.length + ' Dateien · neueste ' + dmy(list[0].geaendert) : '';
+    if (!list.length) { $('gallery').innerHTML = '<div class="empty">Noch nichts erzeugt – sobald Studio, Produktion oder Stimme Dateien unter Assets/content ablegen, erscheinen sie hier.</div>'; return; }
+    var groups = [], byTask = {};
+    list.forEach(function (m) {
+      if (!byTask[m.aufgabe]) { byTask[m.aufgabe] = { titel: m.titel, aufgabe: m.aufgabe, items: [] }; groups.push(byTask[m.aufgabe]); }
+      byTask[m.aufgabe].items.push(m);
+    });
+    $('gallery').innerHTML = groups.map(function (g) {
+      var cards = g.items.map(function (m) {
+        var name = m.pfad.slice(m.pfad.lastIndexOf('/') + 1);
+        var frame = m.typ === 'bild' ? '<img loading="lazy" src="' + esc(m.url) + '" alt="' + esc(name) + '">' :
+          m.typ === 'video' ? '<video controls muted preload="metadata" src="' + esc(m.url) + '"></video>' :
+          m.typ === 'audio' ? '<audio controls preload="none" src="' + esc(m.url) + '"></audio>' : '<span class="doc">📄</span>';
+        return '<div class="media"><div class="frame">' + frame + '</div><div class="cap"><b title="' + esc(name) + '">' + esc(name) + '</b><span>' + esc(kb(m.groesse)) + ' · ' + esc(hhmm(m.geaendert)) + '</span> · <a href="' + esc(m.url) + '" target="_blank" rel="noopener">öffnen</a></div></div>';
+      }).join('');
+      var link = g.aufgabe && g.aufgabe !== '(Ordner)' ? ' · <a class="small" href="' + obsidianLink('Aufgaben/' + g.aufgabe + '.md') + '">Aufgabe</a>' : '';
+      return '<div class="groupt">' + esc(g.titel) + link + '</div><div class="gallery">' + cards + '</div>';
+    }).join('');
+  }
+
+  function renderStimme() {
+    var s = state.stimme;
+    if (!s || !s.installed) {
+      $('stimme').innerHTML = '<div class="kv"><span>Motor</span><span class="warn">nicht installiert</span></div>' +
+        '<p class="small">Eigene Stimme für Reels (läuft lokal auf der Grafikkarte, kein Abo). Einrichten: <code>tools\\stimme\\install.ps1</code>.' + (s && s.lastError ? '<br><span class="bad">' + esc(s.lastError) + '</span>' : '') + '</p>';
+      return;
+    }
+    var sample = s.lastSample ? '<audio controls preload="none" src="/media/' + s.lastSample.split('/').map(encodeURIComponent).join('/') + '"></audio>' : '<span class="small">noch keine Probe</span>';
+    $('stimme').innerHTML = '<div class="kv"><span>Motor</span><span>' + esc(s.engine || '–') + (s.cuda ? ' · GPU' : ' · CPU') + '</span>' +
+      '<span>Stimmen</span><span>' + (s.voices && s.voices.length ? esc(s.voices.join(', ')) : '–') + '</span>' +
+      '<span>Stand</span><span>' + esc(dmy(s.updated)) + '</span></div>' +
+      '<div style="margin-top:8px">' + sample + '</div>' + (s.lastError ? '<p class="small bad">' + esc(s.lastError) + '</p>' : '');
+  }
+
+  function renderFabrik() {
+    var f = state.fabrik || {};
+    var w = (state.workers || []).length;
+    var lamp = f.leer ? (state.paused.active || (state.decision && state.decision.mode === 'paused') ? 'off' : 'idle') : 'on';
+    var head = f.leer ? 'Steht' + (f.leerSeit ? ' seit ' + esc(hhmm(f.leerSeit)) : '') : 'Läuft · ' + w + ' Arbeiter';
+    var trig = (f.naechsteAusloeser || []).slice(0, 5).map(function (a) { return '<li><b>' + esc(a.name) + '</b><span>' + esc(dmy(a.wann)) + '</span></li>'; }).join('');
+    $('fabrik').innerHTML = '<div class="kv"><span>Zustand</span><span><i class="lamp ' + lamp + '"></i>' + head + '</span>' +
+      '<span>Grund</span><span>' + esc(f.grund || '–') + '</span>' +
+      '<span>Letzter Planer</span><span>' + esc(dmy(f.letzterPlaner)) + '</span></div>' +
+      '<div class="small" style="margin-top:8px">Nächste Auslöser</div><ul class="trig">' + (trig || '<li>–</li>') + '</ul>';
+  }
+
+  function renderPub() {
+    var tage = (state.kalender && state.kalender.tage) || [];
+    var all = [];
+    tage.forEach(function (t) { (t.eintraege || []).forEach(function (e) { all.push({ datum: t.datum, e: e }); }); });
+    all.sort(function (a, b) { return (b.datum + b.e.zeit).localeCompare(a.datum + a.e.zeit); });
+    $('pub').innerHTML = all.slice(0, 10).map(function (x) {
+      var e = x.e;
+      return '<li>' + esc(tagLabel(x.datum)) + ' ' + esc(e.zeit) + ' · ' + esc(NETZ_LABEL[e.netzwerk] || e.netzwerk) + ' · <span class="chip ' + esc(e.status) + '">' + esc(e.status) + '</span><br>' + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' : '') + esc(e.text.length > 70 ? e.text.slice(0, 69) + '…' : e.text) + (e.url ? '</a>' : '') + '</li>';
+    }).join('') || '<li>(leer)</li>';
+  }
+
   function render() {
     if (!state) return;
+    renderAmpel();
     renderZentrale();
+    renderKalender();
+    renderMedien();
+    renderStimme();
+    renderFabrik();
+    renderPub();
     // banners
     var danger = $('danger'), warn = $('warn');
     if (!state.health.ok) { danger.className = 'banner danger show'; danger.innerHTML = '<b>Aufseher gestoppt</b><br>' + state.health.problems.map(esc).join('<br>'); }
@@ -307,6 +478,14 @@
       if (res && res.ok === false) { alert('Zentrale: ' + (res.reason || 'nicht möglich')); }
       refresh();
     }).catch(function () { $('refreshBtn').disabled = false; });
+  });
+  $('planBtn').addEventListener('click', function () {
+    $('planBtn').disabled = true;
+    fetch('/api/planer', { method: 'POST' }).then(function (r) { return r.json(); }).then(function (res) {
+      if (res && res.ok === false) { alert('Planer: ' + (res.reason || 'nicht möglich')); }
+      $('planBtn').disabled = false;
+      refresh();
+    }).catch(function () { $('planBtn').disabled = false; });
   });
   $('pauseBtn').addEventListener('click', function () {
     fetch(state && state.paused.active ? '/api/resume' : '/api/pause', { method: 'POST' }).then(function () { refresh(); });

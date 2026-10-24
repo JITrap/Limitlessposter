@@ -7,6 +7,40 @@
 - **Obsidian** `LimitlessOS/Home.md` – Status, Kanban, Heute. `Status.md` wird jede Minute neu geschrieben.
 - **Berichte** `LimitlessOS/Berichte/` – täglich 07:30, wöchentlich Donnerstag 17:00.
 
+## Die Welt
+`http://localhost:4242`, auch im Rahmen oben in `Home.md`. Die Seite hängt am Aufseher (SSE) und
+aktualisiert sich bei jedem Tick von selbst – nichts muss neu geladen werden. Von oben nach unten:
+
+- **Ampel** (Kopfzeile): läuft die Fabrik oder steht sie – mit Grund („keine Aufgaben“, „Budget-Pause“,
+  „Stationen nicht verbunden: …“), Zahl der Arbeiter, Stand der Veröffentlichungs-Liste
+  (aktuell/veraltet), Budget-Modus, Pause, rote Vorab-Prüfung.
+- **Zentrale**: Shop, Social und Printify als Kacheln, Knopf **Kennzahlen aktualisieren**.
+- **Kalender**: 3 Tage zurück, 7 Tage voraus. Je Tag die Beiträge aus `Pläne/Veröffentlicht.md` mit
+  Netzwerk, Uhrzeit, Status (geplant / veröffentlicht / entwurf / storniert) und Link zu Metricool
+  bzw. zum Beitrag; darüber die Tageszähler je Netzwerk gegen das Limit aus `Strategie.md`.
+- **Büro**: wer gerade woran arbeitet (Station, Modell, seit wann, Tokens).
+- **Wartet auf dich**: Karten mit Knopf **Freigeben**.
+- **Produktion**: Galerie aller Dateien unter `Assets/content/` – neueste zuerst, nach Aufgabe
+  gruppiert. Bilder und Slides als Vorschau, Clips und Stimmproben direkt abspielbar. Dahinter steht
+  die Route `/media/`, die ausschließlich den Ordner `Assets/` ausliefert – nie Notizen, nie `.env`.
+- **Fabrik** (rechte Spalte): Zustand, Grund, letzter Planer-Anstoß, die nächsten Auslöser
+  (Kennzahlen alle 6 h, Tagesbericht 07:30, Tagesproduktion 05:30, Wochenbericht, Wochenstrategie,
+  Planer) und der Knopf **Planer jetzt** – legt sofort eine Planer-Aufgabe an, außer eine läuft schon.
+- **Wandtafel**: Budget, Stationen, Tageszähler.
+- **Stimme**: ob die eigene Sprachausgabe installiert ist (Chatterbox auf der Grafikkarte oder Piper
+  auf der CPU), welche Stimmen es gibt, letzte Probe zum Anhören. Nicht installiert → Hinweis auf
+  `tools\stimme\install.ps1`. Quelle ist `supervisor/data/stimme.json`, geschrieben vom Stimm-Adapter.
+- **Veröffentlicht – zuletzt**: die letzten 10 Beiträge aus dem Kalender.
+- **Ticker**: die letzten Ereignisse des Aufsehers.
+
+**Die Fabrik steht nie lange still.** Ist nichts startbar und arbeitet niemand, legt der Aufseher
+spätestens alle 30 Minuten eine Planer-Aufgabe an („Planung: Fabrik leer – Warteschlange füllen“).
+Sie plant zuerst die Tagesproduktion laut `Strategie.md` (`daily_targets`, `daily_post_limits`) und
+`Pläne/Produktion.md`, dann die Wertleiter. Um 05:30 plant der Planer außerdem die Produktion für den
+nächsten Tag – nur, wenn die Station `produktion` geladen ist; sonst steht ein Hinweis im Ticker.
+In der Budget-Pause und bei gesetzter `PAUSE`-Datei passiert beides nicht. Als Text steht all das in
+`Status.md` unter „Fabrik“, „Kalender (7 Tage)“ und „Produktion“.
+
 ## Die Zentrale
 Die Station **Zentrale** (`kennzahlen`, Haiku, alle 6 Stunden) holt Follower, Reichweite,
 Interaktionen und geplante Posts je Netzwerk aus Metricool, Bestellungen und Umsatz aus Shopify,

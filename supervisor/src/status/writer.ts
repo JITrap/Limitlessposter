@@ -2,8 +2,28 @@ import { join } from 'node:path'
 import type { Decision, ModelFamily, TaskStatus } from '../types.js'
 import type { Kennzahlen } from '../kennzahlen.js'
 import type { PrintifySummary } from '../adapters/printify.js'
+import type { FabrikView } from '../fabrik.js'
+import type { MedienEintrag, StimmeView } from '../medien.js'
 import { stringifyNote } from '../vault/frontmatter.js'
 import { writeFileAtomic } from '../vault/atomic.js'
+
+/** Ein Beitrag im Kalender der Welt (aus Pläne/Veröffentlicht.md). */
+export interface KalenderEintrag {
+  /** HH:mm */
+  zeit: string
+  netzwerk: string
+  typ: string
+  status: string
+  text: string
+  url: string
+}
+
+export interface KalenderTag {
+  /** YYYY-MM-DD */
+  datum: string
+  heute: boolean
+  eintraege: KalenderEintrag[]
+}
 
 export interface WorkerView {
   taskId: string
@@ -59,6 +79,23 @@ export interface SupervisorState {
   waiting: { id: string; title: string; station: string }[]
   ticker: string[]
   zentrale: ZentraleView
+  /** läuft die Fabrik, und wenn nicht: warum, und wann der nächste Auslöser kommt */
+  fabrik: FabrikView
+  /** 3 Tage zurück, 7 voraus, aus der Veröffentlichungs-Liste */
+  kalender: { tage: KalenderTag[]; heute: Record<string, { used: number; limit: number }> }
+  /** zuletzt erzeugte Dateien unter Assets/content (neueste zuerst) */
+  medien: MedienEintrag[]
+  /** Stand der eigenen Stimme (stimme.json) */
+  stimme: StimmeView
+}
+
+const WOCHENTAG_KURZ = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
+
+/** `2026-10-24` → `Sa 24.10.` */
+export function tagLabel(datum: string): string {
+  const d = new Date(`${datum}T12:00:00`)
+  if (Number.isNaN(d.getTime())) return datum
+  return `${WOCHENTAG_KURZ[d.getDay()]} ${datum.slice(8, 10)}.${datum.slice(5, 7)}.`
 }
 
 const BAR_WIDTH = 20
@@ -131,6 +168,16 @@ export function renderStatusMd(s: SupervisorState): string {
   for (const [n, v] of Object.entries(s.today.byNetwork ?? {})) lines.push(`  - ${n}: ${v.used}/${v.limit}`)
   lines.push(`- Shop-Änderungen: ${s.today.shopChanges}/${s.today.shopLimit}`)
   lines.push(`- Dubletten-Schutz: Liste zuletzt abgeglichen ${s.today.publogSynced ?? 'noch nie'}${s.today.publogStale ? ' – **veraltet, es wird nur entworfen**' : ''} → [[Pläne/Veröffentlicht]]`)
+
+  lines.push('', '## Fabrik')
+  const f = s.fabrik
+  if (f) {
+    lines.push(f.leer ? `- **Steht** seit ${f.leerSeit ? f.leerSeit.replace('T', ' ').slice(0, 16) : '–'} – ${f.grund}` : `- Läuft – ${s.workers.length} Arbeiter · ${f.grund}`)
+    lines.push(`- Letzter Planer-Anstoß: ${f.letzterPlaner ? f.letzterPlaner.replace('T', ' ').slice(0, 16) : 'noch nie'}`)
+    for (const a of f.naechsteAusloeser.slice(0, 4)) lines.push(`- Nächster Auslöser: ${a.name} – ${a.wann.replace('T', ' ').slice(0, 16)}`)
+  } else {
+    lines.push('- Noch kein Tick.')
+  }
   lines.push('', '## Nächster Wochen-Reset', formatReset(s.nextWeekReset))
 
   lines.push('', '## Zentrale')
@@ -149,6 +196,23 @@ export function renderStatusMd(s: SupervisorState): string {
   const pf = s.zentrale?.printify
   if (pf?.ok) lines.push(`- Printify: ${pf.auftraege.offen} offen · ${pf.auftraege.in_produktion} in Produktion · ${pf.auftraege.versendet_28t} versendet (28 T) · Marge 28 T ${pf.auftraege.marge_28t.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €`)
   else if (pf) lines.push(`- Printify: ${pf.fehler}`)
+
+  lines.push('', '## Kalender (7 Tage)')
+  const tage = s.kalender?.tage ?? []
+  if (tage.length === 0) lines.push('- Noch keine Einträge → [[Pläne/Veröffentlicht]]')
+  for (const t of tage) {
+    const items = t.eintraege.map((e) => `${e.netzwerk} ${e.zeit} ${e.status} „${e.text.length > 40 ? `${e.text.slice(0, 39)}…` : e.text}“`)
+    lines.push(`- ${t.heute ? '**' : ''}${tagLabel(t.datum)}${t.heute ? ' (heute)**' : ''}: ${items.length ? items.join(' · ') : '–'}`)
+  }
+
+  lines.push('', '## Produktion')
+  const medien = s.medien ?? []
+  if (medien.length === 0) lines.push('- Noch nichts erzeugt (Assets/content ist leer).')
+  for (const m of medien.slice(0, 10)) lines.push(`- [[${m.pfad}]] · ${m.typ} · ${m.titel} · ${m.geaendert.replace('T', ' ').slice(0, 16)}`)
+  const st = s.stimme
+  if (st) {
+    lines.push(st.installed ? `- Stimme: ${st.engine ?? '–'}${st.cuda ? ' (GPU)' : ' (CPU)'} · ${st.voices.length} Stimmen${st.lastSample ? ` · letzte Probe [[${st.lastSample}]]` : ''}` : `- Stimme: nicht installiert${st.lastError ? ` – ${st.lastError}` : ''}`)
+  }
 
   lines.push('', '## Wartet auf dich')
   if (s.waiting.length === 0) lines.push('Nichts – alles läuft.')

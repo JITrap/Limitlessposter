@@ -23,6 +23,10 @@ arbeitet), **Wartet auf dich**, die **Wandtafel** und der **Ticker**. Alles aktu
 | den Plan für die nächsten Tage | [[Pläne/Content-Kalender]] · die fertigen Karten: [[Pläne/Content-Bank]] |
 | Berichte lesen | `Berichte/` (täglich und wöchentlich vom Berichter) |
 | sehen, was je gepostet wurde (Dubletten-Schutz) | [[Pläne/Veröffentlicht]] · Tageszähler je Netzwerk: Welt → Wandtafel |
+| den Kalender: was wann rausgeht (3 Tage zurück, 7 voraus, je Netzwerk) | Welt → **Kalender** · als Text: [[Status#Kalender (7 Tage)]] · die Liste dahinter: [[Pläne/Veröffentlicht]] |
+| die fertigen Bilder, Slides, Clips und Stimmproben ansehen | Welt → **Produktion** (Galerie aus `Assets/content/`, nach Aufgabe) · als Text: [[Status#Produktion]] |
+| wissen, ob die Fabrik läuft, warum nicht, und wann der nächste Auslöser kommt | Welt → **Fabrik** (Ampel oben, Knopf „Planer jetzt“) · als Text: [[Status#Fabrik]] |
+| die eigene Stimme prüfen (Sprachausgabe für Reels und Ads) | Welt → **Stimme** (Engine, Stimmen, letzte Probe) · Stand auch in [[Status#Produktion]] |
 
 ## Status (Textfassung, alle 30 Sekunden neu)
 ![[Status]]
