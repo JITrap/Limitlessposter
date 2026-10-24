@@ -20,10 +20,14 @@ tools:
   - mcp__shopify__run-analytics-query
   - Bash(node supervisor/dist/adapters/printify.js *)
   - Bash(node supervisor/dist/adapters/shopify.js orders*)
+  - Bash(node supervisor/dist/adapters/posts.js *)
+  - Bash(node supervisor/dist/adapters/metricool.js scheduled*)
+  - Bash(node supervisor/dist/adapters/metricool.js published*)
 context:
   - Marke/Kanäle.md
   - Marke/Produkte.md
   - Kennzahlen.md
+  - Pläne/Veröffentlicht.md
 requires:
   mcp: [metricool]
   env: []

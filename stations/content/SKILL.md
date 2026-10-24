@@ -20,7 +20,15 @@ planst sie über Metricool ein, sobald das erlaubt ist.
    fertige CDN-Links, direkt als `media` für Metricool; kein Studio, kein Upload. Reels mit Trend-Sound-Hinweis kann Metricool
    für TikTok nicht hochladen: Instagram über Metricool planen, für TikTok im Ergebnis „TikTok: Datei
    `…mp4` + Caption von Julius in der App hochladen, Uhrzeit …“ vermerken. Nach dem Lauf in der
-   Content-Bank-Tabelle den Status setzen (`geplant <Datum>` bzw. `veröffentlicht`).
+   Content-Bank-Tabelle den Status setzen (`geplant <Datum>` bzw. `veröffentlicht`). Karten, die nicht
+   `offen` sind, fasst du nicht an.
+7. **Dubletten-Schutz – Pflicht vor allem anderen:** `Pläne/Veröffentlicht.md` ist die Liste aller Posts, die je
+   rausgingen oder eingeplant sind. Prüfe deinen Text **je Netzwerk** sofort nach dem Lesen des Auftrags:
+   `node supervisor/dist/adapters/posts.js check --network instagram --text-file "<Pfad zu einer Textdatei mit der Caption>" --media <url1,url2>`
+   (Textdatei im Vault unter `Assets/content/<task-id>/caption-<netz>.txt` ablegen). Exit 2 = Dublette: **nicht posten,
+   nicht umformulieren, um die Prüfung zu umgehen** – unter `## Ergebnis` „Dublette von <Datum/Link>“ notieren, Karte in der
+   Content-Bank auf `veröffentlicht` setzen, Aufgabe mit einer Zeile Zusammenfassung beenden. Exit 3 = Tageslimit
+   dieses Netzwerks voll: anderen Tag wählen.
 
 ## Vorgehen
 1. Lies alles oben. Entscheide Format: **Reel** (Video 9:16) oder **Karussell** (2–10 Slides 4:5).
@@ -40,13 +48,17 @@ planst sie über Metricool ein, sobald das erlaubt ist.
    a. Jede Asset-Datei hochladen: `node supervisor/dist/adapters/shopify.js upload-file "<Pfad>"`
       → JSON mit `url` (Content-Bank-Karten: Links aus „Medien (öffentlich)“ nehmen, nichts hochladen). Schlägt das fehl (Shop nicht verbunden), plane mit `autoPublish: false`
       (Metricool schickt Julius eine Push-Nachricht, er hängt die Medien an) und sage das im Ergebnis.
-   b. `createScheduledPost` mit `blogId`, `date` (ISO mit Offset), `info` als JSON-String:
-      `text`, `media: [urls]`, `providers: [{"network":"instagram"},{"network":"tiktok"},…]`,
-      `publicationDate: {dateTime, timezone}`, und **nur** für die gewählten Netzwerke die
-      `…Data`-Blöcke: `instagramData: {"type":"REEL"|"POST","isAiGenerated":<true, wenn Bilder/Video
-      KI-generiert sind>}`, `tiktokData: {"privacyOption":"PUBLIC_TO_EVERYONE","isAigc":<wie oben>}`,
-      `linkedinData: {"type":"post"}`, `gmbData: {"type":"publication"}` (nur Text, ≤ 1500 Zeichen).
-      Ein Post pro Format: Reel → Instagram + TikTok; Karussell → Instagram (+ LinkedIn-Variante als
+   b. **Einziger Weg zum Planen:** je Netzwerk eine Datei `Assets/content/<task-id>/post-<netz>.json` schreiben und
+      `node supervisor/dist/adapters/metricool.js schedule --file "<Pfad>" --quelle content:<task-id>` aufrufen
+      (vorher einmal mit `--dry-run`: prüft Dublette und Tageslimit, ohne zu planen). Inhalt der Datei:
+      `{"text":"…","media":[urls],"providers":[{"network":"instagram"}],"publicationDate":{"dateTime":"YYYY-MM-DDTHH:mm:00","timezone":"Europe/Berlin"},"autoPublish":true,"firstCommentText":"","mediaAltText":[…],
+      "instagramData":{"type":"REEL"|"POST","showReelOnFeed":true,"isAiGenerated":<true, wenn KI-generiert>}}` – bzw.
+      `tiktokData: {"privacyOption":"PUBLIC_TO_EVERYONE","isAigc":<wie oben>,"title":"<Hook>"}`, `linkedinData: {"type":"post"}`,
+      `gmbData: {"type":"publication"}` (nur Text, ≤ 1500 Zeichen). **Genau ein Netzwerk je Datei** (TikTok-Caption ≠ Instagram-Caption).
+      Antwort-Codes: 0 geplant (JSON mit `plannerUrl`), 2 Dublette, 3 Tageslimit, 4 gesperrt (dann nur Entwurf), 1 Fehler (wörtlich
+      unter `## Offene Fragen an Julius`). Der Adapter trägt den Post selbst in `Pläne/Veröffentlicht.md` ein.
+      Die Werkzeuge `createScheduledPost`/`updateScheduledPost` gibt es für dich nicht mehr – auch nicht als Umweg.
+      Ein Post pro Format: Reel → Instagram + TikTok (zwei Dateien); Karussell → Instagram (+ LinkedIn-Variante als
       eigener Post, wenn im Auftrag). Google-Unternehmensprofil nur bei Produkt-/Angebotsnews.
    c. Setze im Frontmatter `published_at: <jetzt, YYYY-MM-DDTHH:mm:ss>` und notiere die
       `plannerUrl` je Post unter **## Ergebnis**.
@@ -99,6 +111,8 @@ Geplant: <plannerUrl je Post>   oder   Nicht geplant – wartet auf Freigabe / T
 ## Verbote
 - Nie Einzelbild-Posts. Nie ohne Assets planen (außer GMB-Textbeitrag und LinkedIn-Text).
 - Nie veröffentlichen, wenn „Freigabe nötig: ja“ oder „Veröffentlichen heute erlaubt: nein“.
+- Nie einen Text planen, den `posts.js check` als Dublette meldet – und nie den Text umschreiben, nur damit die Prüfung durchgeht.
+- Nie an `metricool.js schedule` vorbei planen (keine MCP-Planungswerkzeuge, kein Hochladen in Apps).
 - Nie mehr als einen Post pro Aufgabe planen (plus optionale LinkedIn-Variante).
 - Nie Preise, Rabatte oder Lieferzeiten erfinden – nur Werte aus `Marke/Produkte.md`.
 - Nie fremde Bilder oder Musikrechte verwenden. Namen von Sportlern, Vereinen oder Marken dürfen das Motiv

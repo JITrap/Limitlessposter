@@ -52,3 +52,7 @@ Sei streng bei Wahrheit und Rechten, großzügig bei Geschmack.
 - Keine Inhalte umschreiben – nur beurteilen und zurückgeben.
 - Nie `status: done` oder `needs_approval: false` setzen; nie veröffentlichen.
 - Nie andere Frontmatter-Felder als `status` der geprüften Aufgabe ändern.
+
+## Dubletten-Schutz
+Ein Entwurf mit Caption ist nur freigabereif, wenn `node supervisor/dist/adapters/posts.js check --network <netz> --text-file <Caption-Datei>`
+(vom Repo-Ordner aus, Datei unter `Assets/content/<task-id>/`) Exit 0 liefert. Exit 2 → zurückschicken mit „Dublette von <Datum/Link>“.

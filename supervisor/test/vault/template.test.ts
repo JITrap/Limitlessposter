@@ -22,6 +22,7 @@ const FILES = [
   'Pläne/Content-Kalender.md',
   'Pläne/Wochenplan.md',
   'Pläne/Content-Bank.md',
+  'Pläne/Veröffentlicht.md',
   'Ideen/README.md',
   'Inbox/README.md',
   'Assets/poster/README.md',
@@ -64,6 +65,22 @@ describe('vault template', () => {
     expect(rows.length).toBe(41)
     expect(body).toContain('| Status | Geplant für | plannerUrl |')
     expect(body).toContain('## Profil (Metricool / Bio)')
+  })
+
+  it('Veröffentlicht.md seeds the duplicate guard with the real Instagram and TikTok history', async () => {
+    const { data, body } = parseNote(await readFile(join(root, 'Pläne/Veröffentlicht.md'), 'utf8'))
+    expect(data.type).toBe('veroeffentlichungen')
+    const rows = body.split('\n').filter((l) => /^\| 2026-/.test(l))
+    expect(rows.length).toBeGreaterThanOrEqual(45)
+    expect(body).toContain('https://www.instagram.com/p/DeZhypQCnu1/')
+    expect(body).toMatch(/\| tiktok \| video \|/)
+    expect(body).toMatch(/\| entwurf \|/)
+  })
+
+  it('Strategie.md carries per-network limits', async () => {
+    const { data } = parseNote(await readFile(join(root, 'Strategie.md'), 'utf8'))
+    expect((data.daily_post_limits as Record<string, number>).instagram).toBe(4)
+    expect((data.daily_post_limits as Record<string, number>).tiktok).toBe(4)
   })
 
   it('Home.md embeds Status and the dashboard views and links to the world', async () => {
@@ -114,10 +131,7 @@ describe('vault template', () => {
       expect(body).toContain('## Auftrag')
       expect(body).toContain('## Offene Fragen an Julius')
       stations.add(String(data.station))
-      const contentBank = data.station === 'content' && String(data.title).startsWith('Content-Bank ')
-      // Julius approved the Content-Bank cards wholesale on 23.10.2026; everything else outward starts gated
-      if (contentBank) expect(data.needs_approval).toBe(false)
-      else if (data.station === 'content' || data.station === 'shop-analyst') expect(data.needs_approval).toBe(true)
+      if (data.station === 'content' || data.station === 'shop-analyst') expect(data.needs_approval).toBe(true)
     }
     expect([...stations].sort()).toEqual(['content', 'manual', 'shop-analyst', 'studio'])
   })

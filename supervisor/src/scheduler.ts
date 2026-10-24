@@ -16,6 +16,8 @@ import { normalizeApprovals, recoverOrphans, selectRunnable, type PatchRow } fro
 import { renderStatusMd, type SupervisorState, type WorkerView, type ZentraleView } from './status/writer.js'
 import { loadKennzahlen, type KennzahlenCache } from './kennzahlen.js'
 import { printifySummary, type PrintifySummary } from './adapters/printify.js'
+import { countForDay, isStale, loadPublogCached, type PublogCache } from './publog.js'
+import { loadLimits, parseLimits, totalLimit, type Limits } from './limits.js'
 
 export interface SupervisorDeps {
   repo: TaskRepo
@@ -118,7 +120,10 @@ export class Supervisor {
   private pausedView: SupervisorState['paused'] = { active: false, reason: null, until: null }
   private counts: Record<TaskStatus, number> = { todo: 0, doing: 0, review: 0, blocked: 0, done: 0, cancelled: 0 }
   private waiting: SupervisorState['waiting'] = []
-  private today = { posts: 0, shopChanges: 0 }
+  private today: { posts: number; shopChanges: number; byNetwork: Record<string, { used: number; limit: number }>; publogSynced: string | null; publogStale: boolean } = { posts: 0, shopChanges: 0, byNetwork: {}, publogSynced: null, publogStale: true }
+  private publog: PublogCache | null = null
+  private limits: Limits = {}
+  private limitOverride: Limits = {}
   private health: SupervisorState['health'] = { ok: true, problems: [] }
   private kennzahlen: KennzahlenCache | null = null
   private printify: PrintifySummary | null = null
@@ -231,6 +236,8 @@ export class Supervisor {
         : { active: false, reason: null, until: null }
 
     if (this.deps.triggers !== false && !this.deps.only) tasks = await this.fireTriggers(tasks, now)
+    this.publog = await loadPublogCached(this.cfg.vaultRoot, this.publog)
+
     this.updateCounters(tasks, now)
     await this.readShopCounter(now)
     await this.refreshZentrale(now)
@@ -301,13 +308,17 @@ export class Supervisor {
 
     const autopilot = this.autopilotOf(station)
     const inflightPublishing = [...this.running.values()].filter((r) => r.publishing).length
-    const publishAllowed = this.today.posts + inflightPublishing < this.cfg.dailyPostLimit
-    const gated = autopilot === 0 || updated.fm.needs_approval || !publishAllowed
+    const publishAllowed = this.today.posts + inflightPublishing < this.totalPostLimit()
+    // Nie wieder Dubletten: the content station may only publish against a fresh Veröffentlichungs-Liste.
+    const staleLog = station.name === 'content' && this.today.publogStale
+    const gated = autopilot === 0 || updated.fm.needs_approval || !publishAllowed || staleLog
     const publishing = !gated && OUTWARD_STATIONS.has(station.name)
+    if (staleLog && autopilot > 0 && !updated.fm.needs_approval) await this.ensurePublogSync(now)
 
     const entry: Running = { task: updated, station, startedAt: nowStamp(now), tokens: 0, rateLimited: false, publishing }
     this.running.set(task.fm.id, entry)
-    this.pushTicker(`${station.display} · ${task.fm.title} · Lauf ${attempts} gestartet${gated ? ' (nur Entwurf)' : ''}`)
+    const why = staleLog && autopilot > 0 && !updated.fm.needs_approval ? ' (nur Entwurf – Veröffentlichungs-Liste älter als 12 h, Zentrale gleicht ab)' : gated ? ' (nur Entwurf)' : ''
+    this.pushTicker(`${station.display} · ${task.fm.title} · Lauf ${attempts} gestartet${why}`)
 
     const timeoutMs = station.timeoutMin * 60_000
     const extra: Record<string, string> = { LIMITLESS_DAILY_SHOP_CHANGE_LIMIT: String(this.cfg.dailyShopChangeLimit) }
@@ -377,6 +388,8 @@ export class Supervisor {
       this.running.delete(taskId)
     }
     const tasks = await this.deps.repo.list()
+    this.publog = await loadPublogCached(this.cfg.vaultRoot, this.publog)
+
     this.updateCounters(tasks, this.deps.clock())
     await this.publish(this.deps.clock(), tasks)
   }
@@ -656,8 +669,25 @@ export class Supervisor {
       }
     }
     this.counts = counts
-    this.today.posts = posts
+    const entries = this.publog?.value.entries ?? []
+    const byNetwork: Record<string, { used: number; limit: number }> = {}
+    for (const [network, limit] of Object.entries(this.limits)) {
+      if (network === 'default') continue
+      byNetwork[network] = { used: countForDay(entries, network, day), limit }
+    }
+    const fromLog = Object.values(byNetwork).reduce((s, v) => s + v.used, 0)
+    this.today.byNetwork = byNetwork
+    this.today.posts = Math.max(posts, fromLog)
+    this.today.publogSynced = this.publog?.value.synced ?? null
+    this.today.publogStale = isStale(this.publog?.value ?? null, now)
     this.waiting = waiting
+  }
+
+  /** Sum of the per-network limits – the overall cap the prompt line "Veröffentlichen heute erlaubt" reflects. */
+  private totalPostLimit(): number {
+    const configured = Object.keys(this.cfg.dailyPostLimits ?? {}).length > 0 || Object.keys(this.limitOverride).length > 0
+    const t = totalLimit(this.limits)
+    return configured && t > 0 ? t : this.cfg.dailyPostLimit
   }
 
   private async readShopCounter(now: Date): Promise<void> {
@@ -681,8 +711,10 @@ export class Supervisor {
   /** `Strategie.md` frontmatter `autopilot: {station: 0|1|2}` overrides station.yaml (betrieb.md). */
   private async loadAutopilotOverrides(): Promise<void> {
     const next = new Map<string, 0 | 1 | 2>()
+    this.limitOverride = {}
     try {
       const { data } = parseNote(await readFile(join(this.cfg.vaultRoot, 'Strategie.md'), 'utf8'))
+      this.limitOverride = parseLimits(data.daily_post_limits)
       const ap = data.autopilot
       if (ap && typeof ap === 'object' && !Array.isArray(ap)) {
         for (const [name, v] of Object.entries(ap as Record<string, unknown>)) {
@@ -694,6 +726,20 @@ export class Supervisor {
       // no Strategie.md yet – station.yaml values apply
     }
     this.autopilotOverride = next
+    this.limits = await loadLimits(this.cfg.dailyPostLimits, '')
+    this.limits = { ...this.limits, ...this.limitOverride }
+  }
+
+  /** A stale Veröffentlichungs-Liste blocks publishing; ask the Zentrale to sync it (once per hour). */
+  private async ensurePublogSync(now: Date): Promise<void> {
+    const key = `publog-sync:${todayStamp(now)}-${now.getHours()}`
+    if (this.state.fired[key]) return
+    const open = (await this.deps.repo.list()).some((t) => t.fm.station === 'kennzahlen' && (t.fm.status === 'todo' || t.fm.status === 'doing'))
+    this.state.fired[key] = nowStamp(now)
+    await this.saveState()
+    if (open) return
+    await this.createKennzahlenTask(now, 1)
+    this.pushTicker('Zentrale: Veröffentlichungs-Liste wird mit Metricool abgeglichen (Dubletten-Schutz)')
   }
 
   private async refreshAvailability(): Promise<void> {
@@ -774,7 +820,10 @@ export class Supervisor {
       }),
       today: {
         posts: this.today.posts,
-        postLimit: this.cfg.dailyPostLimit,
+        postLimit: this.totalPostLimit(),
+        byNetwork: this.today.byNetwork,
+        publogSynced: this.today.publogSynced,
+        publogStale: this.today.publogStale,
         shopChanges: this.today.shopChanges,
         shopLimit: this.cfg.dailyShopChangeLimit,
       },

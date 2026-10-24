@@ -18,7 +18,7 @@ const state: SupervisorState = {
   workers: [],
   counts: { todo: 1, doing: 0, review: 0, blocked: 0, done: 0, cancelled: 0 },
   stations: [],
-  today: { posts: 0, postLimit: 3, shopChanges: 0, shopLimit: 5 },
+  today: { posts: 0, postLimit: 3, byNetwork: {}, publogSynced: null, publogStale: true, shopChanges: 0, shopLimit: 5 },
   nextWeekReset: '2026-10-22T18:00:00',
   waiting: [],
   ticker: [],

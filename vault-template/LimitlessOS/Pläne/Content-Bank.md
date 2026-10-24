@@ -3,6 +3,8 @@ type: plan
 updated: 2026-10-23
 quelle: Content-Bank (Artefakt vom 14.10.2026)
 karten: 41
+veroeffentlicht: 2
+entwuerfe_metricool: 4
 reels: 21
 slideshows: 8
 posts: 8
@@ -13,7 +15,7 @@ medien_hochgeladen: 2026-10-23
 ---
 # Content-Bank
 
-> [!info] Das ist Julius' fertige Content-Bank: 41 Karten für TikTok und Instagram, ein Tag im Voraus produziert, mit Captions, Hashtags, Sound-Hinweisen und Tipps. **Der Planer nimmt zuerst diese Karten in Tagesreihenfolge**, bevor er neue Posts erfindet; das Content-Studio übernimmt Caption und Hashtags **unverändert** (nur Preis-/Versand-Fakten gegen [[Marke/Produkte]] prüfen). Die Medien liegen öffentlich auf dem Shopify-CDN (Zeile „Medien (öffentlich)“ in jeder Karte; Basis-URL `medien_basis` im Frontmatter, hochgeladen am 23.10.2026). Das Content-Studio hängt diese Links direkt an die Metricool-Posts – lokale Kopien braucht es nicht. Status-Spalte pflegt das Content-Studio: `offen` · `geplant <Datum>` · `veröffentlicht` · `übersprungen`.
+> [!info] Das ist Julius' fertige Content-Bank: 41 Karten für TikTok und Instagram, ein Tag im Voraus produziert, mit Captions, Hashtags, Sound-Hinweisen und Tipps. **Der Planer nimmt zuerst diese Karten in Tagesreihenfolge**, bevor er neue Posts erfindet; das Content-Studio übernimmt Caption und Hashtags **unverändert** (nur Preis-/Versand-Fakten gegen [[Marke/Produkte]] prüfen). Die Medien liegen öffentlich auf dem Shopify-CDN (Zeile „Medien (öffentlich)“ in jeder Karte; Basis-URL `medien_basis` im Frontmatter, hochgeladen am 23.10.2026). Das Content-Studio hängt diese Links direkt an die Metricool-Posts – lokale Kopien braucht es nicht. Status-Spalte pflegt das Content-Studio: `offen` · `geplant <Datum>` · `veröffentlicht` · `entwurf in Metricool` · `übersprungen`. **Vor jeder Karte gilt der Dubletten-Schutz:** `node supervisor/dist/adapters/posts.js check` gegen [[Pläne/Veröffentlicht]] – p01 und r01 waren schon am 12.10. draußen, deshalb stehen sie auf `veröffentlicht`.
 
 ## Profil (Metricool / Bio)
 - Instagram-Name: LimitlessPoster | Gerahmte Poster
@@ -28,12 +30,12 @@ Pro Tag **ein Reel (TikTok + Instagram)** als Pflicht, dazu an Slideshow-Tagen d
 ## Übersicht
 | Tag | ID | Format | Titel | Produkte (Handle) | Status | Geplant für | plannerUrl |
 |---|---|---|---|---|---|---|---|
-| 1 | `p01` | Einzelpost | Willkommen bei LimitlessPoster | – | geplant 2026-10-24 (Aufgabe) | 2026-10-24 | |
-| 1 | `r01` | Reel · Chat-Story | Dein Kumpel sieht dein Zimmer | `focus-skulptur-poster` | geplant 2026-10-24 (Aufgabe) | 2026-10-24 | |
-| 2 | `s01` | Slideshow / Karussell | 5 Poster, die dich jeden Morgen pushen | `we-aint-rich-yet-poster`, `focus-skulptur-poster`, `you-vs-you-berg-poster`, `dont-quit-motivationsposter`, `no-excuses-just-results-motivationsposter` | geplant 2026-10-25 (Aufgabe) | 2026-10-25 | |
-| 3 | `q02` | Reel · Motivations-Clip | Don't quit → Do it | `dont-quit-motivationsposter` | offen | | |
-| 4 | `p02` | Einzelpost | This or That: FOCUS oder Focus on You | `focus-skulptur-poster`, `focus-on-you-panther-poster` | offen | | |
-| 5 | `r02` | Reel · Chat-Story | 5:30 Uhr aufstehen | `we-aint-rich-yet-poster` | offen | | |
+| 1 | `p01` | Einzelpost | Willkommen bei LimitlessPoster | – | veröffentlicht 2026-10-12 (manuell) – 24.10. versehentlich doppelt |  | https://www.instagram.com/p/DeZhypQCnu1/ |
+| 1 | `r01` | Reel · Chat-Story | Dein Kumpel sieht dein Zimmer | `focus-skulptur-poster` | veröffentlicht 2026-10-12 (manuell) |  | https://www.instagram.com/reel/DeZlrOCDp9F/ |
+| 2 | `s01` | Slideshow / Karussell | 5 Poster, die dich jeden Morgen pushen | `we-aint-rich-yet-poster`, `focus-skulptur-poster`, `you-vs-you-berg-poster`, `dont-quit-motivationsposter`, `no-excuses-just-results-motivationsposter` | entwurf in Metricool (pausiert 24.10.) |  | https://app.metricool.com/planner/calendar?blogId=7412016&openWithPostUuid=522176625525866680 |
+| 3 | `q02` | Reel · Motivations-Clip | Don't quit → Do it | `dont-quit-motivationsposter` | entwurf in Metricool (pausiert 24.10.) |  | https://app.metricool.com/planner/calendar?blogId=7412016&openWithPostUuid=-839850201339247650 |
+| 4 | `p02` | Einzelpost | This or That: FOCUS oder Focus on You | `focus-skulptur-poster`, `focus-on-you-panther-poster` | entwurf in Metricool (pausiert 24.10.) |  | https://app.metricool.com/planner/calendar?blogId=7412016&openWithPostUuid=-5215796349122362604 |
+| 5 | `r02` | Reel · Chat-Story | 5:30 Uhr aufstehen | `we-aint-rich-yet-poster` | entwurf in Metricool (pausiert 24.10.) |  | https://app.metricool.com/planner/calendar?blogId=7412016&openWithPostUuid=-6281898197952477009 |
 | 6 | `s02` | Slideshow / Karussell | Welches Poster bist du? | `born-to-win-panther-poster`, `focus-on-you-panther-poster`, `go-get-that-dream-leopard-poster`, `dont-wait-to-be-happy-poster` | offen | | |
 | 7 | `w01` | Reel · Wand-Reveal | Motivations-Wand | `focus-skulptur-poster`, `born-to-win-panther-poster`, `we-aint-rich-yet-poster`, `dont-quit-motivationsposter`, `you-vs-you-berg-poster` | offen | | |
 | 8 | `q05` | Reel · Motivations-Clip | Die letzten 3 Monate | `focus-skulptur-poster` | offen | | |

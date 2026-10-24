@@ -126,8 +126,8 @@ describe('buildArgs', () => {
     expect(i).toBeGreaterThan(0)
     expect(gated.slice(i + 1)).toEqual([
       ...NEVER_TOOLS,
-      'mcp__metricool__createScheduledPost',
-      'mcp__metricool__updateScheduledPost',
+      'Bash(node supervisor/dist/adapters/metricool.js schedule*)',
+      'PowerShell(node supervisor/dist/adapters/metricool.js schedule*)',
       'mcp__shopify__update-product',
       'Bash(node supervisor/dist/adapters/shopify.js update-product*)',
       'Bash(node supervisor/dist/adapters/shopify.js upload-file*)',
@@ -139,6 +139,9 @@ describe('buildArgs', () => {
     expect(open.slice(j + 1)).toEqual(NEVER_TOOLS)
     expect(NEVER_TOOLS).toContain('mcp__shopify__switch-shop')
     expect(NEVER_TOOLS).toContain('mcp__shopify__graphql_mutation')
+    // publishing only through adapters/metricool.js (duplicate guard) – the MCP planners are gone for everyone
+    expect(NEVER_TOOLS).toContain('mcp__metricool__createScheduledPost')
+    expect(NEVER_TOOLS).toContain('mcp__metricool__updateScheduledPost')
     expect(open).not.toContain('mcp__shopify__update-product')
   })
 

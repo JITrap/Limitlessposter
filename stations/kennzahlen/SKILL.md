@@ -26,6 +26,17 @@ nichts, du planst nichts – du misst.
      `ok: false` → Abschnitt „Printify“ mit dem Fehlertext, Zahlen leer.
 
 ## Vorgehen
+0. **Veröffentlichungs-Liste abgleichen (Dubletten-Schutz, immer zuerst):** Hole je verbundenem Netzwerk alle
+   Beiträge der letzten 60 Tage mit Text, Datum und Link – Instagram Feed (`IGPO02`, `IGPO03`, `IGPO06`, `IGPO07`),
+   Instagram Reels (`IGRE02`, `IGRE03`, `IGRE06`), TikTok (`TKPO02`, `TKPO05`, `TKPO03`, `TKPO22`); LinkedIn und
+   Google nur, wenn `getAnalyticsAvailableMetrics` dort Felder für Datum, Text und Link liefert. Dazu `getScheduledPosts`
+   für die nächsten 14 Tage (`extendedRange: true`). Schreibe daraus **eine** JSON-Datei
+   `Assets/content/sync/metricool-<YYYY-MM-DD-HHmm>.json`: Liste von
+   `{"network":"instagram","date":"<Datum mit Uhrzeit>","type":"reel|post|video|photos|story","status":"veröffentlicht"|"geplant"|"entwurf","text":"<voller Text>","url":"<Link oder plannerUrl>","media":[…]}`
+   (geplante Beiträge: Status `geplant`, mit `draft: true` → `entwurf`; `url` = `https://app.metricool.com/planner/calendar?blogId=<blogId>&openWithPostUuid=<uuid>`;
+   ein Beitrag mit mehreren Netzwerken = ein Eintrag je Netzwerk). Dann `node supervisor/dist/adapters/posts.js sync --file "<Pfad>"`
+   (vom Repo-Ordner aus) und das Ergebnis (`hinzugefuegt`, `eintraege`, `synced`) unter „## Hinweise“ notieren. Schlägt ein
+   Netzwerk fehl, synchronisiere die anderen trotzdem. Ohne diesen Schritt darf die Content-Station nicht posten.
 1. Lies `Marke/Kanäle.md` und `Kennzahlen.md`. Bestimme „heute“ aus dem Prompt/`Status.md`.
 2. Hole die Zahlen in dieser Reihenfolge: Metricool je Netzwerk → Shopify-Bestellungen → Printify.
    Jeden Werkzeugfehler **einmal** wiederholen, dann den Wert leer lassen (`key:`) und den Fehler
@@ -96,11 +107,13 @@ die besten Zeiten). Netzwerke, die in `Marke/Kanäle.md` nicht verbunden sind, l
 - Reichweite: Instagram „reach“ der Konten, TikTok „video views“, LinkedIn „impressions“ – im
   Frontmatter immer als `reichweite_7t`.
 - Wenige Werkzeugaufrufe: Metrik-Liste je Netzwerk einmal, Daten je Netzwerk zweimal (zwei
-  Zeiträume), Bestellungen einmal, Printify einmal. Keine Schleifen über Posts.
+  Zeiträume) plus einmal die Beitragsliste (60 Tage) für den Abgleich, Bestellungen einmal, Printify einmal.
+- `posts_7t` je Netzwerk = Zahl der Beiträge der letzten 7 Tage aus derselben Beitragsliste.
 - Keine Kundennamen, Adressen oder Bestellnummern in die Notiz; nur Summen.
 
 ## Verbote
 - Nichts veröffentlichen, nichts planen, nichts im Shop oder bei Printify ändern (du hast ohnehin nur Lese-Werkzeuge).
 - Keine Bewertung, keine Empfehlungen – das machen Berichte und Wochenstrategie.
-- Keine andere Datei als `Kennzahlen.md` und die eigene Aufgaben-Notiz schreiben.
+- Keine andere Datei als `Kennzahlen.md`, die Sync-JSON unter `Assets/content/sync/` und die eigene Aufgaben-Notiz schreiben
+  (`Pläne/Veröffentlicht.md` schreibt nur der `posts.js`-Befehl).
 - Frontmatter-Schlüssel nicht umbenennen, keine neuen Netzwerke erfinden.

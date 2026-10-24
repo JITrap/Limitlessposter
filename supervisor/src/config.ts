@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import type { TierTable } from './budget/models.js'
 import type { WeekReset } from './budget/windows.js'
+import { parseLimits } from './limits.js'
 
 export interface Config {
   repoRoot: string
@@ -14,7 +15,10 @@ export interface Config {
   maxParallel: number
   reserveForJuliusPct: number
   weekReset: WeekReset
+  /** legacy total; the per-network table below is what counts */
   dailyPostLimit: number
+  /** per network, e.g. { instagram: 4, tiktok: 4 } – Strategie.md may override */
+  dailyPostLimits: Record<string, number>
   dailyShopChangeLimit: number
   maxOpenPlannerTasks: number
   worldPort: number
@@ -100,6 +104,7 @@ export async function loadConfig(repoRoot: string, env: NodeJS.ProcessEnv = proc
     reserveForJuliusPct: num('reserveForJuliusPct'),
     weekReset: (raw.weekReset as WeekReset) ?? DEFAULTS.weekReset,
     dailyPostLimit: num('dailyPostLimit'),
+    dailyPostLimits: parseLimits(raw.dailyPostLimits),
     dailyShopChangeLimit: num('dailyShopChangeLimit'),
     maxOpenPlannerTasks: num('maxOpenPlannerTasks'),
     worldPort: num('worldPort'),

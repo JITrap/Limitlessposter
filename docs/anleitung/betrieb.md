@@ -65,3 +65,21 @@ in `requires.env` eintragen – bis er in der `.env` steht, bleibt sie grau. Gib
 ## Was das System nie tut
 Preise, Rabatte, neue Produkte, Zahlungen, Kundenantworten, Konten anlegen. Dafür legt es dir
 Karten auf den Schreibtisch (Station **manual**).
+
+## Dubletten-Schutz (nie wieder ein doppelter Post)
+
+Seit dem 24.10.2026 gibt es genau einen Weg, einen Beitrag einzuplanen: `node supervisor/dist/adapters/metricool.js schedule --file post.json`.
+Der Befehl prüft erst die **Veröffentlichungs-Liste** (`Pläne/Veröffentlicht.md`: jeder Post, der je rausging oder eingeplant ist, mit
+Text-Schlüssel, Mediendateien und Link), dann das **Tageslimit des Netzwerks** (`Strategie.md` → `daily_post_limits`), und erst dann plant er
+über die Metricool-API und trägt den Post in die Liste ein. Die direkten Metricool-Planungswerkzeuge (`createScheduledPost`,
+`updateScheduledPost`) sind für alle Arbeiter gesperrt – auch, wenn ein Prompt etwas anderes behauptet.
+
+Was als Dublette gilt (gleiches Netzwerk, 120 Tage): gleicher Text ohne Hashtags/Links/Emojis, gleicher Anfang (der kürzere Text ist der
+Anfang des längeren), sehr ähnlicher Wortschatz, oder dieselbe Mediendatei. Prüfen kannst du selbst:
+`node supervisor/dist/adapters/posts.js check --network instagram --text "…"` (Exit 0 frei, 2 Dublette, 3 Tageslimit).
+
+Die Zentrale (Station `kennzahlen`) gleicht die Liste alle 6 Stunden mit Metricool ab. Ist sie älter als 12 Stunden, arbeitet die
+Content-Station nur als Entwurf, und der Aufseher stößt den Abgleich an. Voraussetzung fürs automatische Posten: `METRICOOL_API_KEY`
+und `METRICOOL_USER_ID` in der `.env` (Metricool → Einstellungen → API). Ohne Key entstehen nur Entwürfe.
+
+Zähler je Netzwerk stehen in der Welt (Wandtafel) und in `Status.md` unter „Heute“.

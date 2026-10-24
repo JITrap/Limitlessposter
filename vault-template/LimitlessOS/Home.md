@@ -22,6 +22,7 @@ arbeitet), **Wartet auf dich**, die **Wandtafel** und der **Ticker**. Alles aktu
 | wissen, was heute schon raus ist und was noch darf | [[Status#Heute]] (Posts und Shop-Änderungen gegen das Tageslimit) |
 | den Plan für die nächsten Tage | [[Pläne/Content-Kalender]] · die fertigen Karten: [[Pläne/Content-Bank]] |
 | Berichte lesen | `Berichte/` (täglich und wöchentlich vom Berichter) |
+| sehen, was je gepostet wurde (Dubletten-Schutz) | [[Pläne/Veröffentlicht]] · Tageszähler je Netzwerk: Welt → Wandtafel |
 
 ## Status (Textfassung, alle 30 Sekunden neu)
 ![[Status]]

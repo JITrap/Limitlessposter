@@ -33,7 +33,7 @@ const state: SupervisorState = {
     { name: 'content', display: 'Content-Studio', available: true, reason: null, autopilot: 1 },
     { name: 'shop-analyst', display: 'Shop-Büro', available: false, reason: 'Umgebungsvariable SHOPIFY_CLIENT_ID fehlt', autopilot: 1 },
   ],
-  today: { posts: 1, postLimit: 3, shopChanges: 0, shopLimit: 5 },
+  today: { posts: 1, postLimit: 3, byNetwork: { instagram: { used: 1, limit: 4 } }, publogSynced: '2026-10-24T07:00:00', publogStale: false, shopChanges: 0, shopLimit: 5 },
   nextWeekReset: '2026-10-22T18:00:00',
   waiting: [{ id: 't7', title: 'Reel: Druckprozess', station: 'content' }],
   ticker: ['10:05 content · Lauf gestartet', '10:11 reviewer · fertig'],
@@ -80,7 +80,9 @@ describe('renderStatusMd', () => {
   })
 
   it('shows daily counters and the next reset', () => {
-    expect(readSection(body, 'Heute')).toContain('Posts: 1/3')
+    expect(readSection(body, 'Heute')).toContain('Posts gesamt: 1/3')
+    expect(readSection(body, 'Heute')).toContain('instagram: 1/4')
+    expect(readSection(body, 'Heute')).toContain('Dubletten-Schutz')
     expect(readSection(body, 'Heute')).toContain('Shop-Änderungen: 0/5')
     expect(readSection(body, 'Nächster Wochen-Reset')).toContain('Donnerstag, 22.10.2026 18:00')
   })

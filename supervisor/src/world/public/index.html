@@ -276,6 +276,8 @@
       rows.push('<div class="row small"><span>' + esc(d.reason) + '</span></div>');
     } else rows.push('<div class="row small">Noch keine Messung.</div>');
     rows.push('<div class="row"><span>Posts heute</span><b>' + state.today.posts + '/' + state.today.postLimit + '</b></div>');
+    Object.keys(state.today.byNetwork || {}).forEach(function (n) { var v = state.today.byNetwork[n]; rows.push('<div class="row small"><span>· ' + esc(n) + '</span><b>' + v.used + '/' + v.limit + '</b></div>'); });
+    rows.push('<div class="row small"><span>Dubletten-Schutz</span><span class="' + (state.today.publogStale ? 'bad' : '') + '">' + (state.today.publogStale ? 'Liste veraltet – nur Entwürfe' : 'Liste aktuell (' + esc(String(state.today.publogSynced || '')) + ')') + '</span></div>');
     rows.push('<div class="row"><span>Shop-Änderungen heute</span><b>' + state.today.shopChanges + '/' + state.today.shopLimit + '</b></div>');
     $('board').innerHTML = rows.join('');
     var c = state.counts || {};

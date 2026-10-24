@@ -39,8 +39,8 @@ export interface RunOptions {
 
 /** Tools that publish or change something outward-facing; blocked while gated. */
 export const OUTWARD_TOOLS = [
-  'mcp__metricool__createScheduledPost',
-  'mcp__metricool__updateScheduledPost',
+  'Bash(node supervisor/dist/adapters/metricool.js schedule*)',
+  'PowerShell(node supervisor/dist/adapters/metricool.js schedule*)',
   'mcp__shopify__update-product',
   'Bash(node supervisor/dist/adapters/shopify.js update-product*)',
   'Bash(node supervisor/dist/adapters/shopify.js upload-file*)',
@@ -54,6 +54,11 @@ export const OUTWARD_TOOLS = [
  * price, publish or restructure things the stations are not allowed to touch.
  */
 export const NEVER_TOOLS = [
+  // Publishing goes through adapters/metricool.js only – it checks the Veröffentlichungs-Liste first (nie wieder Dubletten).
+  'mcp__metricool__createScheduledPost',
+  'mcp__metricool__createScheduledPostForReview',
+  'mcp__metricool__updateScheduledPost',
+  'mcp__metricool__sendScheduledPostForReview',
   'mcp__shopify__switch-shop',
   'mcp__shopify__graphql_mutation',
   'mcp__shopify__create-product',
@@ -180,6 +185,7 @@ export async function runWorker(
     LIMITLESS_DATA_DIR: cfg.dataDir,
     LIMITLESS_PUBLISH_ALLOWED: opts.publishAllowed ? '1' : '0',
     LIMITLESS_ALLOW_WRITES: task.fm.needs_approval ? '0' : '1',
+    LIMITLESS_GATED: opts.gated ? '1' : '0',
   }
   // Never let a stray API key turn subscription usage into API billing.
   delete childEnv.ANTHROPIC_API_KEY

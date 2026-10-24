@@ -15,6 +15,7 @@ import type { RunSummary } from '../src/runner/stream.js'
 import type { runWorker, RunOptions } from '../src/runner/claude.js'
 import type { Task } from '../src/types.js'
 import { readSection, stringifyNote } from '../src/vault/frontmatter.js'
+import { savePublog } from '../src/publog.js'
 
 const T0 = new Date('2026-11-06T10:00:00')
 
@@ -100,6 +101,8 @@ describe('review fixes', () => {
     const root = await mkdtemp(join(tmpdir(), 'los-fix-'))
     vault = join(root, 'MeinVault', 'LimitlessOS')
     await mkdir(join(vault, 'Aufgaben'), { recursive: true })
+    // a fresh Veröffentlichungs-Liste – without it the content station may only draft (duplicate guard)
+    await savePublog(vault, { synced: '2026-11-06T09:30:00', entries: [] })
     dataDir = join(root, 'data')
     now = T0
     runs = []
@@ -182,6 +185,28 @@ describe('review fixes', () => {
     await sup.tick()
     expect(runs[1].task.fm.needs_approval).toBe(false)
     expect(runs[1].opts.gated).toBe(false)
+  })
+
+  it('only drafts for the content station while the Veröffentlichungs-Liste is stale and asks the Zentrale to sync', async () => {
+    await savePublog(vault, { synced: '2026-11-05T08:00:00', entries: [] })
+    sup = await build({ stations: [station('content', { autopilot: 2 }), station('kennzahlen', { autopilot: 2, tier: 'cheap' })] })
+    await repo.create({ title: 'Reel heute', station: 'content', tier: 'standard', priority: 1, origin: 'planer', auftrag: 'x', needs_approval: false })
+    await sup.tick()
+    const contentRun = runs.find((r) => r.task.fm.station === 'content')!
+    expect(contentRun.opts.gated).toBe(true)
+    expect(sup.getState().today.publogStale).toBe(true)
+    expect(sup.getState().ticker.join('\n')).toContain('Veröffentlichungs-Liste')
+    const all = await repo.list()
+    expect(all.some((t) => t.fm.station === 'kennzahlen' && t.fm.status !== 'cancelled')).toBe(true)
+    // once the list is fresh, the next content task publishes
+    await savePublog(vault, { synced: '2026-11-06T09:55:00', entries: [] })
+    await repo.create({ title: 'Reel zwei', station: 'content', tier: 'standard', priority: 1, origin: 'planer', auftrag: 'x', needs_approval: false })
+    for (const r of runs) r.resolve(ok())
+    await settle()
+    await sup.tick()
+    const second = runs.find((r) => r.task.fm.title === 'Reel zwei')!
+    expect(second.opts.gated).toBe(false)
+    expect(sup.getState().today.publogStale).toBe(false)
   })
 
   it('reads autopilot overrides from Strategie.md frontmatter', async () => {

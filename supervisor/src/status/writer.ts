@@ -44,7 +44,17 @@ export interface SupervisorState {
   workers: WorkerView[]
   counts: Record<TaskStatus, number>
   stations: StationView[]
-  today: { posts: number; postLimit: number; shopChanges: number; shopLimit: number }
+  today: {
+    posts: number
+    postLimit: number
+    /** per network from the Veröffentlichungs-Liste (today's scheduled + published) */
+    byNetwork: Record<string, { used: number; limit: number }>
+    publogSynced: string | null
+    /** older than 12 h → the content station only drafts */
+    publogStale: boolean
+    shopChanges: number
+    shopLimit: number
+  }
   nextWeekReset: string
   waiting: { id: string; title: string; station: string }[]
   ticker: string[]
@@ -117,7 +127,10 @@ export function renderStatusMd(s: SupervisorState): string {
     lines.push(st.available ? `- ✅ ${st.display} (Autopilot ${st.autopilot})` : `- ⛔ ${st.display} – ${st.reason ?? 'nicht verbunden'}`)
   }
 
-  lines.push('', '## Heute', `- Posts: ${s.today.posts}/${s.today.postLimit}`, `- Shop-Änderungen: ${s.today.shopChanges}/${s.today.shopLimit}`)
+  lines.push('', '## Heute', `- Posts gesamt: ${s.today.posts}/${s.today.postLimit}`)
+  for (const [n, v] of Object.entries(s.today.byNetwork ?? {})) lines.push(`  - ${n}: ${v.used}/${v.limit}`)
+  lines.push(`- Shop-Änderungen: ${s.today.shopChanges}/${s.today.shopLimit}`)
+  lines.push(`- Dubletten-Schutz: Liste zuletzt abgeglichen ${s.today.publogSynced ?? 'noch nie'}${s.today.publogStale ? ' – **veraltet, es wird nur entworfen**' : ''} → [[Pläne/Veröffentlicht]]`)
   lines.push('', '## Nächster Wochen-Reset', formatReset(s.nextWeekReset))
 
   lines.push('', '## Zentrale')

@@ -14,8 +14,9 @@ updated: 2026-10-23
   LinkedIn (Profil Julius), Google-Unternehmensprofil
 - **Nicht verbunden:** Pinterest – Julius hat ein Pinterest-Konto; es muss noch in Metricool verbunden
   und ggf. in ein Business-Konto umgewandelt werden (Karte liegt auf dem Schreibtisch)
-- Plan: ~50 €/Monat. Der MCP-Server (`.mcp.json` → `metricool`) reicht fürs Planen und für Kennzahlen;
-  REST-API-Token in der `.env` sind optional.
+- Plan: ~50 €/Monat. Kennzahlen kommen über den MCP-Server (`.mcp.json` → `metricool`). **Geplant wird nur noch
+  über den Adapter** `supervisor/dist/adapters/metricool.js` (Dubletten-Schutz) – dafür müssen `METRICOOL_API_KEY`
+  und `METRICOOL_USER_ID` in der `.env` stehen (Metricool → Einstellungen → API). Ohne Key entstehen nur Entwürfe.
 - **Autolist aktiv:** „Poster-Evergreen LinkedIn + Google“ (id 546926) postet alle 2–3 Tage um 11:05 Uhr
   auf LinkedIn + Google-Unternehmensprofil (Termine stehen im [[Pläne/Content-Kalender]]). Das System plant
   an diesen Tagen **keine** weiteren LinkedIn/GMB-Posts, Instagram/TikTok schon.

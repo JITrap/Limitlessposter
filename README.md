@@ -45,3 +45,6 @@ Plan Phase 1: `docs/superpowers/plans/2026-10-22-limitless-os-phase1.md`
 
 ## Phase 2 (vorbereitet, noch nicht gebaut)
 Stimme (VoiceStudio-MCP), Bild/Video (ComfyUI), Pinterest, E-Mail-Flows, Skill-Schmied für Chat-Importe.
+
+## Dubletten-Schutz
+Veröffentlicht wird nur über `supervisor/dist/adapters/metricool.js schedule` – geprüft gegen `Pläne/Veröffentlicht.md` und die Tageslimits je Netzwerk. Details: `docs/anleitung/betrieb.md`.

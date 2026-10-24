@@ -4,6 +4,17 @@ reserve_for_julius: 30
 week_reset: "Thu 18:00"
 daily_post_limit: 3
 daily_shop_change_limit: 5
+daily_post_limits:
+  instagram: 4
+  tiktok: 4
+  facebook: 2
+  linkedin: 1
+  gmb: 1
+daily_targets:
+  instagram: "3 Reels + 1 Karussell"
+  tiktok: "3 Videos + 1 Fotobeitrag"
+  linkedin: "1 Post Mo/Mi/Fr (Autolist)"
+  gmb: "1 Beitrag Di/Do/Sa (Autolist)"
 max_open_tasks: 15
 autopilot:
   planer: 2
@@ -43,6 +54,15 @@ Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsor
 | 11 | 14 Tage Content ohne Bestellung | manual: Testbestellung durch den Checkout + Blick in Shopify-Analytics (Sitzungen, Warenkorb); planer: Produktseiten-Check-Aufgabe für das Shop-Büro | 14 Tage |
 | 12 | Sonst | berichter: Qualitäts-Check alter Posts; Archiv-Pflege | täglich |
 
+## Dubletten-Schutz (seit 24.10.2026, nach dem doppelten Willkommens-Post)
+- Jeder Post, der je rausging oder eingeplant ist, steht in [[Pläne/Veröffentlicht]] (Text-Schlüssel, Medien, Link).
+- Veröffentlicht wird **nur** über `node supervisor/dist/adapters/metricool.js schedule` – der Befehl prüft erst die Liste
+  (gleicher Text, gleicher Anfang, sehr ähnlicher Text oder gleiche Datei im selben Netzwerk, 120 Tage) und das Tageslimit des
+  Netzwerks, dann plant er, dann trägt er den Post ein. Die direkten Metricool-Planungswerkzeuge sind für alle Arbeiter gesperrt.
+- Ist die Liste älter als 12 Stunden, arbeitet die Content-Station nur als Entwurf; die Zentrale gleicht alle 6 Stunden mit Metricool ab.
+- Dafür nötig: Metricool-API-Key in der `.env` (`METRICOOL_API_KEY`, `METRICOOL_USER_ID`; Metricool → Einstellungen → API). Ohne Key: nur Entwürfe.
+- Tageslimits je Netzwerk stehen oben im Frontmatter (`daily_post_limits`), Soll-Mengen unter `daily_targets` – beides darfst du ändern.
+
 ## Grenzen
 - Höchstens **3 Posts pro Tag**, höchstens **5 Shop-Änderungen pro Tag**, höchstens **15 offene Aufgaben**.
 - Nach außen (Posts, Shop) nur mit Freigabe, solange die Station auf Autopilot 1 steht.
@@ -56,6 +76,7 @@ der Planer liest es beim nächsten Lauf).
 
 ## Checkliste (einmalige Aufgaben – abhaken, wenn erledigt)
 - [ ] Claude-Login (claude.ai-Konto) auf dem PC
+- [ ] Metricool-API-Key + User-ID in der `.env` (Dubletten-Schutz, automatisches Posten)
 - [ ] Metricool-MCP angemeldet (`claude` → `/mcp` → metricool)
 - [ ] Shopify-MCP angemeldet (`claude` → `/mcp` → shopify)
 - [x] Produktfakten in [[Marke/Produkte]] bestätigt, Fragen in [[Marke/Kern]] beantwortet (23.10.2026)
@@ -83,3 +104,4 @@ Logo, Antworten auf Kundennachrichten. Das System legt dafür Karten auf deinen 
 - 2026-10-23 – System: Ziel und Wertleiter an das echte Sortiment angepasst (125 Produkte, 0 Bestellungen, TikTok vor Instagram); Sprosse 11 „Testbestellung“ ergänzt; Checkliste um Logins und Rechtliches erweitert.
 - 2026-10-23 – Julius: Produktfakten bestätigt (14 Tage Widerruf, Druck USA, Versand nur DE), Zielgruppe und Tonfall festgelegt, alle Motive freigegeben; Content-Bank mit 41 Karten als Sprosse 1 übernommen.
 - 2026-10-23 – Julius: alte Automatik abgeschaltet (alles läuft über Limitless OS), Content-Bank ohne Einzelfreigabe (Autopilot content = 2, Tageslimit 3 bleibt), Printify-Token eingetragen. System: erste drei Content-Bank-Karten (p01, r01 → 24.10., s01 → 25.10.) als Aufgaben angelegt.
+- 2026-10-24 – System: Dubletten-Schutz nach dem doppelten Willkommens-Post (p01 und r01 waren am 12.10. schon draußen). Veröffentlichungs-Liste, Metricool-Adapter als einziger Weg zum Planen, Tageslimits je Netzwerk (Instagram 4, TikTok 4), fünf pausierte Entwürfe in Metricool.

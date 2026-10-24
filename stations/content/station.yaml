@@ -9,7 +9,11 @@ tools:
   - Write
   - Edit
   - Glob
-  - mcp__metricool__*
+  - mcp__metricool__getBrandSettings
+  - mcp__metricool__getBestTimeToPostByNetwork
+  - mcp__metricool__getScheduledPosts
+  - Bash(node supervisor/dist/adapters/posts.js *)
+  - Bash(node supervisor/dist/adapters/metricool.js *)
   - Bash(node supervisor/dist/adapters/studio.js *)
   - Bash(node supervisor/dist/adapters/shopify.js upload-file *)
 context:
@@ -20,10 +24,14 @@ context:
   - Marke/Kanäle.md
   - Pläne/Content-Kalender.md
   - Pläne/Content-Bank.md
+  - Pläne/Veröffentlicht.md
 requires:
-  mcp: [metricool]
+  mcp: []
   env: []
   services: []
+  any:
+    - mcp: [metricool]
+    - env: [METRICOOL_API_KEY]
 autopilot: 1
 cooldown_hours: 0
 outputs_dir: Assets/content

@@ -2,19 +2,44 @@
   "vaultRoot": "",
   "maxParallel": 2,
   "reserveForJuliusPct": 30,
-  "weekReset": { "weekday": 4, "hour": 18, "minute": 0 },
+  "weekReset": {
+    "weekday": 4,
+    "hour": 18,
+    "minute": 0
+  },
   "dailyPostLimit": 3,
   "dailyShopChangeLimit": 5,
   "maxOpenPlannerTasks": 15,
   "worldPort": 4242,
   "tickSeconds": 30,
   "tiers": {
-    "cheap": { "model": "haiku", "maxBudgetUsd": 0.3 },
-    "standard": { "model": "sonnet", "maxBudgetUsd": 1.5 },
-    "premium": { "model": "opus", "maxBudgetUsd": 6.0, "fallbackModel": "sonnet" }
+    "cheap": {
+      "model": "haiku",
+      "maxBudgetUsd": 0.3
+    },
+    "standard": {
+      "model": "sonnet",
+      "maxBudgetUsd": 1.5
+    },
+    "premium": {
+      "model": "opus",
+      "maxBudgetUsd": 6.0,
+      "fallbackModel": "sonnet"
+    }
   },
   "budget": {
-    "initialWeeklyCapacityUsd": { "opus": 300, "sonnet": 600, "haiku": 200 },
+    "initialWeeklyCapacityUsd": {
+      "opus": 300,
+      "sonnet": 600,
+      "haiku": 200
+    },
     "sessionFraction": 0.1
+  },
+  "dailyPostLimits": {
+    "instagram": 4,
+    "tiktok": 4,
+    "facebook": 2,
+    "linkedin": 1,
+    "gmb": 1
   }
 }

@@ -16,6 +16,8 @@ tools:
   - mcp__metricool__getScheduledPosts
   - Bash(node supervisor/dist/adapters/shopify.js orders*)
   - Bash(node supervisor/dist/adapters/shopify.js products*)
+  - Bash(node supervisor/dist/adapters/posts.js check*)
+  - Bash(node supervisor/dist/adapters/posts.js today*)
   - mcp__shopify__list-orders
   - mcp__shopify__search_products
 context:
@@ -26,6 +28,7 @@ context:
   - Pläne/Content-Bank.md
   - Pläne/Content-Kalender.md
   - Pläne/Wochenplan.md
+  - Pläne/Veröffentlicht.md
   - Status.md
 requires:
   mcp: []

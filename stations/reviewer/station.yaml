@@ -8,6 +8,7 @@ tools:
   - Read
   - Edit
   - Glob
+  - Bash(node supervisor/dist/adapters/posts.js check*)
 context:
   - Marke/Kern.md
   - Marke/Tonalität.md

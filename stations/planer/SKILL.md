@@ -22,9 +22,12 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
 2. Gehe die **Wertleiter** in `Strategie.md` von oben nach unten durch. Für jede Sprosse:
    Bedingung prüfen → wenn erfüllt und Abkühlzeit abgelaufen → Aufgabe(n) anlegen.
    Die Abkühlzeit prüfst du über das `created`-Datum der letzten Aufgabe gleichen Typs (Glob).
-3. Content-Kalender immer **7–14 Tage voraus** füllen – **zuerst aus `Pläne/Content-Bank.md`**: nimm
-   die Karten mit Status `offen` in Tagesreihenfolge (pro Kalendertag das Reel des Tages, dazu die
-   Slideshow bzw. den Post, wenn einer an diesem Tag steht; Tageslimit aus `Strategie.md` beachten).
+3. Content-Kalender immer **7–14 Tage voraus** füllen – Soll-Menge je Netzwerk und Tag steht in `Strategie.md`
+   (`daily_targets`, Limits `daily_post_limits`; Zähler: `node supervisor/dist/adapters/posts.js today --day <Datum>`).
+   **Zuerst aus `Pläne/Content-Bank.md`**: nimm nur Karten mit Status `offen` in Tagesreihenfolge. **Vor jeder Aufgabe
+   der Dubletten-Schutz:** `node supervisor/dist/adapters/posts.js check --network instagram --text "<Instagram-Caption der Karte>"`
+   (und für TikTok mit der TikTok-Caption). Exit 2 = schon draußen → Karte auf `veröffentlicht <Datum aus dem Treffer>` setzen,
+   keine Aufgabe. Exit 3 = Tag voll → nächster Tag.
    Pro Karte **eine** `content`-Aufgabe mit der Karten-ID im Titel (z. B. „Content-Bank r01: Dein Kumpel
    sieht dein Zimmer“) und dem Hinweis „Caption und Hashtags unverändert aus der Content-Bank“, `needs_approval: false`
    (Julius hat die Karten am 23.10.2026 freigegeben – Content auf Autopilot 2); **keine**
