@@ -18,12 +18,15 @@ arbeitet), **Wartet auf dich**, die **Wandtafel** und der **Ticker**. Alles aktu
 |---|---|
 | alle Zahlen aus Shopify, Metricool und Printify auf einen Blick | Welt → **Zentrale** (oben) · als Notiz: [[Kennzahlen]] · als Text: [[Status#Zentrale]] |
 | live sehen, woran gerade gearbeitet wird | Welt → **Büro** und **Ticker** · als Text: [[Status#Arbeiter]] |
-| etwas freigeben oder zurückschicken | Welt → **Wartet auf dich** · oder unten im Abschnitt „Wartet auf dich“ |
+| etwas freigeben, erledigen oder zurückschicken | Welt → **Wartet auf dich** (Freigeben / Erledigt) · oder unten im Abschnitt „Wartet auf dich“ |
 | wissen, was heute schon raus ist und was noch darf | [[Status#Heute]] (Posts und Shop-Änderungen gegen das Tageslimit) |
 | den Plan für die nächsten Tage | [[Pläne/Content-Kalender]] · die fertigen Karten: [[Pläne/Content-Bank]] |
 | Berichte lesen | `Berichte/` (täglich und wöchentlich vom Berichter) |
 | sehen, was je gepostet wurde (Dubletten-Schutz) | [[Pläne/Veröffentlicht]] · Tageszähler je Netzwerk: Welt → Wandtafel |
 | den Kalender: was wann rausgeht (3 Tage zurück, 7 voraus, je Netzwerk) | Welt → **Kalender** · als Text: [[Status#Kalender (7 Tage)]] · die Liste dahinter: [[Pläne/Veröffentlicht]] |
+| ob die Woche voll ist (Ist/Soll je Netzwerk und Tag, Lücken rot) | Welt → **Kalender** (Soll aus [[Strategie]] `daily_targets`) · als Text: [[Status#Kalender (7 Tage)]] |
+| Slots, Formate, Stimme und Stories der Tagesproduktion | [[Pläne/Produktion]] |
+| woran die Fabrik arbeitet, wenn der Content steht (Shop, Reichweite, Daten, Kunde, Marke) | [[Pläne/Wachstum]] – der Wachstumskatalog, Aufgaben heißen „Wachstum Wxx: …“ |
 | die fertigen Bilder, Slides, Clips und Stimmproben ansehen | Welt → **Produktion** (Galerie aus `Assets/content/`, nach Aufgabe) · als Text: [[Status#Produktion]] |
 | wissen, ob die Fabrik läuft, warum nicht, und wann der nächste Auslöser kommt | Welt → **Fabrik** (Ampel oben, Knopf „Planer jetzt“) · als Text: [[Status#Fabrik]] |
 | die eigene Stimme prüfen (Sprachausgabe für Reels und Ads) | Welt → **Stimme** (Engine, Stimmen, letzte Probe) · Stand auch in [[Status#Produktion]] |
@@ -47,7 +50,7 @@ Karten hier brauchen dein Ja. **Freigeben** = Knopf in der Welt oder in der Noti
 - [[Kennzahlen]] – die Zahlen der Zentrale als Notiz (alle 6 Stunden neu)
 - [[Strategie]] – Ziel, Wertleiter, Autopilot-Stufen, Grenzen
 - [[Marke/Kern]] · [[Marke/Tonalität]] · [[Marke/Visuell]] · [[Marke/Hashtags]] · [[Marke/Produkte]] · [[Marke/Kanäle]]
-- [[Pläne/Content-Kalender]] · [[Pläne/Wochenplan]]
+- [[Pläne/Content-Kalender]] · [[Pläne/Wochenplan]] · [[Pläne/Produktion]] · [[Pläne/Wachstum]]
 - `Berichte/` – Tages- und Wochenberichte · `Ideen/` – Poster- und Kampagnen-Ideen
 - `Inbox/` – hier Chats, Notizen und Skills ablegen, das System ordnet sie ein
 - Not-Aus: Datei `PAUSE` in diesem Ordner anlegen (oder Knopf in der Welt)

@@ -17,7 +17,9 @@ import { renderStatusMd, type SupervisorState, type WorkerView, type ZentraleVie
 import { loadKennzahlen, type KennzahlenCache } from './kennzahlen.js'
 import { printifySummary, type PrintifySummary } from './adapters/printify.js'
 import { countForDay, isStale, loadPublogCached, type PublogCache } from './publog.js'
-import { loadLimits, parseLimits, totalLimit, type Limits } from './limits.js'
+import { loadLimits, loadTargets, parseLimits, totalLimit, type Limits, type Targets } from './limits.js'
+import { fehlenGesamt, inArbeitProTag, lueckenText, sollFuerTag } from './kalender.js'
+import type { Logins } from './preflight.js'
 import { computeFabrik, runnableTasks, PLANER_LEER_INTERVAL_MS, type FabrikView } from './fabrik.js'
 import { listMedienCached, loadStimmeCached, STIMME_LEER, type MedienCache, type StimmeCache } from './medien.js'
 import type { KalenderTag } from './status/writer.js'
@@ -36,7 +38,7 @@ export interface SupervisorDeps {
   /** false = no planner/report triggers (smoke runs); default true. */
   triggers?: boolean
   /** Re-run of the preflight; called on the first tick and every 20 ticks (spec §5.1). */
-  healthCheck?: () => Promise<{ ok: boolean; problems: string[] }>
+  healthCheck?: () => Promise<{ ok: boolean; problems: string[]; logins?: Logins }>
   /** Smoke mode: process only this task id – no approvals, no orphan recovery, no other starts. */
   only?: string
   /** Printify reader for the Zentrale (default: the real adapter); called at most hourly. */
@@ -135,6 +137,11 @@ export class Supervisor {
   private publog: PublogCache | null = null
   private limits: Limits = {}
   private limitOverride: Limits = {}
+  /** Soll-Mengen je Netz (Strategie.md → daily_targets) */
+  private targets: Targets = {}
+  /** Strategie.md → max_open_tasks (sonst limitless.config.json) */
+  private maxOpenOverride: number | null = null
+  private kalenderView: SupervisorState['kalender'] | null = null
   private fabrik: FabrikView = { leer: true, leerSeit: null, grund: 'noch kein Tick', naechsteAusloeser: [], letzterPlaner: null }
   private medien: MedienCache | null = null
   private stimme: StimmeCache | null = null
@@ -249,10 +256,13 @@ export class Supervisor {
         ? { active: true, reason: decision.reason, until: decision.until ? nowStamp(decision.until) : null }
         : { active: false, reason: null, until: null }
 
-    if (this.deps.triggers !== false && !this.deps.only) tasks = await this.fireTriggers(tasks, now)
     this.publog = await loadPublogCached(this.cfg.vaultRoot, this.publog)
+    if (!this.deps.only) tasks = await this.autoDone(tasks, now)
+    this.kalenderView = this.buildKalender(tasks, now)
+    if (this.deps.triggers !== false && !this.deps.only) tasks = await this.fireTriggers(tasks, now)
 
     this.updateCounters(tasks, now)
+    this.kalenderView = this.buildKalender(tasks, now)
     await this.readShopCounter(now)
     await this.refreshZentrale(now)
     await this.refreshProduktion(now)
@@ -313,22 +323,6 @@ export class Supervisor {
     } catch {
       // dito
     }
-  }
-
-  /** Kalender für die Welt: 3 Tage zurück, 7 voraus, aus der Veröffentlichungs-Liste. */
-  private kalender(now: Date): KalenderTag[] {
-    const entries = this.publog?.value.entries ?? []
-    const tage: KalenderTag[] = []
-    for (let i = -KALENDER_TAGE_ZURUECK; i < KALENDER_TAGE_VORAUS; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)
-      const datum = todayStamp(d)
-      const eintraege = entries
-        .filter((e) => e.date.startsWith(datum))
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .map((e) => ({ zeit: e.date.slice(11, 16), netzwerk: e.network, typ: e.type, status: e.status, text: e.text, url: e.url }))
-      tage.push({ datum, heute: i === 0, eintraege })
-    }
-    return tage
   }
 
   private async applyRow(r: PatchRow): Promise<void> {
@@ -576,7 +570,8 @@ export class Supervisor {
         tier: 'standard',
         priority: 1,
         origin: 'system',
-        auftrag: `Prüfe Strategie, Kennzahlen und Kalender und lege die nächsten Aufgaben an (Wertleiter in Strategie.md). Offene Aufgaben: ${openNonManual}. Höchstens ${this.cfg.maxOpenPlannerTasks} offene Aufgaben insgesamt.`,
+        auftrag: `Prüfe Strategie, Kennzahlen und Kalender und lege die nächsten Aufgaben an (Wertleiter in Strategie.md, danach Pläne/Wachstum.md). ${this.lueckenSatz()} Offene Aufgaben: ${openNonManual}. Höchstens ${this.maxOpen()} offene Aufgaben insgesamt.`,
+        kontext: '[[Strategie]] · [[Pläne/Produktion]] · [[Pläne/Wachstum]] · [[Pläne/Content-Kalender]] · [[Pläne/Veröffentlicht]] · [[Status]]',
       })
       this.state.lastPlannerCreated = nowStamp(now)
       this.pushTicker('Planer angestoßen: Warteschlange füllen')
@@ -649,7 +644,19 @@ export class Supervisor {
       }
       await this.createPlannerTask(now, 'produktion')
       this.pushTicker('Tagesproduktion angestoßen: Planer legt die Beiträge für morgen an')
+      plannerOpenNow = true
     })
+    // Lückenfüller: liegt morgen um 12:00 oder 18:00 noch unter dem Soll (Strategie.md daily_targets) und
+    // ist nichts dafür in Arbeit, plant der Planer nach – nie, solange ein anderer Planer offen ist.
+    const morgen = todayStamp(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1))
+    const fehlenMorgen = this.kalenderView?.tage.find((t) => t.datum === morgen)?.fehlen ?? 0
+    for (const h of [12, 18]) {
+      await fire(`luecken:${morgen}-${h}`, produktionGeladen && plannerAvailable && !plannerOpenNow && minutes >= h * 60 && fehlenMorgen > 0, async () => {
+        await this.createPlannerTask(now, 'produktion')
+        this.pushTicker(`Kalender-Lücken für ${morgen} (${fehlenMorgen} Beiträge unter Soll): Planer füllt auf`)
+        plannerOpenNow = true
+      })
+    }
 
     await fire(`wochenstrategie:${week}`, plannerAvailable && now.getDay() === 3 && minutes >= 20 * 60, () =>
       this.deps.repo
@@ -680,8 +687,8 @@ export class Supervisor {
     const morgen = todayStamp(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1))
     const auftrag =
       art === 'produktion'
-        ? `Plane die Tagesproduktion für ${morgen}: je Netzwerk die Soll-Menge aus Strategie.md (Frontmatter daily_targets, Limits daily_post_limits) als Aufgaben für die Station produktion (Reels, Karussells, Stimme) und danach content (Einplanen). Formate, Slots und Regeln stehen in Pläne/Produktion.md – fehlt die Notiz, plane nach Strategie.md und vermerke das. Dubletten-Schutz: posts.js check vor jeder Aufgabe.`
-        : `Die Fabrik steht: keine startbare Aufgabe, niemand arbeitet. Fülle die Warteschlange sofort – zuerst die Tagesproduktion für heute und ${morgen} laut Strategie.md (daily_targets, daily_post_limits) und Pläne/Produktion.md (fehlt die Notiz: nach Strategie.md planen und das vermerken), dann die Wertleiter. Höchstens ${this.cfg.maxOpenPlannerTasks} offene Aufgaben insgesamt. Dubletten-Schutz: posts.js check vor jeder Aufgabe.`
+        ? `Plane die Tagesproduktion für ${morgen}: je Netzwerk die Soll-Menge aus Strategie.md (Frontmatter daily_targets, Limits daily_post_limits) als Aufgaben für die Station produktion (Reels, Karussells, Stimme) und danach content (Einplanen). ${this.lueckenSatz()} Formate, Slots und Regeln stehen in Pläne/Produktion.md – fehlt die Notiz, plane nach Strategie.md und vermerke das. Höchstens ${this.maxOpen()} offene Aufgaben insgesamt. Dubletten-Schutz: posts.js check vor jeder Aufgabe.`
+        : `Die Fabrik steht: keine startbare Aufgabe, niemand arbeitet. Fülle die Warteschlange sofort – zuerst die Tagesproduktion für heute und ${morgen} laut Strategie.md (daily_targets, daily_post_limits) und Pläne/Produktion.md (fehlt die Notiz: nach Strategie.md planen und das vermerken), dann die Wertleiter, dann Pläne/Wachstum.md (höchster Wert mit abgelaufener Abkühlzeit). ${this.lueckenSatz()} Höchstens ${this.maxOpen()} offene Aufgaben insgesamt. Dubletten-Schutz: posts.js check vor jeder Aufgabe.`
     await this.deps.repo.create({
       title: art === 'produktion' ? `Produktion für ${morgen} planen` : 'Planung: Fabrik leer – Warteschlange füllen',
       station: 'planer',
@@ -689,7 +696,7 @@ export class Supervisor {
       priority: 1,
       origin: 'system',
       auftrag,
-      kontext: '[[Strategie]] · [[Pläne/Produktion]] · [[Pläne/Content-Kalender]] · [[Pläne/Veröffentlicht]] · [[Status]]',
+      kontext: '[[Strategie]] · [[Pläne/Produktion]] · [[Pläne/Wachstum]] · [[Pläne/Content-Kalender]] · [[Pläne/Veröffentlicht]] · [[Status]]',
     })
     this.state.lastPlannerCreated = nowStamp(now)
   }
@@ -802,7 +809,7 @@ export class Supervisor {
       counts[t.fm.status] = (counts[t.fm.status] ?? 0) + 1
       if (t.fm.published_at && String(t.fm.published_at).startsWith(day)) posts++
       if (t.fm.status === 'review' || (t.fm.station === 'manual' && t.fm.status === 'todo')) {
-        waiting.push({ id: t.fm.id, title: t.fm.title, station: t.fm.station })
+        waiting.push({ id: t.fm.id, title: t.fm.title, station: t.fm.station, auto: typeof t.fm.auto_done === 'string' ? t.fm.auto_done : null })
       }
     }
     this.counts = counts
@@ -852,6 +859,8 @@ export class Supervisor {
     try {
       const { data } = parseNote(await readFile(join(this.cfg.vaultRoot, 'Strategie.md'), 'utf8'))
       this.limitOverride = parseLimits(data.daily_post_limits)
+      const mo = Number(data.max_open_tasks)
+      this.maxOpenOverride = Number.isInteger(mo) && mo > 0 ? mo : null
       const ap = data.autopilot
       if (ap && typeof ap === 'object' && !Array.isArray(ap)) {
         for (const [name, v] of Object.entries(ap as Record<string, unknown>)) {
@@ -865,6 +874,78 @@ export class Supervisor {
     this.autopilotOverride = next
     this.limits = await loadLimits(this.cfg.dailyPostLimits, '')
     this.limits = { ...this.limits, ...this.limitOverride }
+    this.targets = await loadTargets(this.cfg.vaultRoot)
+  }
+
+  /** Höchstzahl offener Aufgaben für den Planer (Strategie.md gewinnt). */
+  private maxOpen(): number {
+    return this.maxOpenOverride ?? this.cfg.maxOpenPlannerTasks
+  }
+
+  /**
+   * Manuelle Karten mit `auto_done:` hakt der Aufseher selbst ab, sobald alle Bedingungen stimmen:
+   * `claude-login`, `mcp:<server>` (aus `claude mcp list`), `env:<VAR>` (in der .env gesetzt).
+   */
+  private autoDoneErfuellt(spec: string): { ok: boolean; text: string } {
+    const logins = this.health.logins
+    const parts = spec.split(/[,\s]+/).map((x) => x.trim()).filter(Boolean)
+    if (!parts.length) return { ok: false, text: '' }
+    const text: string[] = []
+    for (const part of parts) {
+      if (part === 'claude-login') {
+        if (!logins?.claude) return { ok: false, text: '' }
+        text.push('Claude-Login')
+      } else if (part.startsWith('mcp:')) {
+        const name = part.slice(4).toLowerCase()
+        if (logins?.mcp?.[name] !== 'connected') return { ok: false, text: '' }
+        text.push(`MCP ${name} verbunden`)
+      } else if (part.startsWith('env:')) {
+        const key = part.slice(4)
+        if (!(this.cfg.env[key] ?? '').trim()) return { ok: false, text: '' }
+        text.push(`${key} in der .env`)
+      } else return { ok: false, text: '' }
+    }
+    return { ok: true, text: text.join(', ') }
+  }
+
+  private async autoDone(tasks: Task[], now: Date): Promise<Task[]> {
+    let changed = false
+    for (const t of tasks) {
+      if (t.fm.station !== 'manual' || t.fm.status !== 'todo' || typeof t.fm.auto_done !== 'string') continue
+      const r = this.autoDoneErfuellt(t.fm.auto_done)
+      if (!r.ok) continue
+      await this.deps.repo.update(t.fm.id, { status: 'done', completed: nowStamp(now) }, { log: `Automatisch erledigt – geprüft: ${r.text}` })
+      this.pushTicker(`${t.fm.title}: automatisch erledigt (${r.text})`)
+      changed = true
+    }
+    return changed ? this.deps.repo.list() : tasks
+  }
+
+  /** Kalender für die Welt und den Planer: Einträge, Soll/Ist je Netz, Lücken (heute + 6 Tage voraus). */
+  private buildKalender(tasks: Task[], now: Date): SupervisorState['kalender'] {
+    const entries = this.publog?.value.entries ?? []
+    const heute = todayStamp(now)
+    const inArbeit = inArbeitProTag(tasks)
+    const tage: KalenderTag[] = []
+    for (let i = -KALENDER_TAGE_ZURUECK; i < KALENDER_TAGE_VORAUS; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)
+      const datum = todayStamp(d)
+      const eintraege = entries
+        .filter((e) => e.date.startsWith(datum))
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((e) => ({ zeit: e.date.slice(11, 16), netzwerk: e.network, typ: e.type, status: e.status, text: e.text, url: e.url }))
+      const soll = sollFuerTag(entries, this.targets, inArbeit.get(datum) ?? {}, datum, datum >= heute)
+      tage.push({ datum, heute: i === 0, eintraege, soll, fehlen: Object.values(soll).reduce((x, v) => x + v.fehlen, 0) })
+    }
+    const voraus = tage.filter((t) => t.datum >= heute)
+    return { tage, heute: this.today.byNetwork, luecken: { fehlen: fehlenGesamt(voraus), text: lueckenText(voraus) } }
+  }
+
+  /** Satz für den Planer-Auftrag: wo der Kalender gegen das Soll zurückliegt. */
+  private lueckenSatz(): string {
+    const l = this.kalenderView?.luecken
+    if (!l) return 'Kalender-Soll: noch nicht gerechnet – Soll je Netz steht in Strategie.md (daily_targets).'
+    return l.fehlen > 0 ? `Lücken im Kalender (Ist/Soll laut Strategie.md, heute + 6 Tage): ${l.text} – diese zuerst schließen, Tag für Tag.` : 'Kalender: Soll der nächsten 7 Tage erfüllt – nur nachlegen, wenn Aufgaben scheitern.'
   }
 
   /** A stale Veröffentlichungs-Liste blocks publishing; ask the Zentrale to sync it (once per hour). */
@@ -974,7 +1055,7 @@ export class Supervisor {
         links: ZENTRALE_LINKS,
       },
       fabrik: this.fabrik,
-      kalender: { tage: this.kalender(now), heute: this.today.byNetwork },
+      kalender: this.kalenderView ?? { tage: [], heute: this.today.byNetwork, luecken: { fehlen: 0, text: '' } },
       medien: this.medien?.value ?? [],
       stimme: this.stimme?.value ?? STIMME_LEER,
     }
@@ -983,6 +1064,11 @@ export class Supervisor {
   async approve(id: string): Promise<void> {
     const t = await this.deps.repo.get(id)
     if (!t) return
+    if (t.fm.station === 'manual' && t.fm.status === 'todo') {
+      await this.deps.repo.update(id, { status: 'done', completed: nowStamp(this.deps.clock()) }, { log: 'Erledigt durch Julius (Welt)' })
+      this.pushTicker(`${t.fm.title}: erledigt`)
+      return
+    }
     if (t.fm.status === 'review' || t.fm.needs_approval) {
       await this.deps.repo.update(id, { status: 'todo', needs_approval: false }, { log: 'Freigabe durch Julius (Welt)' })
       this.pushTicker(`${t.fm.title}: freigegeben`)

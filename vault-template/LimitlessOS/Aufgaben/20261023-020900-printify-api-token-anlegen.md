@@ -23,6 +23,7 @@ origin: system
 parent:
 published_at:
 tags: [task]
+auto_done: env:PRINTIFY_API_TOKEN
 ---
 ## Auftrag
 Die Zentrale in der Welt zeigt Aufträge, Produktionskosten und Marge aus Printify. Dafür braucht sie einen

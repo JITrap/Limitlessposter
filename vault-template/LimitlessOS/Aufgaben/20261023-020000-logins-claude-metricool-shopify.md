@@ -23,6 +23,7 @@ origin: system
 parent: 
 published_at:
 tags: [task]
+auto_done: claude-login, mcp:metricool, mcp:shopify
 ---
 ## Auftrag
 Drei Logins im Browser, danach arbeitet das System ohne Schlüssel-Gefummel. `install.ps1` hat sie schon
@@ -35,8 +36,9 @@ PowerShell im Repo-Ordner (`C:\Users\<du>\limitlessposter`) öffnen, dann:
    (Alte Claude-Version ohne `mcp login`? Dann `claude` starten, `/mcp`, Server wählen, Authenticate, `/exit`.)
 5. Prüfen: `powershell -ExecutionPolicy Bypass -File scripts\doctor.ps1` – alles grün?
 
-Fertig? In dieser Notiz `status: done` setzen (oder die Karte in der Welt abhaken). Die Stationen
-**Content-Studio** und **Shop-Büro** werden beim nächsten Durchlauf grün.
+Fertig? Der Aufseher hakt diese Karte **selbst** ab, sobald `claude auth status` das claude.ai-Konto und `claude mcp list`
+Metricool und Shopify als verbunden melden (Prüfung alle 10 Minuten). Du kannst sie auch in der Welt mit **Erledigt** schließen.
+Die Stationen **Content-Studio** und **Shop-Büro** werden beim nächsten Durchlauf grün.
 
 ## Kontext
 Ohne diese Logins kann das System weder posten (Metricool) noch Produkte lesen/ändern (Shopify).

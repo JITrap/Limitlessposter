@@ -2,17 +2,21 @@
 
 Die Station **Produktion** baut aus einer Aufgabe ein fertiges Reel: Szene (HTML, Bild für Bild gerendert), Stimme (lokal),
 Untertitel, Musik, Cover, Caption – und prüft alles am Qualitäts-Gate. Das **Content-Studio** plant das Ergebnis danach
-über den Dubletten-Schutz ein. Der **Planer** legt jeden Abend die Produktions-Aufgaben für den nächsten Tag an.
+über den Dubletten-Schutz ein. Der **Planer** legt um 05:30 die Produktions-Aufgaben für morgen an, füllt um 12:00 und
+18:00 nach, wenn morgen noch etwas zum Soll fehlt, und plant dann Tag für Tag bis 7 Tage voraus.
 
-## Tagesziel (wie die alte Automatik)
-| Netzwerk | Menge | Slots |
+## Tagesziel (wie die alte Automatik – Soll steht in `Strategie.md` → `daily_targets`)
+| Netzwerk | Menge | Slots (Mo–Fr; Wochenende abweichend, siehe Produktion.md) |
 |---|---|---|
-| Instagram | 3 Reels + 1 Karussell | 12:30 · 16:30 · 20:00 / 07:30 |
+| Instagram | 3 Reels + 1 Karussell + 4 Stories | Reels 12:30 · 16:30 · 20:00 / Karussell 07:30 / Stories 30 min danach |
 | TikTok | 3 Videos + 1 Fotobeitrag | 12:30 · 16:30 · 20:30 / 07:30 |
-| LinkedIn | 1 Post Mo/Mi/Fr | 08:30 |
-| Google Unternehmensprofil | 1 Beitrag Di/Do/Sa | 10:00 |
+| Facebook | 3 Reels + 1 Post + 4 Stories (Zweitverwertung, nur wenn in Metricool verbunden) | 12:00 · 15:30 · 18:30 / 09:00 |
+| LinkedIn | 1 Post Mo/Mi/Fr (Metricool-Autolist) | 08:15 |
+| Google Unternehmensprofil | 1 Beitrag Di/Do/Sa (Metricool-Autolist) | 10:00 |
 
-Zeiten und Rotation stehen in `<Vault>\LimitlessOS\Pläne\Produktion.md` – dort änderst du Stimme, Musik und Formate.
+Ein Reel-Slot ist **eine** Produktion mit einer Caption je Netz; die Stories gehören zur Content-Aufgabe des Beitrags.
+Die Welt zeigt im Kalender je Tag Ist/Soll – rot, wo etwas fehlt. Zeiten und Rotation stehen in
+`<Vault>\LimitlessOS\Pläne\Produktion.md` – dort änderst du Stimme, Musik, Formate und `stories`.
 
 ## Formate
 | Kürzel | Name | Dauer | Szene |

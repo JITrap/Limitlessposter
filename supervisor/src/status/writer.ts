@@ -8,6 +8,9 @@ import { stringifyNote } from '../vault/frontmatter.js'
 import { writeFileAtomic } from '../vault/atomic.js'
 
 /** Ein Beitrag im Kalender der Welt (aus Pläne/Veröffentlicht.md). */
+import type { NetzSoll } from '../kalender.js'
+import type { Logins } from '../preflight.js'
+
 export interface KalenderEintrag {
   /** HH:mm */
   zeit: string
@@ -23,6 +26,9 @@ export interface KalenderTag {
   datum: string
   heute: boolean
   eintraege: KalenderEintrag[]
+  /** Soll (Strategie.md daily_targets) gegen Ist je Netz – nur heute und voraus zählt „fehlen“ */
+  soll: Record<string, NetzSoll>
+  fehlen: number
 }
 
 export interface WorkerView {
@@ -58,7 +64,7 @@ export interface ZentraleView {
 export interface SupervisorState {
   now: string
   vaultName: string
-  health: { ok: boolean; problems: string[] }
+  health: { ok: boolean; problems: string[]; logins?: Logins }
   paused: { active: boolean; reason: string | null; until: string | null }
   decision: Decision | null
   workers: WorkerView[]
@@ -76,13 +82,13 @@ export interface SupervisorState {
     shopLimit: number
   }
   nextWeekReset: string
-  waiting: { id: string; title: string; station: string }[]
+  waiting: { id: string; title: string; station: string; auto?: string | null }[]
   ticker: string[]
   zentrale: ZentraleView
   /** läuft die Fabrik, und wenn nicht: warum, und wann der nächste Auslöser kommt */
   fabrik: FabrikView
   /** 3 Tage zurück, 7 voraus, aus der Veröffentlichungs-Liste */
-  kalender: { tage: KalenderTag[]; heute: Record<string, { used: number; limit: number }> }
+  kalender: { tage: KalenderTag[]; heute: Record<string, { used: number; limit: number }>; luecken: { fehlen: number; text: string } }
   /** zuletzt erzeugte Dateien unter Assets/content (neueste zuerst) */
   medien: MedienEintrag[]
   /** Stand der eigenen Stimme (stimme.json) */
@@ -200,9 +206,14 @@ export function renderStatusMd(s: SupervisorState): string {
   lines.push('', '## Kalender (7 Tage)')
   const tage = s.kalender?.tage ?? []
   if (tage.length === 0) lines.push('- Noch keine Einträge → [[Pläne/Veröffentlicht]]')
+  const luecken = s.kalender?.luecken
+  if (tage.length > 0) lines.push(luecken && luecken.fehlen > 0 ? `- **Lücken (Soll aus [[Strategie]]): ${luecken.fehlen} Beiträge fehlen** – ${luecken.text}` : '- Soll erfüllt: keine Lücken in den nächsten 7 Tagen.')
   for (const t of tage) {
     const items = t.eintraege.map((e) => `${e.netzwerk} ${e.zeit} ${e.status} „${e.text.length > 40 ? `${e.text.slice(0, 39)}…` : e.text}“`)
-    lines.push(`- ${t.heute ? '**' : ''}${tagLabel(t.datum)}${t.heute ? ' (heute)**' : ''}: ${items.length ? items.join(' · ') : '–'}`)
+    const soll = Object.entries(t.soll ?? {})
+      .filter(([, v]) => v.soll > 0)
+      .map(([n, v]) => `${n} ${v.ist}/${v.soll}${v.inArbeit ? ` +${v.inArbeit}` : ''}${v.fehlen ? ' ⚠' : ''}`)
+    lines.push(`- ${t.heute ? '**' : ''}${tagLabel(t.datum)}${t.heute ? ' (heute)**' : ''}${soll.length ? ` [${soll.join(' · ')}]` : ''}: ${items.length ? items.join(' · ') : '–'}`)
   }
 
   lines.push('', '## Produktion')
@@ -216,7 +227,7 @@ export function renderStatusMd(s: SupervisorState): string {
 
   lines.push('', '## Wartet auf dich')
   if (s.waiting.length === 0) lines.push('Nichts – alles läuft.')
-  for (const w of s.waiting) lines.push(`- [[Aufgaben/${w.id}|${w.title}]] (${displayOf(w.station)})`)
+  for (const w of s.waiting) lines.push(`- [[Aufgaben/${w.id}|${w.title}]] (${displayOf(w.station)})${w.auto ? ' – hakt sich selbst ab, sobald es erledigt ist' : ''}`)
 
   lines.push('', '## Ticker')
   if (s.ticker.length === 0) lines.push('- (leer)')

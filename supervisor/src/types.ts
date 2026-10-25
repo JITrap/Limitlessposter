@@ -40,6 +40,11 @@ export interface TaskFrontmatter {
   /** Set by a worker when it actually scheduled/published something outward-facing. */
   published_at: string | null
   tags: string[]
+  /**
+   * Manual cards only: the supervisor ticks the card off itself once every condition holds –
+   * `claude-login`, `mcp:<server>` (from `claude mcp list`), `env:<VAR>` (set in .env); comma-separated.
+   */
+  auto_done?: string | null
 }
 
 export interface Task {

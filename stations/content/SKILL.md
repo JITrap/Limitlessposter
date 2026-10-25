@@ -34,7 +34,12 @@ planst sie über Metricool ein, sobald das erlaubt ist.
    `clip.mp4` oder `slide-*.png`, `cover.jpg`, `caption-<netz>.txt`, `post-<netz>.json`, `gate.txt`. Du schreibst nichts neu:
    Caption **wörtlich** aus der Datei, Medien hochladen (Schritt 5a), die öffentlichen URLs in `post-<netz>.json` unter `media`
    eintragen (Reihenfolge: Video, dann Cover), dann Schritt 5b. Steht in `gate.txt` ein `SKIP`, planst du **nicht** – Entwurf,
-   Grund unter *Offene Fragen*. Schritte 1–3 entfallen.
+   Grund unter *Offene Fragen*. Schritte 1–3 entfallen. **Story** (wenn der Auftrag „Story: ja“ sagt): zusätzlich
+   `post-instagram-story.json` – `text: ""`, `media` = Cover-URL (Reel) bzw. `story.png` (Karussell), `instagramData: {"type":"STORY"}`,
+   30 Minuten nach dem Beitrag, nie nach 22:00 – über denselben Adapter-Weg (Schritt 5b; der Dubletten-Schutz prüft sie über die Datei).
+   **Facebook** (nur wenn `Marke/Kanäle.md` Facebook als verbunden führt): `post-facebook.json` mit `caption-facebook.txt`
+   (Produktlink erlaubt), `facebookData: {"type":"REEL"}` bzw. `{"type":"POST"}`, Slot laut `Pläne/Produktion.md`; Story dazu
+   mit `facebookData: {"type":"STORY"}`. Fehlt die Facebook-Caption, schreibst du sie aus der Instagram-Caption ohne „Link in Bio“.
 
 ## Vorgehen
 1. Lies alles oben. Entscheide Format: **Reel** (Video 9:16) oder **Karussell** (2–10 Slides 4:5).
@@ -64,8 +69,8 @@ planst sie über Metricool ein, sobald das erlaubt ist.
       Antwort-Codes: 0 geplant (JSON mit `plannerUrl`), 2 Dublette, 3 Tageslimit, 4 gesperrt (dann nur Entwurf), 1 Fehler (wörtlich
       unter `## Offene Fragen an Julius`). Der Adapter trägt den Post selbst in `Pläne/Veröffentlicht.md` ein.
       Die Werkzeuge `createScheduledPost`/`updateScheduledPost` gibt es für dich nicht mehr – auch nicht als Umweg.
-      Ein Post pro Format: Reel → Instagram + TikTok (zwei Dateien); Karussell → Instagram (+ LinkedIn-Variante als
-      eigener Post, wenn im Auftrag). Google-Unternehmensprofil nur bei Produkt-/Angebotsnews.
+      Ein Post pro Format: Reel → Instagram + TikTok (+ Facebook, wenn verbunden; je Netz eine Datei); Karussell → Instagram +
+      TikTok-Fotobeitrag (+ Facebook-Post, + LinkedIn-Variante, wenn im Auftrag). Google-Unternehmensprofil nur bei Produkt-/Angebotsnews.
    c. Setze im Frontmatter `published_at: <jetzt, YYYY-MM-DDTHH:mm:ss>` und notiere die
       `plannerUrl` je Post unter **## Ergebnis**.
 6. Gilt eine der Bedingungen nicht: **nichts planen.** Alles liegt fertig in der Notiz, Julius gibt
@@ -119,7 +124,7 @@ Geplant: <plannerUrl je Post>   oder   Nicht geplant – wartet auf Freigabe / T
 - Nie veröffentlichen, wenn „Freigabe nötig: ja“ oder „Veröffentlichen heute erlaubt: nein“.
 - Nie einen Text planen, den `posts.js check` als Dublette meldet – und nie den Text umschreiben, nur damit die Prüfung durchgeht.
 - Nie an `metricool.js schedule` vorbei planen (keine MCP-Planungswerkzeuge, kein Hochladen in Apps).
-- Nie mehr als einen Post pro Aufgabe planen (plus optionale LinkedIn-Variante).
+- Nie mehr als einen Beitrag je Netzwerk pro Aufgabe planen (plus seine Story und die LinkedIn-Variante).
 - Nie Preise, Rabatte oder Lieferzeiten erfinden – nur Werte aus `Marke/Produkte.md`.
 - Nie fremde Bilder oder Musikrechte verwenden. Namen von Sportlern, Vereinen oder Marken dürfen das Motiv
   beschreiben, aber nie als „offiziell“, „lizenziert“ oder „in Zusammenarbeit mit“ erscheinen (`Marke/Kern.md`, Tabus).

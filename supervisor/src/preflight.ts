@@ -20,6 +20,15 @@ export interface PreflightDeps {
   homeDir: string
 }
 
+export type McpState = 'connected' | 'auth' | 'failed' | 'unknown'
+
+export interface Logins {
+  /** mit dem claude.ai-Konto angemeldet */
+  claude: boolean
+  /** je MCP-Server aus `claude mcp list` */
+  mcp: Record<string, McpState>
+}
+
 export interface PreflightResult {
   ok: boolean
   /** German; any entry stops workers from starting. */
@@ -27,6 +36,28 @@ export interface PreflightResult {
   warnings: string[]
   claudeVersion: string | null
   authMethod: string | null
+  logins: Logins
+}
+
+/**
+ * `claude mcp list` → Zustand je Server. Zeilen wie
+ * `metricool: https://… (HTTP) - ✓ Connected` · `shopify: … - ⚠ Needs authentication` · `x: … - ✗ Failed to connect`.
+ * Unbekannte Formulierungen bleiben `unknown` – daraus folgt nie ein automatisches Abhaken.
+ */
+export function parseMcpList(stdout: string): Record<string, McpState> {
+  const out: Record<string, McpState> = {}
+  for (const raw of stdout.split(/\r?\n/)) {
+    const line = raw.trim()
+    const m = /^([A-Za-z0-9_.-]+):\s+(.*)$/.exec(line)
+    if (!m || /^checking/i.test(line)) continue
+    const rest = m[2].toLowerCase()
+    let state: McpState = 'unknown'
+    if (/needs auth|authenticat|anmeld/.test(rest)) state = 'auth'
+    else if (/fail|error|fehl|not connected|disconnected/.test(rest)) state = 'failed'
+    else if (/connected|verbunden|✓|✔/.test(rest)) state = 'connected'
+    out[m[1].toLowerCase()] = state
+  }
+  return out
 }
 
 export const MIN_CLAUDE_VERSION = [2, 1, 302] as const
@@ -47,6 +78,7 @@ export async function preflight(cfg: PreflightConfig, deps: PreflightDeps): Prom
   const warnings: string[] = []
   let claudeVersion: string | null = null
   let authMethod: string | null = null
+  const logins: Logins = { claude: false, mcp: {} }
 
   if (deps.env.ANTHROPIC_API_KEY) {
     problems.push('ANTHROPIC_API_KEY ist gesetzt – würde API-Guthaben statt Abo verbrauchen. Bitte die Variable entfernen.')
@@ -82,9 +114,23 @@ export async function preflight(cfg: PreflightConfig, deps: PreflightDeps): Prom
         authMethod = method
         if (a.code !== 0 || method !== 'claude.ai') {
           problems.push('Nicht mit dem Claude-Abo angemeldet – bitte `claude` im Terminal starten und mit dem claude.ai-Konto einloggen')
-        }
+        } else logins.claude = true
       } catch {
         problems.push('Nicht mit dem Claude-Abo angemeldet – `claude auth status` schlug fehl')
+      }
+    }
+
+    // MCP-Logins (Metricool, Shopify): nur Hinweis, kein Stopp – Stationen ohne Anbindung bleiben einfach ⛔.
+    if (claudeVersion) {
+      try {
+        const l = await deps.exec(bin, ['mcp', 'list'])
+        if (l.code === 0) logins.mcp = parseMcpList(l.stdout)
+        for (const [name, state] of Object.entries(logins.mcp)) {
+          if (state === 'auth') warnings.push(`MCP-Server ${name}: Anmeldung nötig – \`claude mcp login ${name}\` (oder \`claude\` → /mcp)`)
+          else if (state === 'failed') warnings.push(`MCP-Server ${name}: nicht erreichbar laut \`claude mcp list\``)
+        }
+      } catch {
+        // `claude mcp list` fehlt oder hängt – dann bleibt der Login-Stand unbekannt
       }
     }
   }
@@ -117,5 +163,5 @@ export async function preflight(cfg: PreflightConfig, deps: PreflightDeps): Prom
     warnings.push('Keine .env gefunden – nur Stationen ohne Schlüssel sind aktiv')
   }
 
-  return { ok: problems.length === 0, problems, warnings, claudeVersion, authMethod }
+  return { ok: problems.length === 0, problems, warnings, claudeVersion, authMethod, logins }
 }

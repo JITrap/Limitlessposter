@@ -50,14 +50,17 @@ const state: SupervisorState = {
   },
   kalender: {
     tage: [
-      { datum: '2026-10-21', heute: false, eintraege: [] },
+      { datum: '2026-10-21', heute: false, eintraege: [], soll: {}, fehlen: 0 },
       {
         datum: '2026-10-22',
         heute: true,
         eintraege: [{ zeit: '18:30', netzwerk: 'instagram', typ: 'reel', status: 'geplant', text: 'Ein Poster, fünf Räume – so wirkt dieselbe Wand ganz anders', url: 'https://app.metricool.com/p/1' }],
+        soll: { instagram: { soll: 4, ist: 1, inArbeit: 1, autolist: false, fehlen: 2 }, tiktok: { soll: 4, ist: 0, inArbeit: 0, autolist: false, fehlen: 4 } },
+        fehlen: 6,
       },
     ],
     heute: { instagram: { used: 1, limit: 4 } },
+    luecken: { fehlen: 6, text: 'Do 22.10.: instagram 1/4 (+1 in Arbeit), tiktok 0/4' },
   },
   medien: [
     { pfad: 'Assets/content/t1/slide-1.png', url: '/media/Assets/content/t1/slide-1.png', typ: 'bild', groesse: 1234, geaendert: '2026-10-22T09:58:00', aufgabe: 't1', titel: 'Karussell 5 Räume' },
@@ -139,8 +142,11 @@ describe('renderStatusMd', () => {
   it('renders the 7-day calendar with today in bold and long texts shortened', () => {
     const k = readSection(body, 'Kalender (7 Tage)')!
     expect(k).toContain('- Mi 21.10.: –')
-    expect(k).toContain('- **Do 22.10. (heute)**: instagram 18:30 geplant „Ein Poster, fünf Räume – so wirkt diese…“')
-    const leer = renderStatusMd({ ...state, kalender: { tage: [], heute: {} } })
+    expect(k).toContain('- **Do 22.10. (heute)** [instagram 1/4 +1 ⚠ · tiktok 0/4 ⚠]: instagram 18:30 geplant „Ein Poster, fünf Räume – so wirkt diese…“')
+    expect(k).toContain('- **Lücken (Soll aus [[Strategie]]): 6 Beiträge fehlen** – Do 22.10.: instagram 1/4 (+1 in Arbeit), tiktok 0/4')
+    const voll = renderStatusMd({ ...state, kalender: { ...state.kalender, luecken: { fehlen: 0, text: '' } } })
+    expect(readSection(parseNote(voll).body, 'Kalender (7 Tage)')).toContain('- Soll erfüllt: keine Lücken in den nächsten 7 Tagen.')
+    const leer = renderStatusMd({ ...state, kalender: { tage: [], heute: {}, luecken: { fehlen: 0, text: '' } } })
     expect(readSection(parseNote(leer).body, 'Kalender (7 Tage)')).toContain('Noch keine Einträge → [[Pläne/Veröffentlicht]]')
   })
 

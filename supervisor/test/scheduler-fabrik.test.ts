@@ -14,7 +14,7 @@ import type { RunSummary } from '../src/runner/stream.js'
 import type { runWorker, RunOptions } from '../src/runner/claude.js'
 import type { Task } from '../src/types.js'
 import { readSection } from '../src/vault/frontmatter.js'
-import { savePublog } from '../src/publog.js'
+import { savePublog, toEntry } from '../src/publog.js'
 
 const T0 = new Date('2026-11-06T10:00:00') // a Friday
 
@@ -287,6 +287,115 @@ describe('Fabrik läuft immer', () => {
     await sup.tick()
     p = await planners()
     expect(p.map((t) => t.fm.title).sort()).toEqual(['Planung: Warteschlange füllen', 'Produktion für 2026-11-07 planen'])
+  })
+
+  it('fills calendar gaps for tomorrow at 12:00 and 18:00 – only when something is missing and no planner is open', async () => {
+    // A studio task keeps the factory busy, so the empty-factory nudge stays quiet and the gap filler is what we see.
+    await repo.create({ title: 'Studio: Slides', station: 'studio', tier: 'cheap', priority: 2, origin: 'planer', auftrag: 'x' })
+    await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: '2026-11-06T11:00:00' })
+    now = new Date('2026-11-06T11:30:00')
+    sup = await build({ stations: [...stations, station('produktion', { autopilot: 2 })] })
+    await sup.tick()
+    expect(await planners()).toHaveLength(0)
+    expect(sup.getState().kalender.luecken.fehlen).toBeGreaterThan(0)
+    expect(sup.getState().kalender.tage.find((t) => t.datum === '2026-11-07')!.soll.instagram).toMatchObject({ soll: 4, ist: 0, fehlen: 4 })
+
+    now = new Date('2026-11-06T12:05:00')
+    await sup.tick()
+    let p = await planners()
+    expect(p).toHaveLength(1)
+    expect(p[0].fm.title).toBe('Produktion für 2026-11-07 planen')
+    expect(readSection(p[0].body, 'Auftrag')).toContain('Lücken im Kalender')
+    expect(readSection(p[0].body, 'Auftrag')).toContain('Sa 07.11.: instagram 0/4, tiktok 0/4')
+    expect(ticker()).toContain('Kalender-Lücken für 2026-11-07')
+
+    now = new Date('2026-11-06T12:06:00')
+    await sup.tick()
+    expect(await planners()).toHaveLength(1)
+
+    // 18:00 with the planner still open → waits; planner done → second filler.
+    now = new Date('2026-11-06T18:01:00')
+    await sup.tick()
+    expect(await planners()).toHaveLength(1)
+    const run = runs.find((r) => r.station.name === 'planer')!
+    run.resolve(ok())
+    await settle()
+    now = new Date('2026-11-06T18:02:00')
+    await sup.tick()
+    p = await planners()
+    expect(p).toHaveLength(2)
+  })
+
+  it('stays quiet when tomorrow already meets the Soll (planned posts + content tasks in Arbeit)', async () => {
+    await savePublog(vault, {
+      synced: '2026-11-06T11:00:00',
+      entries: ['12:30', '16:30', '20:00'].map((zeit) => toEntry({ network: 'instagram', date: `2026-11-07T${zeit}`, type: 'reel', status: 'geplant', text: `Reel ${zeit}` })),
+    })
+    for (const zeit of ['12:30', '16:30', '20:00', '07:30']) {
+      await repo.create({ title: `Content 2026-11-07 TikTok ${zeit}: T01 – Tiger`, station: 'content', tier: 'standard', priority: 1, origin: 'planer', auftrag: 'x' })
+    }
+    await repo.create({ title: 'Content 2026-11-07 Instagram 07:30: Karussell – Fokus', station: 'content', tier: 'standard', priority: 1, origin: 'planer', auftrag: 'x' })
+    await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: '2026-11-06T11:00:00' })
+    now = new Date('2026-11-06T12:05:00')
+    sup = await build({ stations: [...stations, station('produktion', { autopilot: 2 }), station('content', { autopilot: 2 })] })
+    await sup.tick()
+    const morgen = sup.getState().kalender.tage.find((t) => t.datum === '2026-11-07')!
+    expect(morgen.soll.instagram).toEqual({ soll: 4, ist: 3, inArbeit: 1, autolist: false, fehlen: 0 })
+    expect(morgen.soll.tiktok).toEqual({ soll: 4, ist: 0, inArbeit: 4, autolist: false, fehlen: 0 })
+    expect(morgen.fehlen).toBe(0)
+    expect(await planners()).toHaveLength(0)
+  })
+
+  it('ticks manual cards off itself once their auto_done conditions hold', async () => {
+    const card = await repo.create({ title: 'Einmalig anmelden', station: 'manual', tier: 'cheap', priority: 1, origin: 'system', auftrag: 'Logins' })
+    await repo.update(card.fm.id, { auto_done: 'claude-login, mcp:metricool, mcp:shopify' })
+    const token = await repo.create({ title: 'Printify-Token', station: 'manual', tier: 'cheap', priority: 2, origin: 'system', auftrag: 'Token' })
+    await repo.update(token.fm.id, { auto_done: 'env:PRINTIFY_API_TOKEN' })
+    cfg = { ...cfg, env: { PRINTIFY_API_TOKEN: 'x' } }
+    await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: '2026-11-06T09:55:00' })
+    sup = await build()
+    sup.setHealth({ ok: true, problems: [], logins: { claude: true, mcp: { metricool: 'connected', shopify: 'auth' } } })
+    await sup.tick()
+    expect((await repo.get(card.fm.id))!.fm.status).toBe('todo') // shopify still needs a login
+    expect((await repo.get(token.fm.id))!.fm.status).toBe('done')
+    expect(sup.getState().waiting.map((w) => w.id)).toEqual([card.fm.id])
+    expect(sup.getState().waiting[0].auto).toBe('claude-login, mcp:metricool, mcp:shopify')
+
+    sup.setHealth({ ok: true, problems: [], logins: { claude: true, mcp: { metricool: 'connected', shopify: 'connected' } } })
+    await sup.tick()
+    const done = (await repo.get(card.fm.id))!
+    expect(done.fm.status).toBe('done')
+    expect(done.fm.completed).toBe('2026-11-06T10:00:00')
+    expect(readSection(done.body, 'Protokoll')).toContain('Automatisch erledigt – geprüft: Claude-Login, MCP metricool verbunden, MCP shopify verbunden')
+    expect(ticker()).toContain('Einmalig anmelden: automatisch erledigt')
+    expect(sup.getState().waiting).toEqual([])
+  })
+
+  it('never ticks a card off on unknown conditions or missing login data', async () => {
+    const card = await repo.create({ title: 'Karte', station: 'manual', tier: 'cheap', priority: 1, origin: 'system', auftrag: 'x' })
+    await repo.update(card.fm.id, { auto_done: 'claude-login, pinterest-verbunden' })
+    await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: '2026-11-06T09:55:00' })
+    sup = await build()
+    sup.setHealth({ ok: true, problems: [], logins: { claude: true, mcp: {} } })
+    await sup.tick()
+    expect((await repo.get(card.fm.id))!.fm.status).toBe('todo')
+    const other = await repo.create({ title: 'Karte 2', station: 'manual', tier: 'cheap', priority: 1, origin: 'system', auftrag: 'x' })
+    await repo.update(other.fm.id, { auto_done: 'claude-login' })
+    sup.setHealth({ ok: true, problems: [] })
+    await sup.tick()
+    expect((await repo.get(other.fm.id))!.fm.status).toBe('todo')
+  })
+
+  it('the world button closes a manual card as done (and still approves review tasks)', async () => {
+    const card = await repo.create({ title: 'Pinterest verbinden', station: 'manual', tier: 'cheap', priority: 2, origin: 'system', auftrag: 'x' })
+    await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: '2026-11-06T09:55:00' })
+    sup = await build()
+    await sup.approve(card.fm.id)
+    const done = (await repo.get(card.fm.id))!
+    expect(done.fm.status).toBe('done')
+    expect(done.fm.completed).toBe('2026-11-06T10:00:00')
+    expect(readSection(done.body, 'Protokoll')).toContain('Erledigt durch Julius (Welt)')
+    expect(ticker()).toContain('Pinterest verbinden: erledigt')
   })
 
   it('exposes Fabrik, Kalender (−3/+7 days), Medien and Stimme in the world state', async () => {

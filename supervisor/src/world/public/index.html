@@ -112,6 +112,12 @@
   .post a { color: var(--muted); text-decoration: none; font-size: 10px; }
   .post a:hover { color: var(--accent); }
   .kcounts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .kluecken { font-size: 12px; margin: -2px 0 8px; min-height: 14px; }
+  .kluecken .ok { color: var(--ok); }
+  .kday.gap { border-color: var(--bad); }
+  .sollrow { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .soll { font-size: 10px; line-height: 16px; padding: 0 6px; border-radius: 999px; background: #0b0d11; color: var(--muted); }
+  .soll.full { color: var(--ok); } .soll.gap { color: var(--bad); }
   /* Medien */
   .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
   .media { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 11px; }
@@ -167,6 +173,7 @@
 
   <section class="panel full">
     <div class="zhead"><h2>Kalender – was draußen ist und was kommt</h2><span class="small" id="kstand"></span></div>
+    <div class="kluecken" id="kluecken"></div>
     <div class="kcounts" id="kcounts"></div>
     <div class="kal" id="kal"></div>
   </section>
@@ -225,6 +232,7 @@
   var de = function (n) { return Number(n || 0).toLocaleString('de-DE'); };
   var WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
   var NETZ_LABEL = { instagram: 'Instagram', tiktok: 'TikTok', linkedin: 'LinkedIn', gmb: 'Google-Profil', pinterest: 'Pinterest', facebook: 'Facebook', youtube: 'YouTube' };
+  var NETZ_KURZ = { instagram: 'IG', tiktok: 'TT', linkedin: 'LI', gmb: 'GB', pinterest: 'PI', facebook: 'FB', youtube: 'YT' };
 
   function obsidianLink(file) {
     var vault = state && state.vaultName ? state.vaultName : '';
@@ -323,13 +331,19 @@
     var heute = kal.heute || state.today.byNetwork || {};
     $('kcounts').innerHTML = Object.keys(heute).map(function (n) { var v = heute[n]; return '<span><b>' + esc(NETZ_LABEL[n] || n) + '</b> heute ' + v.used + '/' + v.limit + '</span>'; }).join('');
     $('kstand').innerHTML = (state.today.publogStale ? '<span class="bad">Liste veraltet</span>' : 'Liste von ' + esc(String(state.today.publogSynced || '–').replace('T', ' ').slice(0, 16))) + ' · <a class="small" href="' + obsidianLink('Pläne/Veröffentlicht.md') + '">Liste öffnen</a>';
+    var lk = kal.luecken || { fehlen: 0, text: '' };
+    $('kluecken').innerHTML = (kal.tage || []).length ? (lk.fehlen > 0 ? '<span class="bad">' + lk.fehlen + ' Beiträge fehlen zum Soll</span> <span class="small">(' + esc(lk.text) + ')</span>' : '<span class="ok">Soll erfüllt – keine Lücken in den nächsten 7 Tagen</span>') : '';
     $('kal').innerHTML = (kal.tage || []).map(function (t) {
       var isPast = !t.heute && t.datum < (kal.tage.filter(function (x) { return x.heute; })[0] || {}).datum;
+      var soll = Object.keys(t.soll || {}).filter(function (n) { return t.soll[n].soll > 0; }).map(function (n) {
+        var v = t.soll[n];
+        return '<span class="soll' + (v.fehlen > 0 ? ' gap' : v.ist >= v.soll ? ' full' : '') + '" title="' + esc(NETZ_LABEL[n] || n) + ': Soll ' + v.soll + ', geplant ' + v.ist + (v.inArbeit ? ', in Arbeit ' + v.inArbeit : '') + (v.autolist ? ' (Autolist)' : '') + '">' + esc(NETZ_KURZ[n] || n.slice(0, 2).toUpperCase()) + ' ' + v.ist + '/' + v.soll + (v.inArbeit ? '+' + v.inArbeit : '') + '</span>';
+      }).join('');
       var posts = (t.eintraege || []).map(function (e) {
         return '<div class="post ' + esc(e.netzwerk) + '"><div class="h"><b>' + esc(NETZ_LABEL[e.netzwerk] || e.netzwerk) + '</b><span>' + esc(e.zeit) + ' <span class="chip ' + esc(e.status) + '">' + esc(e.status) + '</span></span></div>' +
           '<div class="x" title="' + esc(e.text) + '">' + esc(e.text) + '</div>' + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + (e.url.indexOf('metricool') >= 0 ? 'in Metricool öffnen' : 'Beitrag öffnen') + '</a>' : '') + '</div>';
       }).join('');
-      return '<div class="kday' + (t.heute ? ' today' : '') + (isPast ? ' past' : '') + '"><div class="d"><span>' + esc(tagLabel(t.datum)) + (t.heute ? ' · heute' : '') + '</span><span class="n">' + (t.eintraege || []).length + '</span></div>' + (posts || '<div class="small">–</div>') + '</div>';
+      return '<div class="kday' + (t.heute ? ' today' : '') + (isPast ? ' past' : '') + (t.fehlen > 0 ? ' gap' : '') + '"><div class="d"><span>' + esc(tagLabel(t.datum)) + (t.heute ? ' · heute' : '') + '</span><span class="n">' + (t.eintraege || []).length + '</span></div>' + (soll ? '<div class="sollrow">' + soll + '</div>' : '') + (posts || '<div class="small">–</div>') + '</div>';
     }).join('') || '<div class="empty">Noch keine Einträge in der Veröffentlichungs-Liste.</div>';
   }
 
@@ -457,9 +471,10 @@
 
     // waiting desk
     var waiting = (state.waiting || []).map(function (w) {
-      return '<div class="card"><div class="t">' + esc(w.title) + '</div><div class="s">' + esc(w.station) + '</div>' +
+      var manual = w.station === 'manual';
+      return '<div class="card"><div class="t">' + esc(w.title) + '</div><div class="s">' + esc(manual ? 'für dich' : w.station) + (w.auto ? ' · hakt sich selbst ab, sobald es erledigt ist' : '') + '</div>' +
         '<div class="actions"><button onclick="window.__open(\'' + esc(w.id) + '\')">Öffnen</button>' +
-        '<button class="primary" onclick="window.__approve(\'' + esc(w.id) + '\')">Freigeben</button></div></div>';
+        '<button class="primary" onclick="window.__approve(\'' + esc(w.id) + '\')">' + (manual ? 'Erledigt' : 'Freigeben') + '</button></div></div>';
     });
     $('waiting').innerHTML = waiting.join('') || '<div class="empty">Nichts – alles läuft.</div>';
 

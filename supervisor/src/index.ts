@@ -113,11 +113,11 @@ async function main(): Promise<void> {
     only: smokeTaskId,
     healthCheck: smoke ? undefined : async () => {
       const p = await runPreflight()
-      return { ok: p.ok, problems: p.problems }
+      return { ok: p.ok, problems: p.problems, logins: p.logins }
     },
   })
   await sup.init()
-  sup.setHealth({ ok: pre.ok, problems: pre.problems })
+  sup.setHealth({ ok: pre.ok, problems: pre.problems, logins: pre.logins })
 
   if (smoke && smokeTaskId) {
     const t = { fm: { id: smokeTaskId } }

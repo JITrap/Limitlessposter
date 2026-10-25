@@ -18,14 +18,21 @@ aktualisiert sich bei jedem Tick von selbst – nichts muss neu geladen werden. 
 - **Kalender**: 3 Tage zurück, 7 Tage voraus. Je Tag die Beiträge aus `Pläne/Veröffentlicht.md` mit
   Netzwerk, Uhrzeit, Status (geplant / veröffentlicht / entwurf / storniert) und Link zu Metricool
   bzw. zum Beitrag; darüber die Tageszähler je Netzwerk gegen das Limit aus `Strategie.md`.
+  Je Tag steht **Ist/Soll je Netzwerk** (Soll = `daily_targets` in `Strategie.md`, z. B. „In 1/8+2“ =
+  1 geplant, 2 in Arbeit, Soll 8); fehlt etwas, ist der Tag rot umrandet und oben steht, wie viele
+  Beiträge zum Soll fehlen. Drafts zählen nicht, Autolist-Netze (LinkedIn, Google) werden nicht als Lücke gezählt.
 - **Büro**: wer gerade woran arbeitet (Station, Modell, seit wann, Tokens).
-- **Wartet auf dich**: Karten mit Knopf **Freigeben**.
+- **Wartet auf dich**: Karten mit Knopf **Freigeben** (Entwürfe) bzw. **Erledigt** (Karten für dich,
+  `station: manual`). Karten, die der Aufseher selbst prüfen kann (Logins, Schlüssel in der `.env`), tragen
+  `auto_done:` und verschwinden von allein, sobald die Bedingung stimmt – z. B. „Einmalig anmelden“, sobald
+  `claude auth status` das claude.ai-Konto und `claude mcp list` Metricool und Shopify als verbunden melden.
 - **Produktion**: Galerie aller Dateien unter `Assets/content/` – neueste zuerst, nach Aufgabe
   gruppiert. Bilder und Slides als Vorschau, Clips und Stimmproben direkt abspielbar. Dahinter steht
   die Route `/media/`, die ausschließlich den Ordner `Assets/` ausliefert – nie Notizen, nie `.env`.
 - **Fabrik** (rechte Spalte): Zustand, Grund, letzter Planer-Anstoß, die nächsten Auslöser
-  (Kennzahlen alle 6 h, Tagesbericht 07:30, Tagesproduktion 05:30, Wochenbericht, Wochenstrategie,
-  Planer) und der Knopf **Planer jetzt** – legt sofort eine Planer-Aufgabe an, außer eine läuft schon.
+  (Kennzahlen alle 6 h, Tagesbericht 07:30, Tagesproduktion 05:30, Lückenfüller 12:00 und 18:00,
+  Wochenbericht, Wochenstrategie, Planer) und der Knopf **Planer jetzt** – legt sofort eine Planer-Aufgabe
+  an, außer eine läuft schon. Es läuft nie mehr als ein Planer zugleich.
 - **Wandtafel**: Budget, Stationen, Tageszähler.
 - **Stimme**: ob die eigene Sprachausgabe installiert ist (Chatterbox auf der Grafikkarte oder Piper
   auf der CPU), welche Stimmen es gibt, letzte Probe zum Anhören. Nicht installiert → Hinweis auf
@@ -53,11 +60,24 @@ meist unter 0,10 $.
 ## Freigeben und zurückschicken
 - Freigeben: in der Welt **Freigeben** klicken oder in der Notiz `needs_approval: false` setzen. Beim
   nächsten Lauf wird veröffentlicht bzw. im Shop geändert.
+- Karten für dich (`station: manual`): in der Welt **Erledigt** klicken oder `status: done` setzen.
 - Zurückschicken: Kanban-Karte von **review** nach **todo** ziehen (oder `status: todo` setzen) und
   `needs_approval: true` lassen – am besten mit einem Absatz „Korrektur: …“ unter `## Auftrag`. Die
   Aufgabe wird neu als Entwurf bearbeitet und landet wieder unter „Wartet auf dich“.
   Ein Drag nach **todo** ist also nie eine Freigabe.
 - Abbrechen: `status: cancelled` (nur du darfst das).
+
+## Soll-Mengen, Lücken und der Wachstumskatalog
+- **Soll je Netzwerk und Tag** steht in `Strategie.md` → `daily_targets` (lesbar: „3 Reels + 1 Karussell + 4 Stories“,
+  „1 Post Mo/Mi/Fr (Autolist)“). Der Aufseher liest daraus Anzahl, Wochentage und ob eine Autolist das Netz bedient.
+  Limits (`daily_post_limits`) müssen mindestens so hoch sein wie das Soll (Instagram 8 = 4 Beiträge + 4 Stories).
+- **Lücken** = Soll − geplant/veröffentlicht − Content-Aufgaben in Arbeit (Titel „Content <Datum> <Netze> …“).
+  Der Planer bekommt die Lücken wörtlich in jeden Auftrag und füllt morgen zuerst, dann Tag für Tag bis 7 Tage voraus;
+  um 12:00 und 18:00 prüft der Aufseher, ob morgen noch etwas fehlt, und stößt den Planer nach.
+- **Wachstumskatalog** `Pläne/Wachstum.md`: alles, was die Marke jenseits des täglichen Contents voranbringt
+  (Shop, Reichweite, Daten, Kunde, Marke, Saison) – mit Station, prüfbarer Bedingung, Abkühlzeit und Wert. Ist der
+  Kalender voll, nimmt der Planer daraus bis zu drei Pakete je Lauf („Wachstum Wxx: …“). Du kannst Zeilen ändern,
+  streichen oder den Wert verschieben; Pakete unter „Braucht erst Werkzeug oder Julius“ warten auf dich.
 
 ## Pause / Not-Aus
 Datei `LimitlessOS/PAUSE` anlegen (Inhalt egal) oder in der Welt **Pause** klicken. Laufende Arbeiter

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { preflight, type PreflightDeps, type PreflightConfig } from '../src/preflight.js'
+import { parseMcpList, preflight, type PreflightDeps, type PreflightConfig } from '../src/preflight.js'
 
 async function setup(opts: { trust?: boolean; vault?: boolean; dotenv?: boolean } = {}): Promise<{ cfg: PreflightConfig; home: string }> {
   const root = await mkdtemp(join(tmpdir(), 'los-pre-'))
@@ -36,7 +36,25 @@ describe('preflight', () => {
   it('is green when everything is in place', async () => {
     const { cfg, home } = await setup()
     const r = await preflight(cfg, deps(home))
-    expect(r).toEqual({ ok: true, problems: [], warnings: [], claudeVersion: '2.1.308', authMethod: 'claude.ai' })
+    expect(r).toEqual({ ok: true, problems: [], warnings: [], claudeVersion: '2.1.308', authMethod: 'claude.ai', logins: { claude: true, mcp: {} } })
+  })
+
+  it('reads the MCP logins from `claude mcp list` and only warns about servers that need a login', async () => {
+    const { cfg, home } = await setup()
+    const exec: PreflightDeps['exec'] = async (c, a) =>
+      a[0] === 'mcp' && a[1] === 'list'
+        ? { code: 0, stdout: 'Checking MCP server health...\n\nmetricool: https://mcp.metricool.com/mcp (HTTP) - ✓ Connected\nshopify: https://shopify.dev/mcp (HTTP) - ⚠ Needs authentication\nprintify: npx x (stdio) - ✗ Failed to connect\n' }
+        : okExec(c, a)
+    const r = await preflight(cfg, deps(home, { exec }))
+    expect(r.ok).toBe(true)
+    expect(r.logins).toEqual({ claude: true, mcp: { metricool: 'connected', shopify: 'auth', printify: 'failed' } })
+    expect(r.warnings).toContainEqual(expect.stringMatching(/shopify: Anmeldung nötig/))
+    expect(r.warnings).toContainEqual(expect.stringMatching(/printify: nicht erreichbar/))
+  })
+
+  it('parses `claude mcp list` tolerantly and never guesses a login it cannot read', () => {
+    expect(parseMcpList('metricool: url (HTTP) - ✓ Connected\nshopify: url - Needs authentication\nodd: something else\n')).toEqual({ metricool: 'connected', shopify: 'auth', odd: 'unknown' })
+    expect(parseMcpList('')).toEqual({})
   })
 
   it('rejects an outdated Claude Code', async () => {

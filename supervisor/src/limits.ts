@@ -42,3 +42,74 @@ export async function strategieLimits(vaultRoot: string): Promise<Limits> {
 export async function loadLimits(configLimits: Limits | undefined, vaultRoot: string): Promise<Limits> {
   return { ...DEFAULT_LIMITS, ...(configLimits ?? {}), ...(vaultRoot ? await strategieLimits(vaultRoot) : {}) }
 }
+
+// --- Soll-Mengen je Netzwerk ("daily_targets") ------------------------------------------
+// Julius schreibt sie lesbar in Strategie.md: `instagram: "3 Reels + 1 Karussell + 4 Stories"`,
+// `linkedin: "1 Post Mo/Mi/Fr (Autolist)"`. Wir lesen daraus Anzahl, Wochentage und ob eine
+// Metricool-Autolist das Netz bedient (dann ist eine Lücke kein Fehler des Systems).
+
+export interface Target {
+  /** Beiträge pro Tag, an den genannten Wochentagen */
+  count: number
+  /** 0 = So … 6 = Sa; null = jeden Tag */
+  days: number[] | null
+  /** Metricool-Autolist füllt das Netz – Lücken werden angezeigt, aber nicht als fehlend gezählt */
+  autolist: boolean
+  text: string
+}
+
+export type Targets = Record<string, Target>
+
+const WEEKDAY_TOKEN: Record<string, number> = { so: 0, mo: 1, di: 2, mi: 3, do: 4, fr: 5, sa: 6 }
+
+export const DEFAULT_TARGETS: Targets = {
+  instagram: parseTarget('3 Reels + 1 Karussell'),
+  tiktok: parseTarget('3 Videos + 1 Fotobeitrag'),
+}
+
+/** `"3 Reels + 1 Karussell + 4 Stories"` → 8 pro Tag; `"1 Post Mo/Mi/Fr (Autolist)"` → 1 an Mo, Mi, Fr. */
+export function parseTarget(raw: unknown): Target {
+  if (typeof raw === 'number' && Number.isFinite(raw)) return { count: Math.max(0, Math.round(raw)), days: null, autolist: false, text: String(raw) }
+  const text = String(raw ?? '').trim()
+  let count = 0
+  for (const m of text.matchAll(/(?:^|[^\d:.,])(\d{1,2})(?=\s*[A-Za-zÄÖÜäöüß×])/g)) count += Number(m[1])
+  const days = new Set<number>()
+  for (const m of text.matchAll(/(?:^|[^A-Za-zÄÖÜäöü])(Mo|Di|Mi|Do|Fr|Sa|So)(?=$|[^A-Za-zÄÖÜäöü])/g)) days.add(WEEKDAY_TOKEN[m[1].toLowerCase()])
+  return { count, days: days.size ? [...days].sort() : null, autolist: /autolist/i.test(text), text }
+}
+
+export function parseTargets(raw: unknown): Targets {
+  const out: Targets = {}
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+      const t = parseTarget(v)
+      if (t.count > 0 || t.text) out[k.toLowerCase()] = t
+    }
+  }
+  return out
+}
+
+/** Soll für ein Netz an einem Datum (0, wenn kein Ziel oder nicht dieser Wochentag). */
+export function targetFor(targets: Targets, network: string, date: Date): number {
+  const t = targets[network.toLowerCase()]
+  if (!t) return 0
+  if (t.days && !t.days.includes(date.getDay())) return 0
+  return t.count
+}
+
+/** Strategie.md → `daily_targets:`; fehlt die Notiz oder der Schlüssel → {} */
+export async function strategieTargets(vaultRoot: string): Promise<Targets> {
+  try {
+    const { data } = parseNote(await readFile(join(vaultRoot, 'Strategie.md'), 'utf8'))
+    return parseTargets(data.daily_targets)
+  } catch {
+    return {}
+  }
+}
+
+/** defaults ← Strategie.md (die Notiz ersetzt die Vorgaben vollständig, sobald sie Ziele nennt) */
+export async function loadTargets(vaultRoot: string): Promise<Targets> {
+  const fromNote = vaultRoot ? await strategieTargets(vaultRoot) : {}
+  return Object.keys(fromNote).length ? fromNote : { ...DEFAULT_TARGETS }
+}
+

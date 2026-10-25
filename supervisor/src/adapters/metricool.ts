@@ -172,7 +172,7 @@ export function postType(post: ScheduledPost, network: string): string {
   const t = (d: unknown): string => String((d as { type?: string } | undefined)?.type ?? '').toLowerCase()
   if (network === 'instagram') return t(post.instagramData) === 'reel' || t(post.instagramData) === 'trial_reel' ? 'reel' : t(post.instagramData) === 'story' ? 'story' : 'post'
   if (network === 'tiktok') return (post.media ?? []).some((m) => /\.(mp4|mov|webm)(\?|$)/i.test(m)) ? 'video' : 'photos'
-  if (network === 'facebook') return t(post.facebookData) || 'post'
+  if (network === 'facebook') return t(post.facebookData) === 'story' ? 'story' : t(post.facebookData) || 'post'
   if (network === 'gmb') return t(post.gmbData) || 'publication'
   return 'post'
 }
@@ -189,14 +189,15 @@ export async function schedule(
   const gate = gateReason(opts.env)
   if (gate) return { code: 4, result: { ok: false, grund: gate } }
   const providers = (post.providers ?? []).map((p) => String(p.network ?? '').toLowerCase()).filter(Boolean)
-  if (!providers.length || !post.text?.trim() || !post.publicationDate?.dateTime) {
-    return { code: 1, result: { ok: false, fehler: 'post.json braucht text, providers und publicationDate' } }
+  const story = providers.every((n) => postType(post, n) === 'story')
+  if (!providers.length || !post.publicationDate?.dateTime || (!post.text?.trim() && !(story && (post.media ?? []).length > 0))) {
+    return { code: 1, result: { ok: false, fehler: 'post.json braucht text, providers und publicationDate (Story: media statt text)' } }
   }
   if (post.draft) return { code: 1, result: { ok: false, fehler: 'Entwürfe nicht über schedule anlegen – draft entfernen oder gar nicht planen' } }
   const log = await loadPublog(opts.vaultRoot)
   const day = String(post.publicationDate.dateTime).slice(0, 10)
   for (const network of providers) {
-    const hit = findDuplicate({ network, text: post.text, media: post.media ?? [] }, log.entries, opts.now)
+    const hit = findDuplicate({ network, text: post.text ?? '', media: post.media ?? [] }, log.entries, opts.now)
     if (hit) {
       return { code: 2, result: { ok: false, dublette: true, netzwerk: network, grund: hit.reason, aehnlichkeit: Number(hit.similarity.toFixed(2)), treffer: { datum: hit.entry.date, status: hit.entry.status, text: hit.entry.text, link: hit.entry.url, quelle: hit.entry.quelle } } }
     }
@@ -213,7 +214,7 @@ export async function schedule(
     date: normalizeDate(String(post.publicationDate!.dateTime)),
     type: postType(post, network),
     status: 'geplant',
-    text: post.text!,
+    text: post.text ?? '',
     media: post.media ?? [],
     url: plannerUrl,
     quelle: opts.quelle,

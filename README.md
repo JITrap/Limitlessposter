@@ -61,3 +61,9 @@ Bild/Video (ComfyUI), Pinterest, E-Mail-Flows, Skill-Schmied für Chat-Importe.
 
 ## Dubletten-Schutz
 Veröffentlicht wird nur über `supervisor/dist/adapters/metricool.js schedule` – geprüft gegen `Pläne/Veröffentlicht.md` und die Tageslimits je Netzwerk. Details: `docs/anleitung/betrieb.md`.
+
+## Die Fabrik läuft immer
+Soll je Netzwerk und Tag steht in `Strategie.md` (`daily_targets`, z. B. Instagram 3 Reels + Karussell + 4 Stories). Der Aufseher
+rechnet daraus den Kalender mit Ist/Soll und Lücken, der Planer füllt sie (05:30, 12:00, 18:00 und sobald die Warteschlange leer
+ist). Ist die Woche voll, arbeitet er den **Wachstumskatalog** `Pläne/Wachstum.md` ab – Shop, Reichweite, Daten, Kunde, Marke,
+Saison – damit immer jemand an der Marke arbeitet.

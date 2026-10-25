@@ -119,11 +119,17 @@ export function findDuplicate(candidate: Candidate, entries: PubEntry[], now: Da
   const head = norm.slice(0, 60)
   const media = new Set((candidate.media ?? []).map(mediaName).filter((m) => m && !GENERIC_MEDIA.test(m)))
   const cutoff = new Date(now.getTime() - windowDays * 86_400_000)
+  // Stories und andere Beiträge ohne Text: nur die Medien-Regel (sonst wäre jede Story die Dublette der vorigen).
+  const textless = words(norm).size === 0
   let best: DuplicateHit | null = null
   for (const e of entries) {
     if (e.network !== candidate.network.toLowerCase() || e.status === 'storniert') continue
     const d = new Date(e.date.length === 16 ? `${e.date}:00` : e.date)
     if (!Number.isNaN(d.getTime()) && d < cutoff) continue
+    if (textless) {
+      for (const m of e.media) if (media.has(m)) return { entry: e, reason: 'medien', similarity: 1 }
+      continue
+    }
     if (e.key && e.key === key) return { entry: e, reason: 'text', similarity: 1 }
     const eNorm = normalizeText(e.text)
     const shorter = Math.min(norm.length, eNorm.length)

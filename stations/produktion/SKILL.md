@@ -30,10 +30,12 @@ Alle Pfade absolut, Befehle vom Repo-Ordner aus. Zielordner: `<Vault>/LimitlessO
 4. **Szene rendern:** DATA als `szene.json` (Felder laut Brief; `poster` = Bild-URL oder lokale Datei), dann
    `node supervisor/dist/adapters/studio.js render-reel --scene <szene> --data @"<…>/szene.json" --out "<…>/clip.mp4" --fps 30 --audio "<…>/stimme.wav" --music "<…>/beat.wav" --subs @"<…>/subs.json" --cover "<…>/cover.jpg" --stills 0,3,6,9`
    Karussell/Fotobeitrag: je Slide `render-still --scene karussell-slide --data @slide-<n>.json --out slide-<n>.png --size 1080x1350`
-   (Slide 1 `art: hero`, dann `raum`/`text` im Wechsel, letzte `art: cta`; 6 Slides).
+   (Slide 1 `art: hero`, dann `raum`/`text` im Wechsel, letzte `art: cta`; 6 Slides). Sagt der Auftrag „Story: ja“, zusätzlich
+   Slide 1 als `story.png` in `--size 1080x1920` (Reels brauchen nichts – das Cover ist die Story).
    Prüfe die JSON-Antwort: `ok: true`, `imagesFailed: 0`, Datei > 100 KB. Sieh dir **mindestens zwei Standbilder** an
    (Read auf die PNG): Hook lesbar, Poster sichtbar, nichts abgeschnitten. Sonst Daten korrigieren und neu rendern.
-5. **Captions und Post-Dateien:** je Netz `caption-<netz>.txt` und `post-<netz>.json` (Format wie im Content-Studio:
+5. **Captions und Post-Dateien:** je Netz aus dem Auftrag (Instagram, TikTok, ggf. Facebook) `caption-<netz>.txt` und
+   `post-<netz>.json` (Facebook: Du-Form erlaubt, voller Produktlink statt „Link in Bio“; Format wie im Content-Studio:
    `text`, `media` = **lokale Pfade** der Dateien, `providers`, `publicationDate` = Slot, `autoPublish: true`,
    `tiktokData.title` = Hook, Instagram `instagramData.type: "REEL"|"POST"`, `mediaAltText`). TikTok: ≤ 150 Zeichen,
    3–5 Hashtags, kein Preis. Instagram: 3–5 Hashtags, Preis nur mit Preiszeile aus `Marke/Produkte.md`.

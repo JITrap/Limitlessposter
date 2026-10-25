@@ -4,14 +4,14 @@ metricool_blog_id: "7412016"
 metricool_timezone: Europe/Berlin
 shop_url: https://limitlessposter.com
 shop_myshopify: gexdm4-2q.myshopify.com
-updated: 2026-10-23
+updated: 2026-10-25
 ---
 # Kanäle
 
 ## Metricool
 - Marke: **LimitlessPoster** · `blogId` 7412016 · Zeitzone Europe/Berlin
-- Verbunden (Stand 23.10.2026): Instagram `@limitlessposter`, TikTok `@limitless.poster`,
-  LinkedIn (Profil Julius), Google-Unternehmensprofil
+- Verbunden (Stand 25.10.2026, `getBrandSettings`): Instagram `@limitlessposter`, TikTok `@limitless.poster`,
+  LinkedIn (Profil Julius), Google-Unternehmensprofil. **Facebook: nicht verbunden** (siehe Rhythmus unten)
 - **Nicht verbunden:** Pinterest – Julius hat ein Pinterest-Konto; es muss noch in Metricool verbunden
   und ggf. in ein Business-Konto umgewandelt werden (Karte liegt auf dem Schreibtisch)
 - Plan: ~50 €/Monat. Kennzahlen kommen über den MCP-Server (`.mcp.json` → `metricool`). **Geplant wird nur noch
@@ -43,11 +43,15 @@ Standard-CTA: „Link im Profil“ / „Link in Bio“ (Instagram/TikTok) · in 
 Kein Linktree – der Profil-Link zeigt direkt auf den Shop (Julius, 23.10.2026).
 Bios (aus der Content-Bank): Instagram „LimitlessPoster | Gerahmte Poster“ – „Gerahmte Poster mit Haltung 🖼️ / Für Wände, die motivieren. / 🚚 Kostenloser Versand in Deutschland / ⬇️ Zum Shop“ · TikTok „Gerahmte Poster mit Haltung 🖼️ Kostenloser Versand in Deutschland“.
 
-## Veröffentlichungs-Rhythmus (Standard)
-- TikTok: 1 Reel/Tag (Prozess, Setup, Motivation-Moment), Untertitel immer
-- Instagram: 1 Post/Tag – Reel (gleicher Clip, eigene Caption) oder Karussell, Story optional
-- LinkedIn: Autolist läuft (alle 2–3 Tage); zusätzlich 1×/Woche Gründer-Post, nie am Autolist-Tag
-- Google-Unternehmensprofil: Autolist läuft; zusätzlich nur bei Produkt-/Angebotsnews
+## Veröffentlichungs-Rhythmus (Standard, seit 25.10.2026 wie in der alten Automatik)
+Soll je Tag steht in [[Strategie]] (`daily_targets`), Slots in [[Pläne/Produktion]]:
+- Instagram: 3 Reels + 1 Karussell + 4 Stories (je eine 15–45 Minuten nach dem Beitrag)
+- TikTok: 3 Videos (dieselben Reels, eigene Caption, kein Preis) + 1 Fotobeitrag (das Karussell in 9:16)
+- Facebook: 3 Reels + 1 Post + 4 Stories – dieselben Dateien wie Instagram mit eigenem Text und Produktlink,
+  **nur solange Facebook hier als verbunden steht** (Stand 25.10.2026: nicht in den Metricool-Brand-Einstellungen,
+  obwohl am 19.10. noch Facebook-Posts rausgingen – Julius prüft die Verbindung in Metricool)
+- LinkedIn: Autolist Mo/Mi/Fr; zusätzlich 1×/Woche Gründer-Post, nie am Autolist-Tag
+- Google-Unternehmensprofil: Autolist Di/Do/Sa; zusätzlich nur bei Produkt-/Angebotsnews
 
 ## Alte Automatik (abgeschaltet am 23.10.2026)
 Vor Limitless OS lief eine eigene Kette: Wochenplanung (Cloud, Sa 17:50), Tagesproduktion (PC, 06:00),

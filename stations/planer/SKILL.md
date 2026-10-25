@@ -10,7 +10,8 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
 1. `Status.md` – Budget, verbundene Stationen (⛔ = nicht verbunden), heutige Zähler.
 2. `Strategie.md` – Ziel, **Wertleiter**, Autopilot-Stufen, Grenzen.
 3. `Marke/Kern.md`, `Marke/Produkte.md`, `Marke/Kanäle.md`.
-4. `Pläne/Content-Bank.md` (Julius' fertige Karten – Vorrang), `Pläne/Content-Kalender.md`, `Pläne/Wochenplan.md`.
+4. `Pläne/Content-Bank.md` (Julius' fertige Karten – Vorrang), `Pläne/Content-Kalender.md`, `Pläne/Wochenplan.md`,
+   `Pläne/Produktion.md` (Slots, Formate, Stories), `Pläne/Wachstum.md` (Wachstumskatalog für alles jenseits des Contents).
 5. Offene Aufgaben: `Aufgaben/*.md` mit `status: todo|doing|review|blocked` (per Glob + Frontmatter).
 6. Kennzahlen, wenn verfügbar: Metricool `getAnalyticsDataByMetrics` (letzte 7 und 28 Tage,
    Reichweite/Interaktionen je Netzwerk) und Bestellungen über `mcp__shopify__list-orders` (`first: 50`,
@@ -18,7 +19,9 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
    Schlägt ein Werkzeug fehl, arbeite ohne die Zahl weiter und notiere es unter *Offene Fragen*.
 
 ## Vorgehen
-1. Zähle offene Aufgaben (ohne `station: manual`). Ziel: **5–15 offene Aufgaben**, nie mehr als 15.
+1. Zähle offene Aufgaben (ohne `station: manual`). Obergrenze: `max_open_tasks` in `Strategie.md` (Standard 40; ein voller
+   Produktionstag sind 16 Aufgaben). Der Auftrag nennt die **Lücken** des Kalenders (Ist/Soll je Netz, heute + 6 Tage) –
+   das ist deine erste Pflicht: Lücken schließen, Tag für Tag, morgen zuerst.
 2. Gehe die **Wertleiter** in `Strategie.md` von oben nach unten durch. Für jede Sprosse:
    Bedingung prüfen → wenn erfüllt und Abkühlzeit abgelaufen → Aufgabe(n) anlegen.
    Die Abkühlzeit prüfst du über das `created`-Datum der letzten Aufgabe gleichen Typs (Glob).
@@ -35,18 +38,23 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
    <Datum>` in die Content-Bank-Tabelle ein. Erst wenn keine `offen`-Karte mehr passt: eigene Posts –
    pro Tag ein Reel **oder** ein Karussell (Mix etwa 60/40), nie Einzelbilder, zuerst `studio` (Assets),
    dann `content` mit `parent` = Studio-Aufgabe.
-   **Tagesproduktion (jeder Lauf, für morgen):** `Pläne/Produktion.md` nennt Tagesziel je Netz, Slots und Format-Rotation
-   (Briefs: `stations/produktion/formate/*.md`, nur Dateinamen und erste Zeile lesen). Für jeden Slot von morgen, der noch keine
-   Aufgabe hat (Glob `Aufgaben/*.md`, Titel beginnt mit „Produktion <Datum> …“, Status todo|doing|review|done) und keine
-   `offen`-Karte der Content-Bank bekommt, legst du **eine** `produktion`-Aufgabe an: Titel
-   „Produktion <YYYY-MM-DD> <Netz(e)> <HH:MM>: <Format> – <Motiv>“, `priority: 1`, `tier: standard`, `needs_approval: false`,
-   `due` = morgen. Ein Reel-Slot deckt Instagram **und** TikTok ab (eine Produktion, zwei Captions); Karussell + TikTok-Fotobeitrag
-   ebenso. Im Auftrag: Netze, Slot-Zeiten, Format-Kürzel und Brief-Pfad, Motiv (Handle, Shop-Titel, Bild-URL aus
-   `Marke/Produkte.md`), Rahmenfarbe, Hook-Idee, Sprechtext-Vorgabe (1–3 Sätze), Preis ja/nein. Dazu je Produktion **eine**
-   `content`-Aufgabe mit `parent` = Produktions-ID, Titel „Content <Datum> <Netz(e)> <HH:MM>: <Format> – <Motiv>“,
-   `needs_approval` nach Autopilot von content, `due` = morgen. Rotation: kein Format doppelt am Tag, kein Motiv zweimal in
-   7 Tagen (`Pläne/Veröffentlicht.md` + offene Aufgaben), Themen abwechseln. Nie mehr anlegen, als `posts.js today --day <morgen>`
-   an Limit frei zeigt. Ist `produktion` in `Status.md` ⛔, fällt der Schritt aus (Punkt 4).
+   **Tagesproduktion (jeder Lauf):** Soll je Netz und Tag steht in `Strategie.md` (`daily_targets`: Instagram 3 Reels + Karussell
+   + 4 Stories, TikTok 3 Videos + Fotobeitrag, Facebook als Zweitverwertung nur, wenn `Marke/Kanäle.md` es als verbunden führt;
+   LinkedIn/Google macht die Autolist). Slots und Format-Rotation: `Pläne/Produktion.md` (Briefs `stations/produktion/formate/*.md`,
+   nur Dateinamen und erste Zeile lesen). Arbeite die Lücken aus dem Auftrag ab – **morgen vollständig, dann Tag für Tag bis
+   7 Tage voraus**, bis `max_open_tasks` erreicht ist. Für jeden Slot ohne Aufgabe (Glob `Aufgaben/*.md`, Titel beginnt mit
+   „Produktion <Datum>“ oder „Content <Datum>“, Status todo|doing|review|done) und ohne passende `offen`-Karte der Content-Bank
+   legst du **eine** `produktion`-Aufgabe an: Titel „Produktion <YYYY-MM-DD> <Netze> <HH:MM>: <Format> – <Motiv>“, `priority: 1`,
+   `tier: standard`, `needs_approval: false`, `due` = der Tag. Ein Reel-Slot deckt Instagram **+** TikTok (+ Facebook) ab – eine
+   Produktion, je Netz eine Caption; Karussell + TikTok-Fotobeitrag (+ Facebook-Post) ebenso. Im Auftrag: Netze mit allen
+   Slot-Zeiten, Format-Kürzel und Brief-Pfad, Motiv (Handle, Shop-Titel, Bild-URL aus `Marke/Produkte.md`), Rahmenfarbe,
+   Hook-Idee, Sprechtext-Vorgabe (1–3 Sätze), Preis ja/nein, Story ja/nein (`stories` in `Pläne/Produktion.md`). Dazu je Produktion
+   **eine** `content`-Aufgabe mit `parent` = Produktions-ID, Titel **„Content <YYYY-MM-DD> <Netze mit +> <HH:MM>: <Format> – <Motiv>“**
+   (z. B. „Content 2026-10-27 Instagram+TikTok 12:30: T01 – Tiger“ – der Aufseher liest Datum und Netze aus dem Titel, um Lücken
+   zu zählen), `needs_approval` nach Autopilot von content, `due` = der Tag; die Stories gehören zur Content-Aufgabe, keine eigene.
+   Rotation: kein Format doppelt am Tag, kein Motiv zweimal in 7 Tagen (`Pläne/Veröffentlicht.md` + offene Aufgaben), Themen
+   abwechseln, Abend-Reel = stärkstes Motiv. Nie mehr anlegen, als `posts.js today --day <Datum>` an Limit frei zeigt.
+   Ist `produktion` in `Status.md` ⛔, fällt der Schritt aus (Punkt 4).
 4. Für Stationen, die in `Status.md` mit ⛔ stehen, legst du **keine** Aufgaben an. Stattdessen
    eine Aufgabe `station: manual` für Julius mit klarer Anleitung – pro Ursache nur einmal
    (prüfe, ob es schon eine offene manual-Aufgabe mit demselben Titel gibt).
@@ -59,6 +67,11 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
 7. Bei Aufgabe „Wochenstrategie“ (Mittwoch): bewerte Kennzahlen der Woche, passe Content-Mix
    und Reihenfolge der Wertleiter in `Strategie.md` an und begründe jede Änderung dort unter
    „Änderungsprotokoll“.
+8. **Wachstumskatalog (jeder Lauf, nach der Tagesproduktion):** Sind die Lücken geschlossen oder alle Produktionen angelegt und
+   ist noch Platz unter `max_open_tasks`, nimm aus `Pläne/Wachstum.md` höchstens **3 Pakete** je Lauf: Bedingung erfüllt,
+   Abkühlzeit abgelaufen (`created` der letzten Aufgabe mit gleichem „Wxx“ im Titel), höchster Wert zuerst, Station nicht ⛔.
+   Titel „Wachstum Wxx: <Paket>“, `tags: [task, wachstum]`, Auftrag wörtlich aus dem Katalog plus Motiv/Datum, Stufe laut Katalog.
+   So steht die Fabrik nie still – sie arbeitet an Shop, Reichweite, Daten, Kunde und Marke, nicht nur am Content.
 
 ## Ausgabeformat
 Neue Aufgaben sind Dateien `Aufgaben/<id>.md` mit `id` = `YYYYMMDD-HHmmss-<slug>` (Slug
@@ -116,13 +129,13 @@ alles, was nur er entscheiden kann.
 
 ## Qualitätsregeln
 - Jeder Auftrag ist so konkret, dass ein Arbeiter ohne Rückfrage loslegen kann.
-- Keine Doppelungen: prüfe Titel und Thema gegen offene und erledigte Aufgaben der letzten 14 Tage.
+- Keine Doppelungen: prüfe Titel und Thema gegen offene und erledigte Aufgaben der letzten 14 Tage; nie zwei Aufgaben für denselben Slot.
 - Formate nur Reel oder Karussell; Themen aus Markenkern und Kennzahlen, nicht aus Bauchgefühl.
 - Wenn Kennzahlen zeigen, dass ein Format > 1,5× mehr Reichweite bringt, erhöhe seinen Anteil.
 - Schreibe Deutsch, kurz, ohne Floskeln.
 
 ## Verbote
 - Keine Aufgaben für ⛔-Stationen. Keine Aufgaben, die Konten, Abos oder Zahlungen anlegen.
-- Nie mehr als 15 offene Aufgaben. Nie `status`, `attempts`, `cost_usd` fremder Aufgaben ändern.
+- Nie mehr als `max_open_tasks` offene Aufgaben. Nie `status`, `attempts`, `cost_usd` fremder Aufgaben ändern.
 - Nichts veröffentlichen, nichts im Shop ändern – das tun andere Stationen nach Freigabe.
 - Keine Schlüssel, Tokens oder persönlichen Daten in Notizen.

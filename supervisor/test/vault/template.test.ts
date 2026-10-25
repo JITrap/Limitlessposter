@@ -79,8 +79,28 @@ describe('vault template', () => {
 
   it('Strategie.md carries per-network limits', async () => {
     const { data } = parseNote(await readFile(join(root, 'Strategie.md'), 'utf8'))
-    expect((data.daily_post_limits as Record<string, number>).instagram).toBe(4)
+    expect((data.daily_post_limits as Record<string, number>).instagram).toBe(8)
     expect((data.daily_post_limits as Record<string, number>).tiktok).toBe(4)
+    expect((data.daily_post_limits as Record<string, number>).facebook).toBe(8)
+    const targets = data.daily_targets as Record<string, string>
+    expect(targets.instagram).toBe('3 Reels + 1 Karussell + 4 Stories')
+    expect(targets.tiktok).toBe('3 Videos + 1 Fotobeitrag')
+    expect(targets.facebook).toMatch(/3 Reels \+ 1 Post \+ 4 Stories/)
+    expect(data.max_open_tasks).toBe(40)
+  })
+
+  it('manual cards that the supervisor can verify carry auto_done conditions', async () => {
+    const logins = parseNote(await readFile(join(root, 'Aufgaben/20261023-020000-logins-claude-metricool-shopify.md'), 'utf8'))
+    expect(logins.data.auto_done).toBe('claude-login, mcp:metricool, mcp:shopify')
+    const printify = parseNote(await readFile(join(root, 'Aufgaben/20261023-020900-printify-api-token-anlegen.md'), 'utf8'))
+    expect(printify.data.auto_done).toBe('env:PRINTIFY_API_TOKEN')
+  })
+
+  it('Produktion.md mirrors the slot table of the old automation including Facebook', async () => {
+    const prod = await readFile(join(root, 'Pläne/Produktion.md'), 'utf8')
+    expect(prod).toContain('| Mo | 12:30 · 16:30 · 19:30 | 07:30 | 12:30 · 16:30 · 20:00 | 07:30 | 12:00 · 15:30 · 18:30 | 09:00 | 08:15 | – |')
+    expect(prod).toContain('| So | 10:00 · 14:00 · 21:00 | 17:30 | 10:00 · 14:00 · 20:00 | 17:00 | 10:30 · 14:30 · 20:30 | 17:00 | – | – |')
+    expect(parseNote(prod).data.stories).toBe('ja')
   })
 
   it('Home.md embeds Status and the dashboard views and links to the world', async () => {
