@@ -30,6 +30,27 @@ cooldown_hours: 6
 outputs_dir: Assets/shop
 `
 
+describe('checkAvailability with MCP login state', () => {
+  const st: Station = {
+    name: 'kennzahlen', display: 'Zentrale', description: '', tier: 'cheap', maxTurns: 10, timeoutMin: 5, tools: [], context: [],
+    requires: { mcp: ['metricool'], env: [], services: [], any: [] }, autopilot: 2, cooldownHours: 0, outputsDir: null, dir: '/x', skillPath: '/x/SKILL.md',
+  }
+  const probes = (state?: string) => ({ http: async () => true, mcpConfigured: async () => true, mcpState: () => state })
+
+  it('turns a configured server that still needs a login or approval into a clear ⛔ reason', async () => {
+    expect(await checkAvailability(st, {}, probes('auth'))).toEqual({ available: false, reason: 'MCP-Server metricool: Anmeldung nötig (`claude mcp login metricool`)' })
+    expect(await checkAvailability(st, {}, probes('approval'))).toEqual({ available: false, reason: 'MCP-Server metricool: Projekt-Server noch nicht freigegeben (`claude` im Repo-Ordner starten)' })
+    expect(await checkAvailability(st, {}, probes('failed'))).toEqual({ available: false, reason: 'MCP-Server metricool nicht erreichbar (`claude mcp list`)' })
+  })
+
+  it('keeps the station available when the login state is connected or unknown', async () => {
+    expect(await checkAvailability(st, {}, probes('connected'))).toEqual({ available: true, reason: null })
+    expect(await checkAvailability(st, {}, probes('unknown'))).toEqual({ available: true, reason: null })
+    expect(await checkAvailability(st, {}, probes(undefined))).toEqual({ available: true, reason: null })
+    expect(await checkAvailability(st, {}, { http: async () => true, mcpConfigured: async () => true })).toEqual({ available: true, reason: null })
+  })
+})
+
 describe('loadStations', () => {
   let repo: string
 

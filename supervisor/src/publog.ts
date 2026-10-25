@@ -86,6 +86,8 @@ export interface Candidate {
   network: string
   text: string
   media?: string[]
+  /** reel | post | video | photos | story … – Stories vergleichen sich nur mit Stories (das Cover gehört auch zum Reel) */
+  type?: string
 }
 
 export interface DuplicateHit {
@@ -121,13 +123,16 @@ export function findDuplicate(candidate: Candidate, entries: PubEntry[], now: Da
   const cutoff = new Date(now.getTime() - windowDays * 86_400_000)
   // Stories und andere Beiträge ohne Text: nur die Medien-Regel (sonst wäre jede Story die Dublette der vorigen).
   const textless = words(norm).size === 0
+  // Die Medien-Regel gilt nur unter Gleichartigen: die Story zum Reel nutzt dessen Cover und ist keine Dublette des Reels.
+  const storyCand = (candidate.type ?? '').toLowerCase() === 'story'
   let best: DuplicateHit | null = null
   for (const e of entries) {
     if (e.network !== candidate.network.toLowerCase() || e.status === 'storniert') continue
     const d = new Date(e.date.length === 16 ? `${e.date}:00` : e.date)
     if (!Number.isNaN(d.getTime()) && d < cutoff) continue
+    const gleicheArt = (e.type === 'story') === storyCand
     if (textless) {
-      for (const m of e.media) if (media.has(m)) return { entry: e, reason: 'medien', similarity: 1 }
+      if (gleicheArt) for (const m of e.media) if (media.has(m)) return { entry: e, reason: 'medien', similarity: 1 }
       continue
     }
     if (e.key && e.key === key) return { entry: e, reason: 'text', similarity: 1 }
@@ -139,7 +144,7 @@ export function findDuplicate(candidate: Candidate, entries: PubEntry[], now: Da
     if (sim >= 0.6 && (!best || sim > best.similarity)) best = { entry: e, reason: 'aehnlich', similarity: sim }
     const cont = containment(norm, eNorm)
     if (cont >= 0.8 && Math.min(words(norm).size, words(eNorm).size) >= 5 && (!best || cont > best.similarity)) best = { entry: e, reason: 'enthalten', similarity: cont }
-    for (const m of e.media) if (media.has(m)) return { entry: e, reason: 'medien', similarity: 1 }
+    if (gleicheArt) for (const m of e.media) if (media.has(m)) return { entry: e, reason: 'medien', similarity: 1 }
   }
   return best
 }
@@ -281,10 +286,15 @@ export function mergeEntries(log: Publog, inputs: PubInput[]): { log: Publog; ad
   const entries = [...log.entries]
   let added = 0
   let updated = 0
+  const EMPTY_KEY = textKey('')
   for (const raw of inputs) {
     const e = toEntry(raw)
     if (!e.network || !e.date) continue
-    const idx = entries.findIndex((x) => (e.url && x.url === e.url) || (x.network === e.network && x.key === e.key && x.date.slice(0, 10) === e.date.slice(0, 10)))
+    // Textlose Einträge (Stories) teilen denselben Text-Schlüssel – sie werden nur über die URL oder über
+    // Netz + Tag + Typ + dieselben Dateien zusammengeführt, nie über den leeren Text.
+    const sameDay = (x: PubEntry): boolean => x.network === e.network && x.date.slice(0, 10) === e.date.slice(0, 10)
+    const sameMedia = (x: PubEntry): boolean => x.media.length > 0 && x.media.length === e.media.length && x.media.every((m) => e.media.includes(m))
+    const idx = entries.findIndex((x) => (e.url && x.url === e.url) || (sameDay(x) && (e.key !== EMPTY_KEY ? x.key === e.key : x.key === EMPTY_KEY && x.type === e.type && sameMedia(x))))
     if (idx >= 0) {
       const old = entries[idx]
       entries[idx] = { ...old, status: e.status, url: e.url || old.url, quelle: e.quelle || old.quelle, media: e.media.length ? e.media : old.media, type: e.type || old.type }

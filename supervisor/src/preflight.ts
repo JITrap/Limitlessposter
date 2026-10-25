@@ -15,12 +15,15 @@ export interface PreflightConfig {
 }
 
 export interface PreflightDeps {
-  exec: (cmd: string, args: string[]) => Promise<{ code: number; stdout: string }>
+  exec: (cmd: string, args: string[], opts?: { timeoutMs?: number }) => Promise<{ code: number; stdout: string }>
   env: NodeJS.ProcessEnv
   homeDir: string
 }
 
-export type McpState = 'connected' | 'auth' | 'failed' | 'unknown'
+/** `claude mcp list` prüft jeden Server live – bei vielen Servern dauert das deutlich länger als 20 s. */
+export const MCP_LIST_TIMEOUT_MS = 90_000
+
+export type McpState = 'connected' | 'auth' | 'approval' | 'failed' | 'unknown'
 
 export interface Logins {
   /** mit dem claude.ai-Konto angemeldet */
@@ -41,23 +44,41 @@ export interface PreflightResult {
 
 /**
  * `claude mcp list` → Zustand je Server. Zeilen wie
- * `metricool: https://… (HTTP) - ✓ Connected` · `shopify: … - ⚠ Needs authentication` · `x: … - ✗ Failed to connect`.
- * Unbekannte Formulierungen bleiben `unknown` – daraus folgt nie ein automatisches Abhaken.
+ * `metricool: https://… (HTTP) - ✓ Connected` · `shopify: … - ⚠ Needs authentication` · `x: … - ✗ Failed to connect`
+ * · `metricool: … - ⏸ Pending approval (run \`claude\` to approve)`. Der Zustand steht hinter dem letzten „ - “;
+ * unbekannte Formulierungen bleiben `unknown` – daraus folgt nie ein automatisches Abhaken.
  */
-export function parseMcpList(stdout: string): Record<string, McpState> {
-  const out: Record<string, McpState> = {}
-  for (const raw of stdout.split(/\r?\n/)) {
-    const line = raw.trim()
+export function parseMcpListDetail(stdout: string): Record<string, { state: McpState; raw: string }> {
+  const out: Record<string, { state: McpState; raw: string }> = {}
+  for (const line0 of stdout.split(/\r?\n/)) {
+    const line = line0.trim()
     const m = /^([A-Za-z0-9_.-]+):\s+(.*)$/.exec(line)
     if (!m || /^checking/i.test(line)) continue
-    const rest = m[2].toLowerCase()
+    const parts = m[2].split(' - ')
+    const status = (parts.length > 1 ? parts[parts.length - 1] : m[2]).trim()
+    const rest = status.toLowerCase()
     let state: McpState = 'unknown'
-    if (/needs auth|authenticat|anmeld/.test(rest)) state = 'auth'
-    else if (/fail|error|fehl|not connected|disconnected/.test(rest)) state = 'failed'
+    if (/pending approval|freigabe/.test(rest)) state = 'approval'
+    else if (/needs auth|authenticat|anmeld/.test(rest)) state = 'auth'
+    else if (/fail|error|fehl|not connected|disconnected|not configured/.test(rest)) state = 'failed'
     else if (/connected|verbunden|✓|✔/.test(rest)) state = 'connected'
-    out[m[1].toLowerCase()] = state
+    out[m[1].toLowerCase()] = { state, raw: status }
   }
   return out
+}
+
+export function parseMcpList(stdout: string): Record<string, McpState> {
+  return Object.fromEntries(Object.entries(parseMcpListDetail(stdout)).map(([k, v]) => [k, v.state]))
+}
+
+/** Server aus dem Projekt (`.mcp.json`), die Arbeiter nutzen sollen. */
+async function projectMcpServers(repoRoot: string): Promise<string[]> {
+  try {
+    const raw = JSON.parse(stripBom(await readFile(join(repoRoot, '.mcp.json'), 'utf8'))) as { mcpServers?: Record<string, unknown> }
+    return Object.keys(raw.mcpServers ?? {}).map((n) => n.toLowerCase())
+  } catch {
+    return []
+  }
 }
 
 export const MIN_CLAUDE_VERSION = [2, 1, 302] as const
@@ -120,17 +141,24 @@ export async function preflight(cfg: PreflightConfig, deps: PreflightDeps): Prom
       }
     }
 
-    // MCP-Logins (Metricool, Shopify): nur Hinweis, kein Stopp – Stationen ohne Anbindung bleiben einfach ⛔.
+    // MCP-Logins (Metricool, Shopify): nur Hinweis, kein Stopp. Der Aufseher gibt den Zustand an die
+    // Stations-Verfügbarkeit weiter (Anmeldung nötig → Station ⛔) und hakt Login-Karten damit selbst ab.
     if (claudeVersion) {
+      const project = await projectMcpServers(cfg.repoRoot)
       try {
-        const l = await deps.exec(bin, ['mcp', 'list'])
-        if (l.code === 0) logins.mcp = parseMcpList(l.stdout)
-        for (const [name, state] of Object.entries(logins.mcp)) {
+        const l = await deps.exec(bin, ['mcp', 'list'], { timeoutMs: MCP_LIST_TIMEOUT_MS })
+        const detail = l.code === 0 ? parseMcpListDetail(l.stdout) : {}
+        if (l.code !== 0) warnings.push(`\`claude mcp list\` hat nicht geantwortet (Code ${l.code}) – Login-Stand der MCP-Server unbekannt`)
+        logins.mcp = Object.fromEntries(Object.entries(detail).map(([k, v]) => [k, v.state]))
+        for (const [name, { state, raw }] of Object.entries(detail)) {
           if (state === 'auth') warnings.push(`MCP-Server ${name}: Anmeldung nötig – \`claude mcp login ${name}\` (oder \`claude\` → /mcp)`)
-          else if (state === 'failed') warnings.push(`MCP-Server ${name}: nicht erreichbar laut \`claude mcp list\``)
+          else if (state === 'approval') warnings.push(`MCP-Server ${name}: Projekt-Server noch nicht freigegeben – \`claude\` im Repo-Ordner starten und den Server freigeben (oder enableAllProjectMcpServers in den Einstellungen)`)
+          else if (state === 'failed') warnings.push(`MCP-Server ${name}: nicht erreichbar laut \`claude mcp list\` (${raw})`)
+          else if (state === 'unknown' && project.includes(name)) warnings.push(`MCP-Server ${name}: Zustand unklar laut \`claude mcp list\` (${raw})`)
         }
+        if (l.code === 0) for (const name of project) if (!detail[name]) warnings.push(`MCP-Server ${name} steht in .mcp.json, fehlt aber in \`claude mcp list\` – Projekt-Server freigeben (\`claude\` im Repo-Ordner starten)`)
       } catch {
-        // `claude mcp list` fehlt oder hängt – dann bleibt der Login-Stand unbekannt
+        warnings.push('`claude mcp list` schlug fehl – Login-Stand der MCP-Server unbekannt')
       }
     }
   }

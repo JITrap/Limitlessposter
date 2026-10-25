@@ -51,8 +51,8 @@ Soll je Tag steht in [[Strategie]] (`daily_targets`), Slots in [[Pläne/Produkti
 - Facebook: 3 Reels + 1 Post + 4 Stories – dieselben Dateien wie Instagram mit eigenem Text und Produktlink,
   **nur solange Facebook hier als verbunden steht** (Stand 25.10.2026: nicht in den Metricool-Brand-Einstellungen,
   obwohl am 19.10. noch Facebook-Posts rausgingen – Julius prüft die Verbindung in Metricool)
-- LinkedIn: Autolist Mo/Mi/Fr; zusätzlich 1×/Woche Gründer-Post, nie am Autolist-Tag
-- Google-Unternehmensprofil: Autolist Di/Do/Sa; zusätzlich nur bei Produkt-/Angebotsnews
+- LinkedIn: Autolist Mo/Mi/Fr 11:05; zusätzlich 1×/Woche Gründer-Post, nie am Autolist-Tag
+- Google-Unternehmensprofil: dieselbe Autolist Mo/Mi/Fr 11:05; zusätzlich nur bei Produkt-/Angebotsnews
 
 ## Alte Automatik (abgeschaltet am 23.10.2026)
 Vor Limitless OS lief eine eigene Kette: Wochenplanung (Cloud, Sa 17:50), Tagesproduktion (PC, 06:00),

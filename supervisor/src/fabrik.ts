@@ -92,7 +92,11 @@ export function naechsteAusloeser(now: Date, o: { lastPlannerCreated: string | n
   out.push({ name: 'Tagesbericht', wann: stamp(nextDaily(now, 7, 30)) })
   out.push({ name: 'Wochenbericht', wann: stamp(nextWeekly(now, 4, 17, 0)) })
   out.push({ name: 'Wochenstrategie', wann: stamp(nextWeekly(now, 3, 20, 0)) })
-  if (o.produktionGeladen) out.push({ name: 'Tagesproduktion planen', wann: stamp(nextDaily(now, 5, 30)) })
+  if (o.produktionGeladen) {
+    out.push({ name: 'Tagesproduktion planen', wann: stamp(nextDaily(now, 5, 30)) })
+    out.push({ name: 'Lückenfüller (morgen unter Soll?)', wann: stamp(nextDaily(now, 12, 0)) })
+    out.push({ name: 'Lückenfüller (morgen unter Soll?)', wann: stamp(nextDaily(now, 18, 0)) })
+  }
   const last = o.lastPlannerCreated ? new Date(o.lastPlannerCreated).getTime() : null
   const interval = o.leer && !o.backoff ? PLANER_LEER_INTERVAL_MS : PLANER_INTERVAL_MS
   const planer = last === null || Number.isNaN(last) ? now : new Date(Math.max(now.getTime(), last + interval))

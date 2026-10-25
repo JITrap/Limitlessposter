@@ -17,7 +17,7 @@ daily_targets:
   tiktok: "3 Videos + 1 Fotobeitrag"
   facebook: "3 Reels + 1 Post + 4 Stories (Zweitverwertung von Instagram; nur wenn in Metricool verbunden)"
   linkedin: "1 Post Mo/Mi/Fr (Autolist)"
-  gmb: "1 Beitrag Di/Do/Sa (Autolist)"
+  gmb: "1 Beitrag Mo/Mi/Fr (Autolist, zusammen mit LinkedIn 11:05)"
 max_open_tasks: 40
 reserve_wachstum: 6
 autopilot:
@@ -119,5 +119,5 @@ Logo, Antworten auf Kundennachrichten. Das System legt dafür Karten auf deinen 
 - 2026-10-23 – System: Ziel und Wertleiter an das echte Sortiment angepasst (125 Produkte, 0 Bestellungen, TikTok vor Instagram); Sprosse 11 „Testbestellung“ ergänzt; Checkliste um Logins und Rechtliches erweitert.
 - 2026-10-23 – Julius: Produktfakten bestätigt (14 Tage Widerruf, Druck USA, Versand nur DE), Zielgruppe und Tonfall festgelegt, alle Motive freigegeben; Content-Bank mit 41 Karten als Sprosse 1 übernommen.
 - 2026-10-23 – Julius: alte Automatik abgeschaltet (alles läuft über Limitless OS), Content-Bank ohne Einzelfreigabe (Autopilot content = 2, Tageslimit 3 bleibt), Printify-Token eingetragen. System: erste drei Content-Bank-Karten (p01, r01 → 24.10., s01 → 25.10.) als Aufgaben angelegt.
-- 2026-10-25 – Julius: „3 Posts pro Tag auf Instagram, nicht 3 insgesamt – die alte Planung übernehmen.“ System: Soll-Mengen wie in der alten Automatik (Instagram 3 Reels + Karussell + 4 Stories, TikTok 3 Videos + Fotobeitrag, Facebook als Zweitverwertung, LinkedIn Mo/Mi/Fr, Google Di/Do/Sa), Limits angehoben (Instagram 8, Facebook 8), 40 offene Aufgaben, Lückenfüller 12:00/18:00, Kalender zeigt Ist/Soll, Wachstumskatalog als Sprosse 12.
+- 2026-10-25 – Julius: „3 Posts pro Tag auf Instagram, nicht 3 insgesamt – die alte Planung übernehmen.“ System: Soll-Mengen wie in der alten Automatik (Instagram 3 Reels + Karussell + 4 Stories, TikTok 3 Videos + Fotobeitrag, Facebook als Zweitverwertung, LinkedIn und Google über die Autolist Mo/Mi/Fr), Limits angehoben (Instagram 8, Facebook 8), 40 offene Aufgaben, Lückenfüller 12:00/18:00, Kalender zeigt Ist/Soll, Wachstumskatalog als Sprosse 12.
 - 2026-10-24 – System: Dubletten-Schutz nach dem doppelten Willkommens-Post (p01 und r01 waren am 12.10. schon draußen). Veröffentlichungs-Liste, Metricool-Adapter als einziger Weg zum Planen, Tageslimits je Netzwerk (Instagram 4, TikTok 4), fünf pausierte Entwürfe in Metricool.

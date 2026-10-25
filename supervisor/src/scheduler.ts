@@ -146,6 +146,7 @@ export class Supervisor {
   private medien: MedienCache | null = null
   private stimme: StimmeCache | null = null
   private health: SupervisorState['health'] = { ok: true, problems: [] }
+  private healthBusy = false
   private kennzahlen: KennzahlenCache | null = null
   private printify: PrintifySummary | null = null
   private printifyAt = 0
@@ -209,12 +210,22 @@ export class Supervisor {
   private async tickInner(): Promise<void> {
     const now = this.deps.clock()
     this.ticks++
-    if (this.deps.healthCheck && this.ticks % HEALTH_EVERY_TICKS === 1) {
-      try {
-        this.health = await this.deps.healthCheck()
-      } catch (err) {
-        this.health = { ok: false, problems: [`Gesundheitsprüfung fehlgeschlagen: ${err instanceof Error ? err.message : String(err)}`] }
-      }
+    if (this.deps.healthCheck && this.ticks % HEALTH_EVERY_TICKS === 1 && !this.healthBusy) {
+      // `claude mcp list` kann lange dauern – die Prüfung läuft nebenher; nur der allererste Tick wartet,
+      // damit ein kaputter Aufbau keinen Arbeiter startet.
+      this.healthBusy = true
+      const check = this.deps
+        .healthCheck()
+        .then((h) => {
+          this.health = h
+        })
+        .catch((err) => {
+          this.health = { ok: false, problems: [`Gesundheitsprüfung fehlgeschlagen: ${err instanceof Error ? err.message : String(err)}`] }
+        })
+        .finally(() => {
+          this.healthBusy = false
+        })
+      if (this.ticks === 1) await check
     }
     if (this.ticks % AVAILABILITY_EVERY_TICKS === 1) {
       await this.loadAutopilotOverrides()
@@ -962,7 +973,8 @@ export class Supervisor {
 
   private async refreshAvailability(): Promise<void> {
     const next = new Map<string, Availability>()
-    for (const st of this.deps.stations) next.set(st.name, await checkAvailability(st, this.cfg.env, this.deps.probes))
+    const probes: AvailabilityProbes = { ...this.deps.probes, mcpState: (name) => this.health.logins?.mcp?.[name.toLowerCase()] }
+    for (const st of this.deps.stations) next.set(st.name, await checkAvailability(st, this.cfg.env, probes))
     this.availability = next
   }
 

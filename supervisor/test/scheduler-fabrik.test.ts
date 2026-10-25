@@ -262,6 +262,20 @@ describe('Fabrik läuft immer', () => {
     await sup.tick()
     expect(await planners()).toHaveLength(1)
     expect(sup.getState().fabrik.naechsteAusloeser.find((a) => a.name === 'Tagesproduktion planen')!.wann).toBe('2026-11-07T05:30:00')
+    expect(sup.getState().fabrik.naechsteAusloeser.filter((a) => a.name.startsWith('Lückenfüller')).map((a) => a.wann)).toEqual(['2026-11-06T12:00:00', '2026-11-06T18:00:00'])
+  })
+
+  it('marks a station ⛔ while its MCP server still needs a login – and green again once connected', async () => {
+    await seedState({ fired: { 'tagesproduktion:2026-11-06': 'seed' }, lastPlannerCreated: '2026-11-06T09:55:00' })
+    sup = await build({ stations: [...stations, station('kennzahlen', { tier: 'cheap', requires: { mcp: ['metricool'], env: [], services: [], any: [] } })] })
+    sup.setHealth({ ok: true, problems: [], logins: { claude: true, mcp: { metricool: 'auth' } } })
+    await sup.tick()
+    const z = sup.getState().stations.find((s) => s.name === 'kennzahlen')!
+    expect(z.available).toBe(false)
+    expect(z.reason).toContain('Anmeldung nötig')
+    sup.setHealth({ ok: true, problems: [], logins: { claude: true, mcp: { metricool: 'connected' } } })
+    for (let i = 0; i < 10; i++) await sup.tick() // availability refresh every 10 ticks
+    expect(sup.getState().stations.find((s) => s.name === 'kennzahlen')!.available).toBe(true)
   })
 
   it('holds the Tagesproduktion back while another planner task is open – never two planners at once', async () => {

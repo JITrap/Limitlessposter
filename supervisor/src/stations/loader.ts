@@ -120,6 +120,14 @@ function parseRequirements(req: Record<string, unknown>): Requirements {
 export interface AvailabilityProbes {
   http: (url: string) => Promise<boolean>
   mcpConfigured: (name: string) => Promise<boolean>
+  /** Login-Stand aus `claude mcp list` (connected | auth | approval | failed | unknown); fehlt er, zählt nur `.mcp.json` */
+  mcpState?: (name: string) => string | undefined
+}
+
+const MCP_STATE_REASON: Record<string, (name: string) => string> = {
+  auth: (n) => `MCP-Server ${n}: Anmeldung nötig (\`claude mcp login ${n}\`)`,
+  approval: (n) => `MCP-Server ${n}: Projekt-Server noch nicht freigegeben (\`claude\` im Repo-Ordner starten)`,
+  failed: (n) => `MCP-Server ${n} nicht erreichbar (\`claude mcp list\`)`,
 }
 
 async function firstProblem(
@@ -132,6 +140,8 @@ async function firstProblem(
   }
   for (const name of req.mcp) {
     if (!(await probes.mcpConfigured(name))) return `MCP-Server ${name} nicht eingerichtet`
+    const reason = MCP_STATE_REASON[probes.mcpState?.(name) ?? '']
+    if (reason) return reason(name)
   }
   for (const url of req.services) {
     if (!(await probes.http(url))) return `Dienst ${url} nicht erreichbar`

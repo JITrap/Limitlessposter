@@ -75,6 +75,37 @@ describe('publog – the guard', () => {
   })
 })
 
+describe('publog – stories (no text)', () => {
+  const reel = toEntry({ network: 'instagram', date: '2026-10-27T12:30', type: 'reel', status: 'geplant', text: 'Dein Zimmer. Vorher. Nachher.', media: ['https://cdn.x/clip.mp4', 'https://cdn.x/cover.jpg'] })
+  const story = toEntry({ network: 'instagram', date: '2026-10-27T13:00', type: 'story', status: 'geplant', text: '', media: ['https://cdn.x/cover.jpg'] })
+
+  it('the story to a reel reuses its cover and is not a duplicate of the reel – but the same story twice is', () => {
+    expect(findDuplicate({ network: 'instagram', text: '', media: ['https://cdn.x/cover.jpg'], type: 'story' }, [reel], now)).toBeNull()
+    expect(findDuplicate({ network: 'instagram', text: '', media: ['https://cdn.x/cover.jpg'], type: 'story' }, [reel, story], now)?.reason).toBe('medien')
+    expect(findDuplicate({ network: 'instagram', text: '', media: ['https://cdn.x/cover-2.jpg'], type: 'story' }, [reel, story], now)).toBeNull()
+    // a reel that reuses a story's image is not a duplicate of the story either (text rules still apply to reels)
+    expect(findDuplicate({ network: 'instagram', text: 'Ganz neuer Text über Wände und Licht', media: ['https://cdn.x/cover.jpg'], type: 'reel' }, [story], now)).toBeNull()
+    expect(findDuplicate({ network: 'instagram', text: 'Ganz neuer Text über Wände und Licht', media: ['https://cdn.x/cover.jpg'], type: 'reel' }, [reel], now)?.reason).toBe('medien')
+  })
+
+  it('mergeEntries keeps every story of a day as its own row (the empty text key never merges)', () => {
+    const base = { synced: null, entries: [] as ReturnType<typeof toEntry>[] }
+    const a = mergeEntries(base, [
+      { network: 'instagram', date: '2026-10-27T13:00', type: 'story', status: 'geplant', text: '', media: ['https://cdn.x/story-1.png'], url: 'https://app.metricool.com/p/1' },
+      { network: 'instagram', date: '2026-10-27T17:00', type: 'story', status: 'geplant', text: '', media: ['https://cdn.x/story-2.png'], url: 'https://app.metricool.com/p/2' },
+    ])
+    expect(a.added).toBe(2)
+    expect(countForDay(a.log.entries, 'instagram', '2026-10-27')).toBe(2)
+    // same story synced again (same url, or same day+type+file) → updated, not duplicated
+    const b = mergeEntries(a.log, [{ network: 'instagram', date: '2026-10-27T13:00', type: 'story', status: 'veröffentlicht', text: '', media: ['https://cdn.x/story-1.png'], url: 'https://app.metricool.com/p/1' }])
+    expect(b.added).toBe(0)
+    expect(b.updated).toBe(1)
+    const c = mergeEntries(b.log, [{ network: 'instagram', date: '2026-10-27T17:00', type: 'story', status: 'veröffentlicht', text: '', media: ['https://cdn.x/story-2.png'], url: '' }])
+    expect(c.added).toBe(0)
+    expect(c.log.entries).toHaveLength(2)
+  })
+})
+
 describe('publog – note format', () => {
   it('renders and parses back, merges by url and by text+day', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'publog-'))

@@ -197,7 +197,7 @@ export async function schedule(
   const log = await loadPublog(opts.vaultRoot)
   const day = String(post.publicationDate.dateTime).slice(0, 10)
   for (const network of providers) {
-    const hit = findDuplicate({ network, text: post.text ?? '', media: post.media ?? [] }, log.entries, opts.now)
+    const hit = findDuplicate({ network, text: post.text ?? '', media: post.media ?? [], type: postType(post, network) }, log.entries, opts.now)
     if (hit) {
       return { code: 2, result: { ok: false, dublette: true, netzwerk: network, grund: hit.reason, aehnlichkeit: Number(hit.similarity.toFixed(2)), treffer: { datum: hit.entry.date, status: hit.entry.status, text: hit.entry.text, link: hit.entry.url, quelle: hit.entry.quelle } } }
     }

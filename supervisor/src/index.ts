@@ -27,9 +27,9 @@ async function logLine(dataDir: string, line: string): Promise<void> {
   await appendFile(join(dir, `${todayStamp(new Date())}.log`), `${nowStamp(new Date())} ${line}\n`, 'utf8')
 }
 
-function exec(cmd: string, args: string[]): Promise<{ code: number; stdout: string }> {
+function exec(cmd: string, args: string[], opts: { timeoutMs?: number } = {}): Promise<{ code: number; stdout: string }> {
   return new Promise((ok) => {
-    execFile(cmd, args, { windowsHide: true, timeout: 20_000 }, (err, stdout) => {
+    execFile(cmd, args, { windowsHide: true, timeout: opts.timeoutMs ?? 20_000 }, (err, stdout) => {
       const code = err && typeof (err as NodeJS.ErrnoException).code === 'number' ? ((err as NodeJS.ErrnoException).code as unknown as number) : err ? 1 : 0
       if (err && (err as NodeJS.ErrnoException).code === 'ENOENT') return ok({ code: 127, stdout: '' })
       ok({ code, stdout: String(stdout ?? '') })

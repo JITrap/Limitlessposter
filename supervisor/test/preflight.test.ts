@@ -22,6 +22,7 @@ async function setup(opts: { trust?: boolean; vault?: boolean; dotenv?: boolean 
 const okExec: PreflightDeps['exec'] = async (_cmd, args) => {
   if (args[0] === '--version') return { code: 0, stdout: '2.1.308 (Claude Code)\n' }
   if (args[0] === 'auth') return { code: 0, stdout: JSON.stringify({ loggedIn: true, authMethod: 'claude.ai' }) }
+  if (args[0] === 'mcp' && args[1] === 'list') return { code: 0, stdout: 'Checking MCP server health...\n\n' }
   return { code: 1, stdout: '' }
 }
 
@@ -55,6 +56,30 @@ describe('preflight', () => {
   it('parses `claude mcp list` tolerantly and never guesses a login it cannot read', () => {
     expect(parseMcpList('metricool: url (HTTP) - ✓ Connected\nshopify: url - Needs authentication\nodd: something else\n')).toEqual({ metricool: 'connected', shopify: 'auth', odd: 'unknown' })
     expect(parseMcpList('')).toEqual({})
+    // the state is read behind the last " - ": a URL containing "connected" or a "Not connected" status cannot pass as connected
+    expect(parseMcpList('x: https://connected.example/mcp (HTTP) - ✗ Failed to connect\ny: https://a.b/mcp (HTTP) - Not connected\n')).toEqual({ x: 'failed', y: 'failed' })
+    expect(parseMcpList('metricool: https://ai.metricool.com/mcp (HTTP) - ⏸ Pending approval (run `claude` to approve)\n')).toEqual({ metricool: 'approval' })
+  })
+
+  it('warns about project servers that wait for approval, are missing, or when `mcp list` times out', async () => {
+    const { cfg, home } = await setup()
+    await writeFile(join(cfg.repoRoot, '.mcp.json'), JSON.stringify({ mcpServers: { metricool: {}, shopify: {} } }), 'utf8')
+    const seen: Array<{ args: string[]; opts?: { timeoutMs?: number } }> = []
+    const exec: PreflightDeps['exec'] = async (c, a, o) => {
+      seen.push({ args: a, opts: o })
+      return a[0] === 'mcp' ? { code: 0, stdout: 'metricool: https://ai.metricool.com/mcp (HTTP) - ⏸ Pending approval (run `claude` to approve)\n' } : okExec(c, a)
+    }
+    const r = await preflight(cfg, deps(home, { exec }))
+    expect(r.ok).toBe(true)
+    expect(r.logins.mcp).toEqual({ metricool: 'approval' })
+    expect(r.warnings).toContainEqual(expect.stringMatching(/metricool: Projekt-Server noch nicht freigegeben/))
+    expect(r.warnings).toContainEqual(expect.stringMatching(/shopify steht in .mcp.json, fehlt aber/))
+    expect(seen.find((s) => s.args[0] === 'mcp')?.opts?.timeoutMs).toBe(90_000)
+
+    const slow: PreflightDeps['exec'] = async (c, a) => (a[0] === 'mcp' ? { code: 1, stdout: 'metricool: … - ✓ Connected' } : okExec(c, a))
+    const t = await preflight(cfg, deps(home, { exec: slow }))
+    expect(t.logins.mcp).toEqual({})
+    expect(t.warnings).toContainEqual(expect.stringMatching(/claude mcp list.*hat nicht geantwortet/))
   })
 
   it('rejects an outdated Claude Code', async () => {

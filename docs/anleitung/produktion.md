@@ -12,7 +12,7 @@ Untertitel, Musik, Cover, Caption – und prüft alles am Qualitäts-Gate. Das *
 | TikTok | 3 Videos + 1 Fotobeitrag | 12:30 · 16:30 · 20:30 / 07:30 |
 | Facebook | 3 Reels + 1 Post + 4 Stories (Zweitverwertung, nur wenn in Metricool verbunden) | 12:00 · 15:30 · 18:30 / 09:00 |
 | LinkedIn | 1 Post Mo/Mi/Fr (Metricool-Autolist) | 08:15 |
-| Google Unternehmensprofil | 1 Beitrag Di/Do/Sa (Metricool-Autolist) | 10:00 |
+| Google Unternehmensprofil | 1 Beitrag Mo/Mi/Fr (dieselbe Metricool-Autolist wie LinkedIn) | 11:05 |
 
 Ein Reel-Slot ist **eine** Produktion mit einer Caption je Netz; die Stories gehören zur Content-Aufgabe des Beitrags.
 Die Welt zeigt im Kalender je Tag Ist/Soll – rot, wo etwas fehlt. Zeiten und Rotation stehen in

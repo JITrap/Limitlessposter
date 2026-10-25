@@ -9,7 +9,7 @@ tagesziel:
   tiktok: "3 Videos + 1 Fotobeitrag"
   facebook: "3 Reels + 1 Post + 4 Stories (Zweitverwertung, nur wenn verbunden)"
   linkedin: "1 Post Mo/Mi/Fr (Autolist)"
-  gmb: "1 Beitrag Di/Do/Sa (Autolist)"
+  gmb: "1 Beitrag Mo/Mi/Fr (Autolist, zusammen mit LinkedIn 11:05)"
 updated: 2026-10-25
 ---
 # Produktion – Tagesplan für Reels und Karussells
@@ -44,7 +44,8 @@ Regeln aus der alten Automatik: Reels im selben Netz mindestens 3 Stunden ausein
 neben jedem Reel; Reel 3 (Abend) ist das Hero-Reel mit dem stärksten Motiv; Stories 15–45 Minuten nach ihrem Beitrag; nach 22:00
 wird nichts mehr eingeplant. Alle Zeiten sind deutsche Ortszeit (Europe/Berlin). Facebook bekommt dieselben Dateien wie Instagram
 mit eigenem Text und Produktlink – nur, solange Facebook in [[Marke/Kanäle]] als verbunden steht. LinkedIn und Google bedient die
-Metricool-Autolist; das System plant dort nur bei Produkt- und Angebotsnews zusätzlich.
+Metricool-Autolist (beide zusammen Mo/Mi/Fr um 11:05, siehe [[Pläne/Content-Kalender]]); die Spalten LinkedIn/Google oben sind
+die alten Slots für eigene Beiträge – das System plant dort nur bei Produkt- und Angebotsnews zusätzlich.
 
 ## Formate (Rotation)
 Reels im Wechsel: **T01** Vorher/Nachher · **T02** Tippe & entscheide · **T03** Drei Fehler · **T04** Welches Poster bist du ·
