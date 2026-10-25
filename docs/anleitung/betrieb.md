@@ -71,13 +71,18 @@ meist unter 0,10 $.
 - **Soll je Netzwerk und Tag** steht in `Strategie.md` → `daily_targets` (lesbar: „3 Reels + 1 Karussell + 4 Stories“,
   „1 Post Mo/Mi/Fr (Autolist)“). Der Aufseher liest daraus Anzahl, Wochentage und ob eine Autolist das Netz bedient.
   Limits (`daily_post_limits`) müssen mindestens so hoch sein wie das Soll (Instagram 8 = 4 Beiträge + 4 Stories).
-- **Lücken** = Soll − geplant/veröffentlicht − Content-Aufgaben in Arbeit (Titel „Content <Datum> <Netze> …“).
+- **Lücken** = Soll − geplant/veröffentlicht − Content-Aufgaben in Arbeit (Titel „Content <Datum> <Netze> …“; ohne Netz im
+  Titel zählt die Aufgabe für Instagram und TikTok). Stories zählen nur gegen den Story-Anteil des Solls: eine Content-Aufgabe
+  in Arbeit deckt einen Beitrag und seine Story. Netze, die `Marke/Kanäle.md` unter `metricool_netzwerke` nicht führt (z. B.
+  Facebook vor der Verbindung), bekommen kein Soll – die Zentrale gleicht die Liste alle 6 Stunden mit Metricool ab.
   Der Planer bekommt die Lücken wörtlich in jeden Auftrag und füllt morgen zuerst, dann Tag für Tag bis 7 Tage voraus;
   um 12:00 und 18:00 prüft der Aufseher, ob morgen noch etwas fehlt, und stößt den Planer nach.
 - **Wachstumskatalog** `Pläne/Wachstum.md`: alles, was die Marke jenseits des täglichen Contents voranbringt
   (Shop, Reichweite, Daten, Kunde, Marke, Saison) – mit Station, prüfbarer Bedingung, Abkühlzeit und Wert. Ist der
-  Kalender voll, nimmt der Planer daraus bis zu drei Pakete je Lauf („Wachstum Wxx: …“). Du kannst Zeilen ändern,
-  streichen oder den Wert verschieben; Pakete unter „Braucht erst Werkzeug oder Julius“ warten auf dich.
+  Kalender voll, nimmt der Planer daraus bis zu drei Pakete je Lauf („Wachstum Wxx: …“). Damit der Katalog nie verhungert,
+  füllt die Tagesproduktion nur bis `max_open_tasks − reserve_wachstum` (Strategie.md, Standard 40 − 6); die Reserve gehört
+  dem Katalog. Du kannst Zeilen ändern, streichen oder den Wert verschieben; Pakete unter „Braucht erst Werkzeug oder Julius“
+  warten auf dich.
 
 ## Pause / Not-Aus
 Datei `LimitlessOS/PAUSE` anlegen (Inhalt egal) oder in der Welt **Pause** klicken. Laufende Arbeiter

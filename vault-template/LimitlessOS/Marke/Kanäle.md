@@ -2,6 +2,7 @@
 type: marke
 metricool_blog_id: "7412016"
 metricool_timezone: Europe/Berlin
+metricool_netzwerke: [instagram, tiktok, linkedin, gmb]
 shop_url: https://limitlessposter.com
 shop_myshopify: gexdm4-2q.myshopify.com
 updated: 2026-10-25
@@ -21,7 +22,7 @@ updated: 2026-10-25
   auf LinkedIn + Google-Unternehmensprofil (Termine stehen im [[Pläne/Content-Kalender]]). Das System plant
   an diesen Tagen **keine** weiteren LinkedIn/GMB-Posts, Instagram/TikTok schon.
 
-> [!info] Ändert sich etwas (neues Netzwerk, andere Brand-ID), hier eintragen. Das Content-Studio liest diese Notiz vor jedem Post. Fehlt die ID, holt es sie mit `getBrandSettings` und trägt sie nach.
+> [!info] Ändert sich etwas (neues Netzwerk, andere Brand-ID), hier eintragen – die Zentrale gleicht `metricool_netzwerke` alle 6 Stunden mit `getBrandSettings` ab. Netze, die dort fehlen, bekommen kein Soll und keine Lücke (so wartet Facebook, bis es verbunden ist). Das Content-Studio liest diese Notiz vor jedem Post. Fehlt die ID, holt es sie mit `getBrandSettings` und trägt sie nach.
 
 ## Kennzahlen-Startpunkt (Metricool, 14.–22.10.2026)
 - Instagram: ~10 Follower, mehrere Feed-Posts pro Tag (13.–20.10.), Reichweite bis ~260 Konten/Tag

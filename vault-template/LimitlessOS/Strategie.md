@@ -10,6 +10,8 @@ daily_post_limits:
   facebook: 8
   linkedin: 1
   gmb: 1
+  pinterest: 5
+  youtube: 3
 daily_targets:
   instagram: "3 Reels + 1 Karussell + 4 Stories"
   tiktok: "3 Videos + 1 Fotobeitrag"
@@ -17,6 +19,7 @@ daily_targets:
   linkedin: "1 Post Mo/Mi/Fr (Autolist)"
   gmb: "1 Beitrag Di/Do/Sa (Autolist)"
 max_open_tasks: 40
+reserve_wachstum: 6
 autopilot:
   planer: 2
   content: 2
@@ -54,7 +57,7 @@ Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsor
 | 8 | Letzte Trend-Recherche > 7 Tage | content: 10 Post-Ideen zu Motivation-/Sport-/Setup-Trends → `Ideen/` (cheap) | 7 Tage |
 | 9 | `Ideen/` hat < 10 offene Poster-Ideen | content: Ideen-Session (cheap) | 3 Tage |
 | 10 | Kennzahlen zeigen ein Format mit > 1,5× Reichweite | Planer passt den Mix im Kalender an (mehr davon) | wöchentlich |
-| 11 | 14 Tage Content ohne Bestellung | manual: Testbestellung durch den Checkout + Blick in Shopify-Analytics (Sitzungen, Warenkorb); planer: Produktseiten-Check-Aufgabe für das Shop-Büro | 14 Tage |
+| 11 | 14 Tage Content ohne Bestellung | Karte W33 aus [[Pläne/Wachstum]] (Testbestellung durch den Checkout, Blick in Shopify-Analytics) – keine eigene Karte; planer: Produktseiten-Check-Aufgabe für das Shop-Büro (W03) | 14 Tage |
 | 12 | Sonst (Kalender voll, Sprossen 1–11 ruhen) | **Wachstumskatalog** [[Pläne/Wachstum]]: das Paket mit dem höchsten Wert, dessen Abkühlzeit abgelaufen ist (höchstens 3 je Lauf) – so arbeitet die Fabrik immer an der Marke, nicht nur am Content | laut Katalog |
 
 ## Dubletten-Schutz (seit 24.10.2026, nach dem doppelten Willkommens-Post)
@@ -67,7 +70,7 @@ Der Planer arbeitet diese Tabelle von oben nach unten ab. Du kannst Zeilen umsor
 - Tageslimits je Netzwerk stehen oben im Frontmatter (`daily_post_limits`), Soll-Mengen unter `daily_targets` – beides darfst du ändern.
 
 ## Grenzen
-- Posts pro Tag je Netzwerk laut `daily_post_limits` (Instagram 8 = 4 Beiträge + 4 Stories, TikTok 4), höchstens **5 Shop-Änderungen pro Tag**, höchstens **40 offene Aufgaben** (ein voller Produktionstag sind 16).
+- Posts pro Tag je Netzwerk laut `daily_post_limits` (Instagram 8 = 4 Beiträge + 4 Stories, TikTok 4), höchstens **5 Shop-Änderungen pro Tag**, höchstens **40 offene Aufgaben** (ein voller Produktionstag sind 16); davon bleiben `reserve_wachstum` = 6 Plätze dem Wachstumskatalog, damit er nie verhungert.
 - Nach außen (Posts, Shop) nur mit Freigabe, solange die Station auf Autopilot 1 steht.
 - Nachts (00–07 Uhr) keine Premium-Aufgaben (Opus) – die sind für Tagesplanung und Wochenstrategie.
 - 30 % des Kontingents bleiben für Julius' eigene Arbeit frei (`reserve_for_julius`).

@@ -33,7 +33,10 @@ export const NETZ_WORTE: Record<string, string> = {
   youtube: 'youtube',
 }
 
-/** `Content 2026-10-27 Instagram+TikTok 12:30: T01 – Tiger` → { day, networks } */
+/** Content-Aufgaben ohne Netz im Titel (z. B. Content-Bank-Karten) zählen für die beiden Hauptnetze. */
+export const STANDARD_NETZE = ['instagram', 'tiktok']
+
+/** `Content 2026-10-27 Instagram+TikTok 12:30: T01 – Tiger` → { day, networks }; ohne Datum im Titel zählt `due`. */
 export function contentTaskTarget(task: Task): { day: string; networks: string[] } | null {
   if (task.fm.station !== 'content') return null
   const m = /^content\s+(\d{4}-\d{2}-\d{2})\b(.*)$/i.exec(task.fm.title)
@@ -42,7 +45,7 @@ export function contentTaskTarget(task: Task): { day: string; networks: string[]
   const rest = (m ? m[2] : task.fm.title).toLowerCase()
   const networks = new Set<string>()
   for (const w of rest.split(/[^a-zäöü]+/)) if (NETZ_WORTE[w]) networks.add(NETZ_WORTE[w])
-  return { day, networks: [...networks] }
+  return { day, networks: networks.size ? [...networks] : [...STANDARD_NETZE] }
 }
 
 /** Offene Content-Aufgaben je Tag und Netz (Titel „Content <Datum> <Netze> …“, sonst `due`). */
@@ -68,7 +71,12 @@ export function sollFuerTag(entries: PubEntry[], targets: Targets, inArbeit: Rec
     const ist = countForDay(entries, n, day)
     const arbeit = inArbeit[n] ?? 0
     const autolist = targets[n]?.autolist === true
-    const fehlen = zukunft && !autolist ? Math.max(0, soll - ist - arbeit) : 0
+    // Stories hängen an Beiträgen: eine Content-Aufgabe in Arbeit bringt einen Beitrag und (bei Story-Soll) eine Story.
+    const stories = soll > 0 ? Math.min(soll, targets[n]?.stories ?? 0) : 0
+    const istStories = entries.filter((e) => e.network === n && e.date.startsWith(day) && e.type === 'story' && (e.status === 'geplant' || e.status === 'veröffentlicht')).length
+    const fehlenBeitraege = Math.max(0, soll - stories - (ist - istStories) - arbeit)
+    const fehlenStories = Math.max(0, stories - istStories - arbeit)
+    const fehlen = zukunft && !autolist ? fehlenBeitraege + fehlenStories : 0
     if (soll === 0 && ist === 0 && arbeit === 0) continue
     out[n] = { soll, ist, inArbeit: arbeit, autolist, fehlen }
   }

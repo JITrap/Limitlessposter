@@ -37,7 +37,9 @@ nichts, du planst nichts – du misst.
    ein Beitrag mit mehreren Netzwerken = ein Eintrag je Netzwerk). Dann `node supervisor/dist/adapters/posts.js sync --file "<Pfad>"`
    (vom Repo-Ordner aus) und das Ergebnis (`hinzugefuegt`, `eintraege`, `synced`) unter „## Hinweise“ notieren. Schlägt ein
    Netzwerk fehl, synchronisiere die anderen trotzdem. Ohne diesen Schritt darf die Content-Station nicht posten.
-1. Lies `Marke/Kanäle.md` und `Kennzahlen.md`. Bestimme „heute“ aus dem Prompt/`Status.md`.
+1. Lies `Marke/Kanäle.md` und `Kennzahlen.md`. Bestimme „heute“ aus dem Prompt/`Status.md`. Hole `getBrandSettings` und
+   gleiche das Frontmatter `metricool_netzwerke` in `Marke/Kanäle.md` mit `networksData` ab (Schlüssel ohne „Data“: instagram,
+   tiktok, facebook, linkedin, gmb, pinterest, youtube) – nur diese Zeile ändern; weicht sie ab, unter „## Hinweise“ vermerken.
 2. Hole die Zahlen in dieser Reihenfolge: Metricool je Netzwerk → Shopify-Bestellungen → Printify.
    Jeden Werkzeugfehler **einmal** wiederholen, dann den Wert leer lassen (`key:`) und den Fehler
    unter „## Hinweise“ wörtlich notieren. Nie schätzen, nie alte Werte als neu ausgeben.

@@ -87,6 +87,7 @@ describe('vault template', () => {
     expect(targets.tiktok).toBe('3 Videos + 1 Fotobeitrag')
     expect(targets.facebook).toMatch(/3 Reels \+ 1 Post \+ 4 Stories/)
     expect(data.max_open_tasks).toBe(40)
+    expect(data.reserve_wachstum).toBe(6)
   })
 
   it('manual cards that the supervisor can verify carry auto_done conditions', async () => {
@@ -94,6 +95,16 @@ describe('vault template', () => {
     expect(logins.data.auto_done).toBe('claude-login, mcp:metricool, mcp:shopify')
     const printify = parseNote(await readFile(join(root, 'Aufgaben/20261023-020900-printify-api-token-anlegen.md'), 'utf8'))
     expect(printify.data.auto_done).toBe('env:PRINTIFY_API_TOKEN')
+  })
+
+  it('Wachstum.md is a complete growth catalog with numbered packages, prerequisites and planner rules', async () => {
+    const { data, body } = parseNote(await readFile(join(root, 'Pläne/Wachstum.md'), 'utf8'))
+    expect(data.type).toBe('plan')
+    const rows = body.match(/^\| W\d\d \| /gm) ?? []
+    expect(rows.length).toBeGreaterThanOrEqual(40)
+    expect(data.pakete).toBe(rows.length)
+    for (const h of ['## Shop', '## Reichweite', '## Daten', '## Kunde', '## Marke & Saison', '## Braucht erst Werkzeug oder Julius', '## Regeln für den Planer', '## Saisonkalender']) expect(body).toContain(h)
+    expect(body).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
   })
 
   it('Produktion.md mirrors the slot table of the old automation including Facebook', async () => {

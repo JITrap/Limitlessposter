@@ -49,8 +49,12 @@ export async function loadLimits(configLimits: Limits | undefined, vaultRoot: st
 // Metricool-Autolist das Netz bedient (dann ist eine Lücke kein Fehler des Systems).
 
 export interface Target {
-  /** Beiträge pro Tag, an den genannten Wochentagen */
+  /** Beiträge pro Tag (inklusive Stories), an den genannten Wochentagen */
   count: number
+  /** davon Stories (jede Story hängt an einem Beitrag – eine Content-Aufgabe deckt beides ab) */
+  stories: number
+  /** false = Netz steht nicht in Marke/Kanäle.md `metricool_netzwerke` → kein Soll, keine Lücke */
+  verbunden: boolean
   /** 0 = So … 6 = Sa; null = jeden Tag */
   days: number[] | null
   /** Metricool-Autolist füllt das Netz – Lücken werden angezeigt, aber nicht als fehlend gezählt */
@@ -69,13 +73,17 @@ export const DEFAULT_TARGETS: Targets = {
 
 /** `"3 Reels + 1 Karussell + 4 Stories"` → 8 pro Tag; `"1 Post Mo/Mi/Fr (Autolist)"` → 1 an Mo, Mi, Fr. */
 export function parseTarget(raw: unknown): Target {
-  if (typeof raw === 'number' && Number.isFinite(raw)) return { count: Math.max(0, Math.round(raw)), days: null, autolist: false, text: String(raw) }
+  if (typeof raw === 'number' && Number.isFinite(raw)) return { count: Math.max(0, Math.round(raw)), stories: 0, days: null, autolist: false, verbunden: true, text: String(raw) }
   const text = String(raw ?? '').trim()
   let count = 0
-  for (const m of text.matchAll(/(?:^|[^\d:.,])(\d{1,2})(?=\s*[A-Za-zÄÖÜäöüß×])/g)) count += Number(m[1])
+  let stories = 0
+  for (const m of text.matchAll(/(?:^|[^\d:.,])(\d{1,2})(?=\s*([A-Za-zÄÖÜäöüß×]))/g)) {
+    count += Number(m[1])
+    if (/^\s*stor/i.test(text.slice(m.index! + m[0].length))) stories += Number(m[1])
+  }
   const days = new Set<number>()
   for (const m of text.matchAll(/(?:^|[^A-Za-zÄÖÜäöü])(Mo|Di|Mi|Do|Fr|Sa|So)(?=$|[^A-Za-zÄÖÜäöü])/g)) days.add(WEEKDAY_TOKEN[m[1].toLowerCase()])
-  return { count, days: days.size ? [...days].sort() : null, autolist: /autolist/i.test(text), text }
+  return { count, stories, days: days.size ? [...days].sort() : null, autolist: /autolist/i.test(text), verbunden: true, text }
 }
 
 export function parseTargets(raw: unknown): Targets {
@@ -92,9 +100,21 @@ export function parseTargets(raw: unknown): Targets {
 /** Soll für ein Netz an einem Datum (0, wenn kein Ziel oder nicht dieser Wochentag). */
 export function targetFor(targets: Targets, network: string, date: Date): number {
   const t = targets[network.toLowerCase()]
-  if (!t) return 0
+  if (!t || t.verbunden === false) return 0
   if (t.days && !t.days.includes(date.getDay())) return 0
   return t.count
+}
+
+/** Marke/Kanäle.md → `metricool_netzwerke: [instagram, tiktok, …]`; fehlt die Liste → null (alles gilt als verbunden). */
+export async function verbundeneNetze(vaultRoot: string): Promise<string[] | null> {
+  try {
+    const { data } = parseNote(await readFile(join(vaultRoot, 'Marke', 'Kanäle.md'), 'utf8'))
+    const raw = data.metricool_netzwerke
+    if (!Array.isArray(raw)) return null
+    return raw.map((n) => String(n).toLowerCase().trim()).filter(Boolean)
+  } catch {
+    return null
+  }
 }
 
 /** Strategie.md → `daily_targets:`; fehlt die Notiz oder der Schlüssel → {} */
@@ -107,9 +127,15 @@ export async function strategieTargets(vaultRoot: string): Promise<Targets> {
   }
 }
 
-/** defaults ← Strategie.md (die Notiz ersetzt die Vorgaben vollständig, sobald sie Ziele nennt) */
+/**
+ * defaults ← Strategie.md (die Notiz ersetzt die Vorgaben vollständig, sobald sie Ziele nennt); Netze, die
+ * Marke/Kanäle.md nicht als verbunden führt (z. B. Facebook vor der Verbindung), bekommen kein Soll.
+ */
 export async function loadTargets(vaultRoot: string): Promise<Targets> {
   const fromNote = vaultRoot ? await strategieTargets(vaultRoot) : {}
-  return Object.keys(fromNote).length ? fromNote : { ...DEFAULT_TARGETS }
+  const targets: Targets = Object.keys(fromNote).length ? fromNote : { ...DEFAULT_TARGETS }
+  const verbunden = vaultRoot ? await verbundeneNetze(vaultRoot) : null
+  if (verbunden) for (const [n, t] of Object.entries(targets)) targets[n] = { ...t, verbunden: verbunden.includes(n) }
+  return targets
 }
 

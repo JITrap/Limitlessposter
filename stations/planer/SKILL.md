@@ -42,7 +42,7 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
    + 4 Stories, TikTok 3 Videos + Fotobeitrag, Facebook als Zweitverwertung nur, wenn `Marke/Kanäle.md` es als verbunden führt;
    LinkedIn/Google macht die Autolist). Slots und Format-Rotation: `Pläne/Produktion.md` (Briefs `stations/produktion/formate/*.md`,
    nur Dateinamen und erste Zeile lesen). Arbeite die Lücken aus dem Auftrag ab – **morgen vollständig, dann Tag für Tag bis
-   7 Tage voraus**, bis `max_open_tasks` erreicht ist. Für jeden Slot ohne Aufgabe (Glob `Aufgaben/*.md`, Titel beginnt mit
+   7 Tage voraus**, bis `max_open_tasks − reserve_wachstum` erreicht ist (die Reserve, Standard 6, gehört dem Wachstumskatalog). Für jeden Slot ohne Aufgabe (Glob `Aufgaben/*.md`, Titel beginnt mit
    „Produktion <Datum>“ oder „Content <Datum>“, Status todo|doing|review|done) und ohne passende `offen`-Karte der Content-Bank
    legst du **eine** `produktion`-Aufgabe an: Titel „Produktion <YYYY-MM-DD> <Netze> <HH:MM>: <Format> – <Motiv>“, `priority: 1`,
    `tier: standard`, `needs_approval: false`, `due` = der Tag. Ein Reel-Slot deckt Instagram **+** TikTok (+ Facebook) ab – eine
@@ -67,11 +67,13 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
 7. Bei Aufgabe „Wochenstrategie“ (Mittwoch): bewerte Kennzahlen der Woche, passe Content-Mix
    und Reihenfolge der Wertleiter in `Strategie.md` an und begründe jede Änderung dort unter
    „Änderungsprotokoll“.
-8. **Wachstumskatalog (jeder Lauf, nach der Tagesproduktion):** Sind die Lücken geschlossen oder alle Produktionen angelegt und
-   ist noch Platz unter `max_open_tasks`, nimm aus `Pläne/Wachstum.md` höchstens **3 Pakete** je Lauf: Bedingung erfüllt,
-   Abkühlzeit abgelaufen (`created` der letzten Aufgabe mit gleichem „Wxx“ im Titel), höchster Wert zuerst, Station nicht ⛔.
-   Titel „Wachstum Wxx: <Paket>“, `tags: [task, wachstum]`, Auftrag wörtlich aus dem Katalog plus Motiv/Datum, Stufe laut Katalog.
-   So steht die Fabrik nie still – sie arbeitet an Shop, Reichweite, Daten, Kunde und Marke, nicht nur am Content.
+8. **Wachstumskatalog (jeder Lauf, nach der Tagesproduktion):** Nimm aus `Pläne/Wachstum.md` höchstens **3 Pakete** je Lauf
+   (Regeln dort): Bedingung erfüllt, Abkühlzeit abgelaufen (`created` der letzten Aufgabe mit gleichem „Wxx“ im Titel), höchster
+   Wert zuerst, Station nicht ⛔; Platz bis zum vollen `max_open_tasks` – die Reserve steht dem Katalog zu. Titel „Wachstum Wxx:
+   <Paket>“, `tags: [task, wachstum]`, Auftrag wörtlich aus dem Katalog plus Motiv/Datum, Stufe laut Katalog. Pakete der Station
+   produktion sind **Ersatz statt Zusatz**: die schwächste noch nicht gestartete Produktions-Aufgabe (`todo`) des Zieltags setzt du
+   auf `status: cancelled` (Protokoll „ersetzt durch Wachstum Wxx“) und das Paket übernimmt ihren Slot. So steht die Fabrik nie
+   still – sie arbeitet an Shop, Reichweite, Daten, Kunde und Marke, nicht nur am Content.
 
 ## Ausgabeformat
 Neue Aufgaben sind Dateien `Aufgaben/<id>.md` mit `id` = `YYYYMMDD-HHmmss-<slug>` (Slug
@@ -136,6 +138,7 @@ alles, was nur er entscheiden kann.
 
 ## Verbote
 - Keine Aufgaben für ⛔-Stationen. Keine Aufgaben, die Konten, Abos oder Zahlungen anlegen.
-- Nie mehr als `max_open_tasks` offene Aufgaben. Nie `status`, `attempts`, `cost_usd` fremder Aufgaben ändern.
+- Nie mehr als `max_open_tasks` offene Aufgaben. Nie `status`, `attempts`, `cost_usd` fremder Aufgaben ändern – einzige Ausnahme:
+  eine eigene, noch nicht gestartete Produktions-Aufgabe auf `cancelled` setzen, wenn ein Katalog-Paket sie ersetzt (Punkt 8).
 - Nichts veröffentlichen, nichts im Shop ändern – das tun andere Stationen nach Freigabe.
 - Keine Schlüssel, Tokens oder persönlichen Daten in Notizen.
