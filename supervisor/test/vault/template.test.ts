@@ -95,6 +95,9 @@ describe('vault template', () => {
     expect(logins.data.auto_done).toBe('claude-login, mcp:metricool, mcp:shopify')
     const printify = parseNote(await readFile(join(root, 'Aufgaben/20261023-020900-printify-api-token-anlegen.md'), 'utf8'))
     expect(printify.data.auto_done).toBe('env:PRINTIFY_API_TOKEN')
+    const higgsfield = parseNote(await readFile(join(root, 'Aufgaben/20261026-090000-higgsfield-mcp-anmelden.md'), 'utf8'))
+    expect(higgsfield.data.auto_done).toBe('mcp:higgsfield')
+    expect(higgsfield.data.station).toBe('manual')
   })
 
   it('Wachstum.md is a complete growth catalog with numbered packages, prerequisites and planner rules', async () => {
@@ -112,6 +115,9 @@ describe('vault template', () => {
     expect(prod).toContain('| Mo | 12:30 · 16:30 · 19:30 | 07:30 | 12:30 · 16:30 · 20:00 | 07:30 | 12:00 · 15:30 · 18:30 | 09:00 | 08:15 | – |')
     expect(prod).toContain('| So | 10:00 · 14:00 · 21:00 | 17:30 | 10:00 · 14:00 · 20:00 | 17:00 | 10:30 · 14:30 · 20:30 | 17:00 | – | – |')
     expect(parseNote(prod).data.stories).toBe('ja')
+    expect(parseNote(prod).data.higgsfield).toBe('ja')
+    expect(parseNote(prod).data.higgsfield_pro_tag).toBe(2)
+    expect(prod).toContain('**H01**')
   })
 
   it('Home.md embeds Status and the dashboard views and links to the world', async () => {

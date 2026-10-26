@@ -224,6 +224,8 @@ export function renderStatusMd(s: SupervisorState): string {
   if (st) {
     lines.push(st.installed ? `- Stimme: ${st.engine ?? '–'}${st.cuda ? ' (GPU)' : ' (CPU)'} · ${st.voices.length} Stimmen${st.lastSample ? ` · letzte Probe [[${st.lastSample}]]` : ''}` : `- Stimme: nicht installiert${st.lastError ? ` – ${st.lastError}` : ''}`)
   }
+  const hf = s.health.logins?.mcp?.higgsfield
+  lines.push(`- Higgsfield (KI-Video): ${hf === 'connected' ? 'verbunden' : hf === 'auth' ? 'Anmeldung nötig (`claude mcp login higgsfield`)' : hf === 'approval' ? 'Projekt-Server noch nicht freigegeben' : hf === 'failed' ? 'nicht erreichbar' : 'nicht verbunden'}`)
 
   lines.push('', '## Wartet auf dich')
   if (s.waiting.length === 0) lines.push('Nichts – alles läuft.')

@@ -369,18 +369,24 @@
     }).join('');
   }
 
+  function higgsfieldRow() {
+    var hf = state.health && state.health.logins && state.health.logins.mcp ? state.health.logins.mcp.higgsfield : null;
+    var txt = hf === 'connected' ? '<span class="ok">verbunden</span>' : hf === 'auth' ? '<span class="warn">Anmeldung nötig · claude mcp login higgsfield</span>' : hf === 'approval' ? '<span class="warn">Projekt-Server freigeben</span>' : hf === 'failed' ? '<span class="bad">nicht erreichbar</span>' : '<span class="small">nicht verbunden</span>';
+    return '<div class="kv" style="margin-top:8px"><span>Higgsfield</span><span>' + txt + '</span></div>';
+  }
+
   function renderStimme() {
     var s = state.stimme;
     if (!s || !s.installed) {
       $('stimme').innerHTML = '<div class="kv"><span>Motor</span><span class="warn">nicht installiert</span></div>' +
-        '<p class="small">Eigene Stimme für Reels (läuft lokal auf der Grafikkarte, kein Abo). Einrichten: <code>tools\\stimme\\install.ps1</code>.' + (s && s.lastError ? '<br><span class="bad">' + esc(s.lastError) + '</span>' : '') + '</p>';
+        '<p class="small">Eigene Stimme für Reels (läuft lokal auf der Grafikkarte, kein Abo). Einrichten: <code>tools\\stimme\\install.ps1</code>.' + (s && s.lastError ? '<br><span class="bad">' + esc(s.lastError) + '</span>' : '') + '</p>' + higgsfieldRow();
       return;
     }
     var sample = s.lastSample ? '<audio controls preload="none" src="/media/' + s.lastSample.split('/').map(encodeURIComponent).join('/') + '"></audio>' : '<span class="small">noch keine Probe</span>';
     $('stimme').innerHTML = '<div class="kv"><span>Motor</span><span>' + esc(s.engine || '–') + (s.cuda ? ' · GPU' : ' · CPU') + '</span>' +
       '<span>Stimmen</span><span>' + (s.voices && s.voices.length ? esc(s.voices.join(', ')) : '–') + '</span>' +
       '<span>Stand</span><span>' + esc(dmy(s.updated)) + '</span></div>' +
-      '<div style="margin-top:8px">' + sample + '</div>' + (s.lastError ? '<p class="small bad">' + esc(s.lastError) + '</p>' : '');
+      '<div style="margin-top:8px">' + sample + '</div>' + (s.lastError ? '<p class="small bad">' + esc(s.lastError) + '</p>' : '') + higgsfieldRow();
   }
 
   function renderFabrik() {

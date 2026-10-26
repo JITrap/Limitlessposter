@@ -15,6 +15,9 @@ Content-Studio über den Dubletten-Schutz.
    `Marke/Tonalität.md`, `Marke/Hashtags.md`, `Marke/Kern.md` (Tabus) – für Captions und Sprechtext.
 5. `Pläne/Veröffentlicht.md` – was schon draußen ist (kein Motiv und kein Hook zweimal in 7 Tagen).
 6. Stand der Stimme: `node supervisor/dist/adapters/stimme.js status` (läuft sie nicht, startet `speak` sie selbst; erster Lauf dauert).
+7. **Higgsfield** (KI-Video, nur Format **H01**): Werkzeuge `mcp__higgsfield__*` (Bild → Video, Status). Gibt es sie nicht oder sagt
+   `Pläne/Produktion.md` `higgsfield: nein`, baust du T07 statt H01 und vermerkst das. Ablauf, Prompt-Regeln und Download
+   (`studio.js fetch`) stehen in `stations/produktion/formate/H01.md`; der Clip ist nur Hintergrund, das Poster bleibt das echte Produktbild.
 
 ## Vorgehen
 Alle Pfade absolut, Befehle vom Repo-Ordner aus. Zielordner: `<Vault>/LimitlessOS/Assets/content/<task-id>/`.
@@ -32,6 +35,7 @@ Alle Pfade absolut, Befehle vom Repo-Ordner aus. Zielordner: `<Vault>/LimitlessO
    Karussell/Fotobeitrag: je Slide `render-still --scene karussell-slide --data @slide-<n>.json --out slide-<n>.png --size 1080x1350`
    (Slide 1 `art: hero`, dann `raum`/`text` im Wechsel, letzte `art: cta`; 6 Slides). Sagt der Auftrag „Story: ja“, zusätzlich
    Slide 1 als `story.png` in `--size 1080x1920` (Reels brauchen nichts – das Cover ist die Story).
+   H01: `render-reel --scene h01-overlay --background "<…>/higgsfield.mp4" …` (die Szene ist durchsichtig, der Clip liegt darunter).
    Prüfe die JSON-Antwort: `ok: true`, `imagesFailed: 0`, Datei > 100 KB. Sieh dir **mindestens zwei Standbilder** an
    (Read auf die PNG): Hook lesbar, Poster sichtbar, nichts abgeschnitten. Sonst Daten korrigieren und neu rendern.
 5. **Captions und Post-Dateien:** je Netz aus dem Auftrag (Instagram, TikTok, ggf. Facebook) `caption-<netz>.txt` und
@@ -79,7 +83,8 @@ Stimme ohne Ton (Fehler …), Platzhalter statt Poster, Vorschläge für den Bri
 
 ## Verbote
 - Nie veröffentlichen, nichts in Metricool anfassen – keine Planungswerkzeuge, kein Upload in Apps.
-- Keine fremden Bilder, Fotos, Musik oder Trend-Sounds in der Datei; keine KI-Bildgeneratoren. Poster nur aus `Marke/Produkte.md`.
+- Keine fremden Bilder, Fotos, Musik oder Trend-Sounds in der Datei. KI-Bilder und -Clips nur aus Higgsfield, nur als Raum oder
+  Hintergrund, nie als Motiv; das Poster kommt immer aus `Marke/Produkte.md`. KI-Anteil im Post kennzeichnen (`isAiGenerated`, `isAigc`).
 - Keine Preise, Rabatte, Lieferzeiten, Materialien, die nicht in `Marke/Produkte.md` stehen; nie „Made in Germany“.
 - Namen von Sportlern, Vereinen, Marken nie im Bild oder Ton; in der Caption nur beschreibend, nie „offiziell“.
 - Vorlagen, Briefs und Repo nicht ändern. Nichts außerhalb von `Assets/content/<id>/` und der eigenen Notiz schreiben.

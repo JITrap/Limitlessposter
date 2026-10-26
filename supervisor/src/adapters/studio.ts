@@ -5,11 +5,14 @@
 // Produktion (Szenen in stations/produktion/vorlagen, Vertrag: window.DURATION + window.renderFrame(t)):
 //   node supervisor/dist/adapters/studio.js render-reel  --scene t01-vorher-nachher --data <json|@datei> --out <mp4> [--fps 30] [--size 1080x1920]
 //        [--duration N] [--audio <wav>] [--music <mp3|wav>] [--music-gain -14] [--subs <json|@datei>] [--stills 0,2,4] [--cover <jpg>] [--cover-time 0]
+//        [--background <mp4|png>]  → Szene (transparent) über einen Hintergrund-Clip/ein Bild legen (z. B. aus Higgsfield)
 //   node supervisor/dist/adapters/studio.js render-still --scene karussell-slide --data <json|@datei> --out <png> [--size 1080x1350] [--time 0]
 //   node supervisor/dist/adapters/studio.js beat --bpm 120 --seconds 12 --out <wav>
+//   node supervisor/dist/adapters/studio.js fetch --url <https://…> --out <Vault>/LimitlessOS/Assets/content/<id>/<datei>
+//        → lädt eine erzeugte Bild-/Video-Datei (z. B. Higgsfield-Ergebnis) in den Vault; nur https, nur Medien, nur unter Assets/
 import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rename, rm, stat, writeFile, open as openFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, extname, isAbsolute, join, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -308,6 +311,11 @@ export interface RenderReelOptions {
   coverTime?: number
   /** re-encode harder when the file exceeds this (default 15 MB) */
   maxBytes?: number
+  /**
+   * Hintergrund-Clip (mp4/mov/webm, wird geloopt) oder Bild (png/jpg): die Szene wird mit transparentem
+   * Hintergrund gerendert und darüber gelegt – so werden Higgsfield-Clips zu Reels mit Hook, Untertiteln und Endcard.
+   */
+  background?: string
   env?: NodeJS.ProcessEnv
 }
 
@@ -324,9 +332,9 @@ export interface ReelResult {
   imagesFailed: number
 }
 
-function audioGraph(o: { audio?: string; music?: string; musicGain: number; duration: number }): { args: string[]; filter: string | null } {
+function audioGraph(o: { audio?: string; music?: string; musicGain: number; duration: number; firstInput?: number }): { args: string[]; filter: string | null } {
   const args: string[] = []
-  let idx = 1
+  let idx = o.firstInput ?? 1
   let voice: string | null = null
   let music: string | null = null
   if (o.audio) {
@@ -353,9 +361,10 @@ function audioGraph(o: { audio?: string; music?: string; musicGain: number; dura
 export async function renderReel(o: RenderReelOptions): Promise<ReelResult> {
   const env = o.env ?? process.env
   if (o.width % 2 || o.height % 2) throw new Error('Breite und Höhe müssen gerade Zahlen sein (H.264)')
-  for (const f of [o.audio, o.music].filter((x): x is string => !!x)) {
-    if (!existsSync(f)) throw new Error(`Tonspur nicht gefunden: ${f}`)
+  for (const f of [o.audio, o.music, o.background].filter((x): x is string => !!x)) {
+    if (!existsSync(f)) throw new Error(`Datei nicht gefunden: ${f}`)
   }
+  const bgIsImage = !!o.background && /\.(png|jpe?g|webp)$/i.test(o.background)
   const html = await loadScene(o.scene, o.data, o.subs ?? [], o.width)
   const b = await getBrowser(env)
   const page = await b.newPage({ viewport: { width: o.width, height: o.height }, deviceScaleFactor: 1 })
@@ -366,6 +375,8 @@ export async function renderReel(o: RenderReelOptions): Promise<ReelResult> {
     const duration = o.duration ?? (await sceneDuration(page, 10))
     const frames = Math.max(1, Math.round(duration * o.fps))
     const cdp = await page.context().newCDPSession(page)
+    // Mit Hintergrund: Bilder mit Alpha-Kanal, die Szene malt dann nur Hook, Karten, Untertitel und Endcard.
+    if (o.background) await cdp.send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } })
     for (let i = 0; i < frames; i++) {
       await setSceneTime(page, i / o.fps)
       const shot = (await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true })) as { data: string }
@@ -373,10 +384,25 @@ export async function renderReel(o: RenderReelOptions): Promise<ReelResult> {
     }
     await cdp.detach().catch(() => {})
     await mkdir(dirname(o.out), { recursive: true })
-    const graph = audioGraph({ audio: o.audio, music: o.music, musicGain: o.musicGain ?? -14, duration })
-    const args = ['-y', '-framerate', String(o.fps), '-i', join(dir, 'frame-%05d.png'), ...graph.args]
-    if (graph.filter) args.push('-filter_complex', graph.filter, '-map', '0:v', '-map', '[a]', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000')
-    else args.push('-map', '0:v')
+    const graph = audioGraph({ audio: o.audio, music: o.music, musicGain: o.musicGain ?? -14, duration, firstInput: o.background ? 2 : 1 })
+    const args = ['-y', '-framerate', String(o.fps), '-i', join(dir, 'frame-%05d.png')]
+    const filters: string[] = []
+    let video = '0:v'
+    if (o.background) {
+      if (bgIsImage) args.push('-loop', '1', '-framerate', String(o.fps), '-i', o.background)
+      else args.push('-stream_loop', '-1', '-i', o.background)
+      filters.push(
+        `[1:v]scale=${o.width}:${o.height}:force_original_aspect_ratio=increase,crop=${o.width}:${o.height},setsar=1,fps=${o.fps},format=rgba[bg]`,
+        '[0:v]format=rgba[fg]',
+        '[bg][fg]overlay=0:0:shortest=1:format=auto[v]',
+      )
+      video = '[v]'
+    }
+    args.push(...graph.args)
+    if (graph.filter) filters.push(graph.filter)
+    if (filters.length) args.push('-filter_complex', filters.join(';'))
+    args.push('-map', video)
+    if (graph.filter) args.push('-map', '[a]', '-c:a', 'aac', '-b:a', '160k', '-ar', '48000')
     args.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-pix_fmt', 'yuv420p', '-r', String(o.fps), '-t', duration.toFixed(3), '-movflags', '+faststart', o.out)
     await runFfmpeg(args, env)
     let bytes = (await stat(o.out)).size
@@ -389,18 +415,25 @@ export async function renderReel(o: RenderReelOptions): Promise<ReelResult> {
     }
     const stills: string[] = []
     const stem = join(dirname(o.out), basename(o.out, extname(o.out)))
+    // Standbilder und Cover: ohne Hintergrund aus der Szene, mit Hintergrund aus dem fertigen Video (sonst fehlt der Clip darunter).
+    const grab = async (t: number, path: string): Promise<void> => {
+      await mkdir(dirname(path), { recursive: true })
+      if (o.background) {
+        await runFfmpeg(['-y', '-ss', Math.min(t, Math.max(0, duration - 1 / o.fps)).toFixed(3), '-i', o.out, '-frames:v', '1', '-update', '1', ...(/\.png$/i.test(path) ? [] : ['-q:v', '2']), path], env)
+      } else {
+        await setSceneTime(page, Math.min(t, duration))
+        const type = /\.png$/i.test(path) ? 'png' : 'jpeg'
+        await page.screenshot({ path, type, ...(type === 'jpeg' ? { quality: 92 } : {}) })
+      }
+    }
     for (const t of o.stills ?? []) {
-      await setSceneTime(page, Math.min(t, duration))
       const p = `${stem}-still-${String(t).replace('.', '_')}.png`
-      await page.screenshot({ path: p, type: 'png' })
+      await grab(t, p)
       stills.push(p)
     }
     let cover: string | null = null
     if (o.cover) {
-      await setSceneTime(page, o.coverTime ?? 0)
-      await mkdir(dirname(o.cover), { recursive: true })
-      const type = /\.png$/i.test(o.cover) ? 'png' : 'jpeg'
-      await page.screenshot({ path: o.cover, type, ...(type === 'jpeg' ? { quality: 92 } : {}) })
+      await grab(o.coverTime ?? 0, o.cover)
       cover = o.cover
     }
     return { out: o.out, frames, duration, fps: o.fps, audio: !!o.audio, music: !!o.music, stills, cover, bytes, imagesFailed }
@@ -408,6 +441,72 @@ export async function renderReel(o: RenderReelOptions): Promise<ReelResult> {
     await page.close()
     await rm(dir, { recursive: true, force: true })
   }
+}
+
+// --- Fetch: erzeugte Medien (Higgsfield & Co.) in den Vault holen ---------------------
+
+export interface FetchFileOptions {
+  url: string
+  out: string
+  fetchFn?: typeof fetch
+  /** default 200 MB */
+  maxBytes?: number
+}
+
+const MEDIA_EXT = /\.(png|jpe?g|webp|gif|mp4|mov|webm|m4v|mp3|wav|m4a)$/i
+
+/**
+ * Lädt eine Datei per https in den Vault – nur Medien, nur unter einem `Assets/`-Ordner, nie über die Größe hinaus.
+ * Höhere Rechte hat der Arbeiter damit nicht: schreiben darf er dort ohnehin, nur Herunterladen konnte er nicht.
+ */
+export async function fetchFile(o: FetchFileOptions): Promise<{ out: string; bytes: number; contentType: string }> {
+  let u: URL
+  try {
+    u = new URL(o.url)
+  } catch {
+    throw new Error('--url ist keine gültige Adresse')
+  }
+  if (u.protocol !== 'https:') throw new Error('nur https-Adressen')
+  if (!isAbsolute(o.out)) throw new Error('--out muss ein absoluter Pfad sein')
+  const parts = resolve(o.out).split(sep)
+  if (parts.includes('..') || !parts.slice(0, -1).includes('Assets')) throw new Error('--out muss unter einem Assets/-Ordner des Vaults liegen')
+  if (!MEDIA_EXT.test(o.out)) throw new Error('--out braucht eine Medien-Endung (png, jpg, webp, mp4, mov, webm, mp3, wav)')
+  const fetchFn = o.fetchFn ?? (fetch as typeof fetch)
+  const res = await fetchFn(u.toString(), { redirect: 'follow', headers: { 'User-Agent': 'LimitlessOS/1.0 (+https://limitlessposter.com)' } })
+  if (!res.ok) throw new Error(`Download fehlgeschlagen: HTTP ${res.status}`)
+  const contentType = (res.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
+  if (contentType && !/^(image|video|audio)\//.test(contentType) && contentType !== 'application/octet-stream' && contentType !== 'binary/octet-stream') {
+    throw new Error(`keine Mediendatei (Content-Type ${contentType})`)
+  }
+  const maxBytes = o.maxBytes ?? 200 * 1024 * 1024
+  const declared = Number(res.headers.get('content-length') ?? 0)
+  if (declared > maxBytes) throw new Error(`Datei zu groß (${declared} Bytes, erlaubt ${maxBytes})`)
+  if (!res.body) throw new Error('leere Antwort')
+  await mkdir(dirname(o.out), { recursive: true })
+  const tmp = `${o.out}.teil`
+  const fh = await openFile(tmp, 'w')
+  let bytes = 0
+  try {
+    const reader = res.body.getReader()
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      bytes += value.byteLength
+      if (bytes > maxBytes) throw new Error(`Datei zu groß (mehr als ${maxBytes} Bytes)`)
+      await fh.write(value)
+    }
+  } catch (err) {
+    await fh.close()
+    await rm(tmp, { force: true })
+    throw err
+  }
+  await fh.close()
+  if (bytes === 0) {
+    await rm(tmp, { force: true })
+    throw new Error('leere Datei')
+  }
+  await rename(tmp, o.out)
+  return { out: o.out, bytes, contentType }
 }
 
 // --- Beat: synthetischer Takt (Kick, Hi-Hat, Bass) als WAV ----------------------
@@ -557,6 +656,7 @@ async function productionCommand(cmd: string, argv: string[], env: NodeJS.Proces
     stills: stillsRaw ? stillsRaw.split(',').map(Number).filter((n) => Number.isFinite(n)) : [],
     cover: arg(argv, '--cover'),
     coverTime: arg(argv, '--cover-time') ? Number(arg(argv, '--cover-time')) : undefined,
+    background: arg(argv, '--background'),
     env,
   })
   io.stdout(JSON.stringify({ ok: true, ...r }) + '\n')
@@ -570,9 +670,22 @@ export async function main(argv: string[], env: NodeJS.ProcessEnv, io: StudioIo)
     '            studio.js render-clip  --template <name|pfad> --data <json> --out <mp4> [--size BxH] [--seconds N] [--fps N]\n' +
     '            studio.js render-reel  --scene <name|pfad> --data <json|@datei> --out <mp4> [--fps N] [--size BxH] [--duration N]\n' +
     '                                   [--audio <wav>] [--music <mp3>] [--music-gain -14] [--subs <json|@datei>] [--stills 0,2,4] [--cover <jpg>]\n' +
+    '                                   [--background <mp4|png>]\n' +
     '            studio.js render-still --scene <name|pfad> --data <json|@datei> --out <png> [--size BxH] [--time N]\n' +
-    '            studio.js beat --bpm 120 --seconds 12 --out <wav>\n'
+    '            studio.js beat --bpm 120 --seconds 12 --out <wav>\n' +
+    '            studio.js fetch --url <https://…> --out <Vault>/…/Assets/content/<id>/<datei>\n'
   try {
+    if (cmd === 'fetch') {
+      const url = arg(argv, '--url')
+      const out = arg(argv, '--out')
+      if (!url || !out) {
+        io.stderr(usage)
+        return 1
+      }
+      const r = await fetchFile({ url, out })
+      io.stdout(JSON.stringify({ ok: true, ...r }) + '\n')
+      return 0
+    }
     if (cmd === 'render-reel' || cmd === 'render-still' || cmd === 'beat') return await productionCommand(cmd, argv, env, io)
     if (cmd !== 'render-image' && cmd !== 'render-clip') {
       io.stderr(usage)

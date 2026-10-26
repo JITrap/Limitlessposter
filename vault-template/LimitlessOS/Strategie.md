@@ -93,6 +93,7 @@ der Planer liest es beim nächsten Lauf).
 - [ ] Metricool-API-Key + User-ID in der `.env` (Dubletten-Schutz, automatisches Posten)
 - [ ] Metricool-MCP angemeldet (`claude` → `/mcp` → metricool)
 - [ ] Shopify-MCP angemeldet (`claude` → `/mcp` → shopify)
+- [ ] Higgsfield-MCP angemeldet (`claude mcp login higgsfield`) – KI-Clips für die Abend-Reels (Karte hakt sich selbst ab)
 - [ ] Facebook-Seite in Metricool verbunden (am 19.10. liefen noch Facebook-Posts; am 25.10. fehlt Facebook in den Brand-Einstellungen) – erst dann plant das System die Facebook-Zweitverwertung
 - [x] Produktfakten in [[Marke/Produkte]] bestätigt, Fragen in [[Marke/Kern]] beantwortet (23.10.2026)
 - [x] Rechtliches entschieden: alle Motive bewerben, Julius trägt das Risiko; nie „offiziell/lizenziert“ behaupten (23.10.2026)

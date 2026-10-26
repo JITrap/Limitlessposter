@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- H01 Higgsfield-Raum · 9:16 · 9 s · transparente Szene über einem Hintergrund-Clip (studio.js render-reel --background)
+  DATA: hook ("Dein Raum. Dein Satz."), produkt, detail1 ("Gerahmt geliefert"), detail2 ("Rahmen Schwarz oder Weiß"),
+        end, cta, domain, preiszeile
+  Der Clip darunter kommt aus Higgsfield (Image-to-Video vom Mockup mit dem echten Poster). Die Szene malt nur
+  Hook, zwei Karten, Untertitel und die Endcard – alles andere bleibt durchsichtig. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<script src="lib.js"></script>
+<style>
+  html, body, .stage { background: transparent !important; }
+  .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 32%, rgba(0,0,0,0) 62%, rgba(0,0,0,.55) 100%); }
+  .hook { top: 190px; }
+  /* Karten über dem Untertitel-Block (#subs ab 1390 px), damit sich nichts überlagert */
+  .detail { position: absolute; left: 60px; right: 60px; top: 1110px; }
+  .detail .card { position: relative; font-size: 42px; padding: 30px 40px; background: rgba(12,12,14,.74); }
+  .detail.two { top: 1245px; }
+  .endcard { background: #0b0d11; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="shade"></div>
+  <div class="hook center" id="hook"></div>
+  <div class="detail" id="d1"><div class="card" id="d1t"></div></div>
+  <div class="detail two" id="d2"><div class="card" id="d2t"></div></div>
+  <div class="endcard" id="end"><div class="big" id="endBig"></div><div class="rule"></div><div class="small" id="endSmall"></div><div class="domain" id="endDomain"></div><div class="price" id="endPrice"></div></div>
+  <div id="subs"></div>
+  <div class="layer" id="black" style="background:#000"></div>
+</div>
+<script>
+(function () {
+  var D = Object.assign({
+    hook: 'Dein Raum. Dein Satz.', produkt: '', detail1: 'Gerahmt geliefert.', detail2: 'Rahmen in Schwarz oder Weiß.',
+    end: 'Limitless Poster', cta: 'Gerahmt. In 6 Größen.', domain: 'limitlessposter.com', preiszeile: ''
+  }, window.DATA || {});
+  var $ = function (id) { return document.getElementById(id); };
+  $('hook').textContent = D.hook; $('d1t').textContent = D.produkt ? D.produkt + ' – ' + D.detail1 : D.detail1; $('d2t').textContent = D.detail2;
+  $('endBig').textContent = D.end; $('endSmall').textContent = D.cta; $('endDomain').textContent = D.domain; $('endPrice').textContent = D.preiszeile;
+  var words = Lib.splitWords($('hook'));
+  var E = Lib.E, P = Lib.prog;
+  window.DURATION = 9;
+  window.renderFrame = function (t) {
+    var T = window.DURATION;
+    Lib.reveal(words, t, -0.3, { stagger: 0.07, dur: 0.5, out: 2.6 });
+    var a = P(t, 3.0, 0.5, E.outQuint) * (1 - P(t, T - 2.0, 0.3, E.inOutCubic));
+    var b = P(t, 4.6, 0.5, E.outQuint) * (1 - P(t, T - 2.0, 0.3, E.inOutCubic));
+    $('d1').style.opacity = a; $('d1').style.transform = 'translateY(' + ((1 - a) * 40) + 'px)';
+    $('d2').style.opacity = b; $('d2').style.transform = 'translateY(' + ((1 - b) * 40) + 'px)';
+    $('end').style.opacity = P(t, T - 1.8, 0.5, E.outCubic);
+    $('black').style.opacity = 1 - Lib.fadeOut(t, T, 0.4);
+    Lib.subs(t);
+  };
+})();
+</script>
+</body>
+</html>

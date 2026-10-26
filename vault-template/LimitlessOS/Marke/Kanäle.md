@@ -31,6 +31,11 @@ updated: 2026-10-25
 - Lesart: TikTok-Videos bringen schon jetzt deutlich mehr Reichweite pro Post als Instagram-Bilder →
   Reels zuerst, Instagram als Zweitverwertung (Karussells statt Einzelbilder).
 
+## Werkzeuge der Produktion
+- **Higgsfield** (KI-Bild und -Video, `https://mcp.higgsfield.ai/mcp`, Login über `claude mcp login higgsfield`): liefert die
+  Hintergrund-Clips für Format H01; Guthaben aus Julius' Higgsfield-Konto. Regeln in [[Pläne/Produktion#Higgsfield (KI-Video)]].
+- **Stimme** (lokal, `tools/stimme`): Sprecher für alle Reels, kein Cloud-Dienst.
+
 ## Shop
 - https://limitlessposter.com (Shopify Basic, EUR, Deutschland, Kleinunternehmer)
 - myshopify-Domain: `gexdm4-2q.myshopify.com` (steht auch in `.env.example`)

@@ -21,7 +21,7 @@ und Shop-Büro. Shopify läuft ohne Schlüssel über den offiziellen Shopify-MCP
 
 Anleitungen: [Erste Schritte](docs/anleitung/erste-schritte.md) · [Betrieb](docs/anleitung/betrieb.md) ·
 [Shopify-App](docs/anleitung/shopify-app.md) · [Metricool](docs/anleitung/metricool-mcp.md) ·
-[Produktion](docs/anleitung/produktion.md) · [Stimme](docs/anleitung/stimme.md)
+[Produktion](docs/anleitung/produktion.md) · [Stimme](docs/anleitung/stimme.md) · [Higgsfield](docs/anleitung/higgsfield.md)
 
 **Update auf den neuesten Stand** (zwei Zeilen in PowerShell, Einstellungen und Daten bleiben erhalten):
 ```powershell
@@ -55,6 +55,8 @@ Die Station **Produktion** baut täglich Reels und Karussells (Szenen in `statio
 gemischt mit ffmpeg) mit lokaler **Stimme** (`tools/stimme`: Chatterbox oder Piper, kein Cloud-Dienst, kein Schlüssel) und prüft
 sie am Qualitäts-Gate (`gate.js`). Anleitungen: `docs/anleitung/produktion.md`, `docs/anleitung/stimme.md`.
 Einrichten auf dem PC: `powershell -ExecutionPolicy Bypass -File tools\stimme\install.ps1`.
+**Higgsfield** (KI-Video, optional): Format H01 legt Hook, Stimme und Endcard über eine KI-Kamerafahrt durch den Raum mit dem
+echten Poster – Login `claude mcp login higgsfield`, Regeln in `docs/anleitung/higgsfield.md`.
 
 ## Phase 2 (vorbereitet, noch nicht gebaut)
 Bild/Video (ComfyUI), Pinterest, E-Mail-Flows, Skill-Schmied für Chat-Importe.

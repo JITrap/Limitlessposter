@@ -53,7 +53,8 @@ Lies in dieser Reihenfolge (alle Pfade relativ zum Vault-Ordner `LimitlessOS/`):
    (z. B. „Content 2026-10-27 Instagram+TikTok 12:30: T01 – Tiger“ – der Aufseher liest Datum und Netze aus dem Titel, um Lücken
    zu zählen), `needs_approval` nach Autopilot von content, `due` = der Tag; die Stories gehören zur Content-Aufgabe, keine eigene.
    Rotation: kein Format doppelt am Tag, kein Motiv zweimal in 7 Tagen (`Pläne/Veröffentlicht.md` + offene Aufgaben), Themen
-   abwechseln, Abend-Reel = stärkstes Motiv. Nie mehr anlegen, als `posts.js today --day <Datum>` an Limit frei zeigt.
+   abwechseln, Abend-Reel = stärkstes Motiv – und Format **H01** (Higgsfield-Clip), wenn `Pläne/Produktion.md` `higgsfield: ja` sagt,
+   höchstens `higgsfield_pro_tag` je Tag. Nie mehr anlegen, als `posts.js today --day <Datum>` an Limit frei zeigt.
    Ist `produktion` in `Status.md` ⛔, fällt der Schritt aus (Punkt 4).
 4. Für Stationen, die in `Status.md` mit ⛔ stehen, legst du **keine** Aufgaben an. Stattdessen
    eine Aufgabe `station: manual` für Julius mit klarer Anleitung – pro Ursache nur einmal

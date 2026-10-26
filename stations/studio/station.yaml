@@ -10,6 +10,7 @@ tools:
   - Edit
   - Glob
   - Bash(node supervisor/dist/adapters/studio.js *)
+  - mcp__higgsfield
 context:
   - Marke/Visuell.md
   - Marke/Produkte.md

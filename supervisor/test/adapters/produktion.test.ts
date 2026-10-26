@@ -23,7 +23,7 @@ const chromiumPath = CHROMIUM_CANDIDATES[0]
 const ffmpegOk = spawnSync('ffmpeg', ['-version']).status === 0
 const env = { ...process.env, PLAYWRIGHT_CHROMIUM: chromiumPath ?? '' }
 
-const SCENES = ['t01-vorher-nachher', 't02-tippe-entscheide', 't03-drei-fehler', 't04-welches-poster-bist-du', 't07-zoom-ins-motiv', 't08-satz-des-tages', 'karussell-slide']
+const SCENES = ['t01-vorher-nachher', 't02-tippe-entscheide', 't03-drei-fehler', 't04-welches-poster-bist-du', 't07-zoom-ins-motiv', 't08-satz-des-tages', 'h01-overlay', 'karussell-slide']
 
 function pngSize(buf: Buffer): { width: number; height: number } {
   return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) }
@@ -87,7 +87,7 @@ describe.skipIf(!chromiumPath)('Produktion: render-still (Chromium)', () => {
         const data = scene === 't04-welches-poster-bist-du' ? { optionen: [{ poster, label: 'A' }, { poster, label: 'B' }] } : { poster, poster2: poster }
         const r = await renderStill({ scene, data, out, width: 1080, height: 1920, time, env })
         expect(r.imagesFailed, `${scene} @${time}`).toBe(0)
-        expect(r.imagesLoaded, `${scene} @${time}`).toBeGreaterThan(0)
+        if (scene !== 'h01-overlay') expect(r.imagesLoaded, `${scene} @${time}`).toBeGreaterThan(0) // the overlay scene has no poster – the clip below carries it
         expect(pngSize(await readFile(out))).toEqual({ width: 1080, height: 1920 })
       }
     }
@@ -150,6 +150,27 @@ describe.skipIf(!chromiumPath || !ffmpegOk)('Produktion: render-reel (Chromium +
     expect(head.subarray(4, 8).toString('ascii')).toBe('ftyp')
     const probe = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', out], { encoding: 'utf8' })
     if (probe.status === 0) expect(probe.stdout).toMatch(/audio/)
+  }, 120_000)
+
+  it('lays a transparent scene over a background image or clip (Higgsfield H01) and grabs cover and stills from the result', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'los-reel-bg-'))
+    // background 1: an image (a rendered carousel slide), background 2: a clip (the first result)
+    const bgImage = join(dir, 'raum.png')
+    await renderStill({ scene: 'karussell-slide', data: { art: 'hero', hook: 'Raum' }, out: bgImage, width: 360, height: 640, env })
+    const out1 = join(dir, 'h01-bild.mp4')
+    const cover = join(dir, 'cover.jpg')
+    const r1 = await renderReel({ scene: 'h01-overlay', data: { hook: 'Dein Raum', produkt: 'Tiger', detail1: 'Gerahmt' }, out: out1, width: 360, height: 640, fps: 6, duration: 1, background: bgImage, stills: [0.5], cover, env })
+    expect(r1).toMatchObject({ out: out1, frames: 6, duration: 1, imagesFailed: 0, cover })
+    expect((await stat(out1)).size).toBeGreaterThan(1000)
+    expect((await stat(cover)).size).toBeGreaterThan(500)
+    expect(r1.stills).toHaveLength(1)
+    expect(pngSize(await readFile(r1.stills[0]))).toEqual({ width: 360, height: 640 })
+    const stdout: string[] = []
+    const out2 = join(dir, 'h01-clip.mp4')
+    const code = await main(['render-reel', '--scene', 'h01-overlay', '--data', '{"hook":"Dein Raum"}', '--out', out2, '--size', '360x640', '--fps', '6', '--duration', '1', '--background', out1], env, { stdout: (s) => stdout.push(s), stderr: () => {} })
+    expect(code).toBe(0)
+    expect(JSON.parse(stdout.join(''))).toMatchObject({ ok: true, out: out2, frames: 6, duration: 1 })
+    expect((await stat(out2)).size).toBeGreaterThan(1000)
   }, 120_000)
 
   it('uses window.DURATION when --duration is not given and works without any audio', async () => {

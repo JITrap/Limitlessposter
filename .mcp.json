@@ -7,6 +7,10 @@
     "shopify": {
       "type": "http",
       "url": "https://setup.shopify.com/mcp"
+    },
+    "higgsfield": {
+      "type": "http",
+      "url": "https://mcp.higgsfield.ai/mcp"
     }
   }
 }

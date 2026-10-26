@@ -9,7 +9,7 @@
      – vorbefüllt mit Sortiment, Marke, Kalender und ersten Aufgaben; vorhandene Dateien bleiben unangetastet
   4. Markiert den Repo-Ordner für Claude als vertrauenswürdig
   5. Legt die .env an (Shopify-Schlüssel optional)
-  6. Meldet dich an: Claude (Abo), Metricool-MCP, Shopify-MCP – je ein Browserfenster
+  6. Meldet dich an: Claude (Abo), Metricool-MCP, Shopify-MCP, Higgsfield-MCP (optional) – je ein Browserfenster
   7. Registriert den Autostart in der Aufgabenplanung ("Bei Anmeldung")
   8. Startet den Aufseher und öffnet die Welt
 
@@ -225,13 +225,14 @@ if (-not $authOk) {
     $authOk = ($LASTEXITCODE -eq 0) -and ($auth -match "claude.ai")
   } catch { $authOk = $false } finally { $ErrorActionPreference = "Stop" }
 }
-if ($authOk) { Ok "1/3 Claude-Abo angemeldet" } else { Warn "Claude ist nicht mit dem Abo angemeldet. Später: 'claude auth login' (claude.ai-Konto wählen)." }
+if ($authOk) { Ok "1/4 Claude-Abo angemeldet" } else { Warn "Claude ist nicht mit dem Abo angemeldet. Später: 'claude auth login' (claude.ai-Konto wählen)." }
 
 # MCP-Server aus .mcp.json: `claude mcp login <name>` startet den OAuth-Login im Browser, ohne das /mcp-Menü.
 # (ab Claude Code 2.1.186; ältere Versionen: 'claude' starten, '/mcp', Server wählen, Authenticate)
 $mcpServers = @(
-  @{ Name = "metricool"; Label = "2/3 Metricool"; Hint = "mit deinem Metricool-Konto anmelden" },
-  @{ Name = "shopify";   Label = "3/3 Shopify";   Hint = "mit dem Shopify-Konto anmelden, dem limitlessposter.com gehört, und den Zugriff bestätigen" }
+  @{ Name = "metricool";  Label = "2/4 Metricool";  Hint = "mit deinem Metricool-Konto anmelden" },
+  @{ Name = "shopify";    Label = "3/4 Shopify";    Hint = "mit dem Shopify-Konto anmelden, dem limitlessposter.com gehört, und den Zugriff bestätigen" },
+  @{ Name = "higgsfield"; Label = "4/4 Higgsfield (optional, KI-Video für Reels)"; Hint = "mit deinem Higgsfield-Konto anmelden – Fenster schließen, wenn du es nicht nutzt" }
 )
 if ($authOk) {
   foreach ($srv in $mcpServers) {

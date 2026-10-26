@@ -4,13 +4,15 @@ stimme: thorsten
 sprechtempo: 1.0
 musik: beat
 stories: ja
+higgsfield: ja
+higgsfield_pro_tag: 2
 tagesziel:
   instagram: "3 Reels + 1 Karussell + 4 Stories"
   tiktok: "3 Videos + 1 Fotobeitrag"
   facebook: "3 Reels + 1 Post + 4 Stories (Zweitverwertung, nur wenn verbunden)"
   linkedin: "1 Post Mo/Mi/Fr (Autolist)"
   gmb: "1 Beitrag Mo/Mi/Fr (Autolist, zusammen mit LinkedIn 11:05)"
-updated: 2026-10-25
+updated: 2026-10-26
 ---
 # Produktion – Tagesplan für Reels und Karussells
 
@@ -49,9 +51,18 @@ die alten Slots für eigene Beiträge – das System plant dort nur bei Produkt-
 
 ## Formate (Rotation)
 Reels im Wechsel: **T01** Vorher/Nachher · **T02** Tippe & entscheide · **T03** Drei Fehler · **T04** Welches Poster bist du ·
-**T07** Zoom ins Motiv · **T08** Satz des Tages. Karussell/Fotobeitrag: **R-karussell** (6 Slides). Pro Tag kein Format doppelt,
+**T07** Zoom ins Motiv · **T08** Satz des Tages · **H01** Higgsfield-Raum (KI-Kamerafahrt durch den Raum mit dem echten Poster,
+nur mit `higgsfield: ja` und verbundenem Higgsfield-Konto; Hero-Slot am Abend, höchstens `higgsfield_pro_tag` am Tag – jede
+Erzeugung kostet Higgsfield-Guthaben). Karussell/Fotobeitrag: **R-karussell** (6 Slides). Pro Tag kein Format doppelt,
 pro Woche jedes Format höchstens zweimal je Netzwerk. Motive rotieren durch die Themen aus `Marke/Produkte.md`
 (Motivation, Racing, Wildlife, Fußball, …) – kein Motiv zweimal in 7 Tagen.
+
+## Higgsfield (KI-Video)
+- `higgsfield: ja|nein` schaltet H01 an oder aus; `higgsfield_pro_tag` begrenzt die Erzeugungen (Guthaben). Modelle: günstige
+  Image-to-Video-Modelle (Kling, Wan); Sora oder Veo nur, wenn du es hier unter Notizen freigibst.
+- Der Clip ist immer nur Hintergrund: Kamerafahrt oder Licht im Raum, das Poster bleibt exakt das Produktbild. Keine Gesichter
+  bekannter Personen, keine Texte, Logos oder Marken im Clip. Jeder H01-Post wird als KI-erzeugt gekennzeichnet.
+- Anmelden: `claude mcp login higgsfield` im Repo-Ordner (die Karte „Higgsfield anmelden“ hakt sich danach selbst ab).
 
 ## Regeln, die immer gelten
 - Hook in Bild 0 lesbar, kein „!“, keine Marken- oder Personennamen im Bild, Domain nur auf der Endcard.

@@ -34,7 +34,8 @@ aktualisiert sich bei jedem Tick von selbst – nichts muss neu geladen werden. 
   Wochenbericht, Wochenstrategie, Planer) und der Knopf **Planer jetzt** – legt sofort eine Planer-Aufgabe
   an, außer eine läuft schon. Es läuft nie mehr als ein Planer zugleich.
 - **Wandtafel**: Budget, Stationen, Tageszähler.
-- **Stimme**: ob die eigene Sprachausgabe installiert ist (Chatterbox auf der Grafikkarte oder Piper
+- **Stimme**: darunter der Higgsfield-Stand (verbunden / Anmeldung nötig / nicht verbunden, siehe `docs/anleitung/higgsfield.md`);
+  ob die eigene Sprachausgabe installiert ist (Chatterbox auf der Grafikkarte oder Piper
   auf der CPU), welche Stimmen es gibt, letzte Probe zum Anhören. Nicht installiert → Hinweis auf
   `tools\stimme\install.ps1`. Quelle ist `supervisor/data/stimme.json`, geschrieben vom Stimm-Adapter.
 - **Veröffentlicht – zuletzt**: die letzten 10 Beiträge aus dem Kalender.

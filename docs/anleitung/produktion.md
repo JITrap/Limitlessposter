@@ -28,6 +28,7 @@ Die Welt zeigt im Kalender je Tag Ist/Soll – rot, wo etwas fehlt. Zeiten und R
 | T07 | Zoom ins Motiv | 10 s | `t07-zoom-ins-motiv` |
 | T08 | Satz des Tages | 10 s | `t08-satz-des-tages` |
 | R-karussell | Karussell / Fotobeitrag | 6 Slides | `karussell-slide` |
+| H01 | Higgsfield-Raum (KI-Kamerafahrt, nur mit Higgsfield-Login) | 9 s | `h01-overlay` über `--background` |
 
 Briefs mit Hook-Ideen, Sprechtext-Vorgaben und Regeln: `stations/produktion/formate/`. Die Szenen liegen in
 `stations/produktion/vorlagen/` (HTML + `lib.js` + `base.css`, Schrift Anton/Inter, Farben Royal Noir).
