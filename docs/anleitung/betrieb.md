@@ -68,6 +68,12 @@ meist unter 0,10 $.
   Ein Drag nach **todo** ist also nie eine Freigabe.
 - Abbrechen: `status: cancelled` (nur du darfst das).
 
+## Kunden-Finder (Station `kunden`)
+Sucht live im Netz Geschäftskunden (Büros, Studios, Praxen, Cafés) und Creator, die zu den Themen der Marke passen, notiert den
+sichtbaren Anlass, den offiziellen Firmenkontakt und den **erlaubten Weg**, und schreibt Anschreiben als Entwurf nach
+`Pläne/Kunden-Anschreiben.md`. Das System verschickt nie etwas: Werbe-E-Mails an Firmen brauchen in Deutschland vorherige
+Einwilligung (§ 7 UWG). Du gehst die Liste in `Pläne/Kunden-Liste.md` durch und entscheidest je Zeile. Pakete W60/W61 im Katalog.
+
 ## Soll-Mengen, Lücken und der Wachstumskatalog
 - **Soll je Netzwerk und Tag** steht in `Strategie.md` → `daily_targets` (lesbar: „3 Reels + 1 Karussell + 4 Stories“,
   „1 Post Mo/Mi/Fr (Autolist)“). Der Aufseher liest daraus Anzahl, Wochentage und ob eine Autolist das Netz bedient.

@@ -14,6 +14,7 @@ tools:
   - Bash(node supervisor/dist/adapters/gate.js *)
   - Bash(node supervisor/dist/adapters/posts.js check*)
   - Bash(node supervisor/dist/adapters/posts.js today*)
+  - Bash(node supervisor/dist/adapters/shopify.js upload-file *)
   - mcp__higgsfield
 context:
   - Marke/Kern.md

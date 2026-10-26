@@ -24,6 +24,8 @@ nichts, du planst nichts – du misst.
      (nur wenn `.env` Shopify-Schlüssel hat), sonst Shop-Werte leer lassen und das vermerken.
    - Printify: `node supervisor/dist/adapters/printify.js summary` (vom Repo-Ordner aus). Antwort
      `ok: false` → Abschnitt „Printify“ mit dem Fehlertext, Zahlen leer.
+   - Higgsfield (KI-Video): `mcp__higgsfield__balance` → `credits`, `subscription_plan_type`. Fehlt das Werkzeug
+     oder schlägt es fehl: `higgsfield:` mit leeren Werten lassen.
 
 ## Vorgehen
 0. **Veröffentlichungs-Liste abgleichen (Dubletten-Schutz, immer zuerst):** Hole je verbundenem Netzwerk alle
@@ -68,6 +70,7 @@ geplant_7t: 3
 beste_zeiten:
   instagram: "Fr 18–20 Uhr"
   tiktok: "Sa 19–21 Uhr"
+higgsfield: { credits: 550, plan: pro }
 ---
 ```
    Danach der Text (kurz, Deutsch):

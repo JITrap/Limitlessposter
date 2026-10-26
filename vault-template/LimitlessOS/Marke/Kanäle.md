@@ -32,8 +32,10 @@ updated: 2026-10-25
   Reels zuerst, Instagram als Zweitverwertung (Karussells statt Einzelbilder).
 
 ## Werkzeuge der Produktion
-- **Higgsfield** (KI-Bild und -Video, `https://mcp.higgsfield.ai/mcp`, Login über `claude mcp login higgsfield`): liefert die
-  Hintergrund-Clips für Format H01; Guthaben aus Julius' Higgsfield-Konto. Regeln in [[Pläne/Produktion#Higgsfield (KI-Video)]].
+- **Higgsfield** (KI-Bild und -Video, `https://mcp.higgsfield.ai/mcp`, Login über `claude mcp login higgsfield`): Raumclips (H01),
+  Motion-Produktfilme (M01), UGC-Reels mit KI-Darsteller (U01) und Produktfotos (P01); Guthaben aus Julius' Higgsfield-Konto, Stand in
+  der Zentrale. Regeln in [[Pläne/Produktion#Higgsfield (KI-Bild und -Video)]] und `stations/produktion/higgsfield.md`.
+- **Kunden-Finder** (Station `kunden`, WebSearch): sucht Geschäftskunden und Creator, schreibt Entwürfe – verschickt nie etwas (§ 7 UWG).
 - **Stimme** (lokal, `tools/stimme`): Sprecher für alle Reels, kein Cloud-Dienst.
 
 ## Shop

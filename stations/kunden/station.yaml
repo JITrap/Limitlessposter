@@ -1,0 +1,26 @@
+name: kunden
+display: Kunden-Finder
+description: Findet Geschäftskunden und Kooperationspartner für gerahmte Poster (Büros, Studios, Praxen, Cafés, Creator), notiert den sichtbaren Anlass und schreibt persönliche Anschreiben als Entwurf – verschickt nie etwas.
+tier: standard
+max_turns: 40
+timeout_min: 30
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - WebSearch
+  - WebFetch
+context:
+  - Strategie.md
+  - Marke/Kern.md
+  - Marke/Produkte.md
+  - Marke/Kanäle.md
+  - Pläne/Wachstum.md
+requires:
+  mcp: []
+  env: []
+  services: []
+autopilot: 2
+cooldown_hours: 0

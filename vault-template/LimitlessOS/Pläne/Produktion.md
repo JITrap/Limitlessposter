@@ -6,6 +6,10 @@ musik: beat
 stories: ja
 higgsfield: ja
 higgsfield_pro_tag: 2
+higgsfield_credits_pro_tag: 60
+higgsfield_reserve: 100
+higgsfield_ugc_pro_woche: 1
+higgsfield_rotation: "Mo/Mi/Fr/So H01 · Di/Sa M01 · Do U01"
 tagesziel:
   instagram: "3 Reels + 1 Karussell + 4 Stories"
   tiktok: "3 Videos + 1 Fotobeitrag"
@@ -51,18 +55,25 @@ die alten Slots für eigene Beiträge – das System plant dort nur bei Produkt-
 
 ## Formate (Rotation)
 Reels im Wechsel: **T01** Vorher/Nachher · **T02** Tippe & entscheide · **T03** Drei Fehler · **T04** Welches Poster bist du ·
-**T07** Zoom ins Motiv · **T08** Satz des Tages · **H01** Higgsfield-Raum (KI-Kamerafahrt durch den Raum mit dem echten Poster,
-nur mit `higgsfield: ja` und verbundenem Higgsfield-Konto; Hero-Slot am Abend, höchstens `higgsfield_pro_tag` am Tag – jede
-Erzeugung kostet Higgsfield-Guthaben). Karussell/Fotobeitrag: **R-karussell** (6 Slides). Pro Tag kein Format doppelt,
+**T07** Zoom ins Motiv · **T08** Satz des Tages. Mit Higgsfield (nur `higgsfield: ja` und verbundenes Konto) bekommt der Hero-Slot
+am Abend eines der KI-Formate nach `higgsfield_rotation`: **H01** Higgsfield-Raum (Kamerafahrt durch den Raum mit dem echten Poster,
+≈ 7,5 Credits) · **M01** Motion-Produktfilm (Hyper-Motion: Licht, Makro, Material, 40–60 Credits) · **U01** UGC-Reel (KI-Darsteller
+zeigt das Poster, deutsch, ≈ 100 Credits, höchstens einmal je Woche). Karussell/Fotobeitrag: **R-karussell** (6 Slides); mit
+**P01** Produktfoto liefert Higgsfield Lifestyle-Bilder fürs Karussell (1–3 Credits je Bild). Pro Tag kein Format doppelt,
 pro Woche jedes Format höchstens zweimal je Netzwerk. Motive rotieren durch die Themen aus `Marke/Produkte.md`
 (Motivation, Racing, Wildlife, Fußball, …) – kein Motiv zweimal in 7 Tagen.
 
-## Higgsfield (KI-Video)
-- `higgsfield: ja|nein` schaltet H01 an oder aus; `higgsfield_pro_tag` begrenzt die Erzeugungen (Guthaben). Modelle: günstige
-  Image-to-Video-Modelle (Kling, Wan); Sora oder Veo nur, wenn du es hier unter Notizen freigibst.
-- Der Clip ist immer nur Hintergrund: Kamerafahrt oder Licht im Raum, das Poster bleibt exakt das Produktbild. Keine Gesichter
-  bekannter Personen, keine Texte, Logos oder Marken im Clip. Jeder H01-Post wird als KI-erzeugt gekennzeichnet.
+## Higgsfield (KI-Bild und -Video)
+- `higgsfield: ja|nein` schaltet die KI-Formate an oder aus. Bremsen: `higgsfield_pro_tag` (Clips je Tag), `higgsfield_credits_pro_tag`
+  (Credits je Tag), `higgsfield_reserve` (darunter wird nichts erzeugt), `higgsfield_ugc_pro_woche` (teure UGC-Reels). Guthaben zeigt
+  die Zentrale („Higgsfield-Guthaben“); Richtwerte: Raumclip 7,5 · Motion 40–60 · UGC ≈ 100 · Produktfoto 1–3.
+- `higgsfield_rotation` legt fest, welches KI-Format der Hero-Slot an welchem Wochentag bekommt. Modelle: Kling 4.0 (Raum),
+  Marketing-Studio-Presets (Motion), Seedance 2.5 (UGC), Nano Banana Pro (Produktfoto); Sora oder Veo nur, wenn du es unter Notizen freigibst.
+- Der KI-Anteil ist Raum, Licht, Bewegung oder ein erfundener erwachsener Darsteller – das Poster bleibt exakt das Produktbild.
+  Keine echten Personen, keine Texte, Logos oder Marken im Clip. Der Darsteller ist Moderator, nie „Kunde“: keine erfundenen
+  Erfahrungen, keine Bewertungen. Jeder KI-Post wird gekennzeichnet (`isAiGenerated`, bei UGC zusätzlich „Darsteller: KI“ in der Caption).
 - Anmelden: `claude mcp login higgsfield` im Repo-Ordner (die Karte „Higgsfield anmelden“ hakt sich danach selbst ab).
+  Alle Regeln und Werkzeuge: `stations/produktion/higgsfield.md`, Formate `stations/produktion/formate/{H01,M01,U01}.md`.
 
 ## Regeln, die immer gelten
 - Hook in Bild 0 lesbar, kein „!“, keine Marken- oder Personennamen im Bild, Domain nur auf der Endcard.

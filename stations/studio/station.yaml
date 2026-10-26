@@ -10,6 +10,7 @@ tools:
   - Edit
   - Glob
   - Bash(node supervisor/dist/adapters/studio.js *)
+  - Bash(node supervisor/dist/adapters/shopify.js upload-file *)
   - mcp__higgsfield
 context:
   - Marke/Visuell.md

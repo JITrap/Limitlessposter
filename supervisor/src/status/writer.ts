@@ -195,6 +195,7 @@ export function renderStatusMd(s: SupervisorState): string {
       const delta = n.follower_7t === null ? '' : ` (${n.follower_7t >= 0 ? '+' : ''}${de(n.follower_7t)})`
       lines.push(`- ${name}: ${n.follower === null ? '–' : de(n.follower)} Follower${delta} · Reichweite 7 T ${n.reichweite_7t === null ? '–' : de(n.reichweite_7t)} · ${n.posts_7t ?? '–'} Posts`)
     }
+    if (k.higgsfield?.credits !== null && k.higgsfield?.credits !== undefined) lines.push(`- Higgsfield: ${de(k.higgsfield.credits)} Credits${k.higgsfield.plan ? ` (Plan ${k.higgsfield.plan})` : ''} – Raumclip ≈ 7,5, UGC-Reel ≈ 100`)
     lines.push(`- Stand ${k.updated ?? '–'} → [[Kennzahlen]]`)
   } else {
     lines.push('- Noch kein Kennzahlen-Lauf → [[Kennzahlen]]')

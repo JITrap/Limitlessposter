@@ -15,9 +15,10 @@ Content-Studio über den Dubletten-Schutz.
    `Marke/Tonalität.md`, `Marke/Hashtags.md`, `Marke/Kern.md` (Tabus) – für Captions und Sprechtext.
 5. `Pläne/Veröffentlicht.md` – was schon draußen ist (kein Motiv und kein Hook zweimal in 7 Tagen).
 6. Stand der Stimme: `node supervisor/dist/adapters/stimme.js status` (läuft sie nicht, startet `speak` sie selbst; erster Lauf dauert).
-7. **Higgsfield** (KI-Video, nur Format **H01**): Werkzeuge `mcp__higgsfield__*` (Bild → Video, Status). Gibt es sie nicht oder sagt
-   `Pläne/Produktion.md` `higgsfield: nein`, baust du T07 statt H01 und vermerkst das. Ablauf, Prompt-Regeln und Download
-   (`studio.js fetch`) stehen in `stations/produktion/formate/H01.md`; der Clip ist nur Hintergrund, das Poster bleibt das echte Produktbild.
+7. **Higgsfield** (KI-Bild und -Video, Formate **H01**, **M01**, **U01**): Werkzeugkarte `stations/produktion/higgsfield.md` – Guthaben,
+   Kosten je Aufruf (`get_cost`), Upload-Weg, Prompt- und Wahrheitsregeln. Gibt es die Werkzeuge nicht, sagt `Pläne/Produktion.md`
+   `higgsfield: nein` oder liegt das Guthaben unter der Reserve, baust du das Rückfall-Format (H01/M01 → T07, U01 → T01) und vermerkst das.
+   Der Clip ist Hintergrund oder Darsteller-Szene, das Poster bleibt das echte Produktbild; Credits stehen im Ergebnis.
 
 ## Vorgehen
 Alle Pfade absolut, Befehle vom Repo-Ordner aus. Zielordner: `<Vault>/LimitlessOS/Assets/content/<task-id>/`.

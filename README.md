@@ -2,7 +2,7 @@
 
 Lokales „Firmen-Betriebssystem“ für die Marke **Limitless Poster** (limitlessposter.com).
 KI-Arbeiter (Claude Code, über dein Abo) arbeiten an Stationen – Planung, Content-Studio, Shop-Büro,
-Studio, Review, Berichte, Zentrale – an der Marke. Ein **Aufseher** verteilt die Arbeit, hält das Budget
+Studio, Produktion, Kunden-Finder, Review, Berichte, Zentrale – an der Marke. Ein **Aufseher** verteilt die Arbeit, hält das Budget
 bis zum Wochen-Reset ein und zeigt in der **Welt** live, wer was macht. Die **Zentrale** oben in der Welt
 führt die Zahlen aus Shopify, Metricool und Printify auf einer Seite zusammen. Dein **Obsidian-Vault**
 ist das Gehirn.
@@ -55,8 +55,10 @@ Die Station **Produktion** baut täglich Reels und Karussells (Szenen in `statio
 gemischt mit ffmpeg) mit lokaler **Stimme** (`tools/stimme`: Chatterbox oder Piper, kein Cloud-Dienst, kein Schlüssel) und prüft
 sie am Qualitäts-Gate (`gate.js`). Anleitungen: `docs/anleitung/produktion.md`, `docs/anleitung/stimme.md`.
 Einrichten auf dem PC: `powershell -ExecutionPolicy Bypass -File tools\stimme\install.ps1`.
-**Higgsfield** (KI-Video, optional): Format H01 legt Hook, Stimme und Endcard über eine KI-Kamerafahrt durch den Raum mit dem
-echten Poster – Login `claude mcp login higgsfield`, Regeln in `docs/anleitung/higgsfield.md`.
+**Higgsfield** (KI-Bild und -Video, optional): Raumclips (H01), Motion-Produktfilme (M01), UGC-Reels mit KI-Darsteller (U01) und
+Produktfotos (P01) – immer mit dem echten Poster als Referenz, gebremst über Guthaben-Regeln in `Pläne/Produktion.md`. Login
+`claude mcp login higgsfield`, Regeln in `docs/anleitung/higgsfield.md`. Die Station **Kunden-Finder** sucht Geschäftskunden und
+Creator und schreibt Anschreiben als Entwurf (verschickt nie etwas).
 
 ## Phase 2 (vorbereitet, noch nicht gebaut)
 Bild/Video (ComfyUI), Pinterest, E-Mail-Flows, Skill-Schmied für Chat-Importe.

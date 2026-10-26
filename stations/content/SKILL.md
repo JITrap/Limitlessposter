@@ -40,6 +40,8 @@ planst sie über Metricool ein, sobald das erlaubt ist.
    **Facebook** (nur wenn `Marke/Kanäle.md` Facebook als verbunden führt): `post-facebook.json` mit `caption-facebook.txt`
    (Produktlink erlaubt), `facebookData: {"type":"REEL"}` bzw. `{"type":"POST"}`, Slot laut `Pläne/Produktion.md`; Story dazu
    mit `facebookData: {"type":"STORY"}`. Fehlt die Facebook-Caption, schreibst du sie aus der Instagram-Caption ohne „Link in Bio“.
+   **KI-Formate (H01, M01, U01):** `isAiGenerated`/`isAigc: true` bleiben gesetzt; bei U01 steht in jeder Caption kurz „Darsteller: KI“,
+   und kein Satz gibt den Darsteller als Kunden aus (keine „ich habe gekauft“-Formulierungen, keine Bewertungen).
 
 ## Vorgehen
 1. Lies alles oben. Entscheide Format: **Reel** (Video 9:16) oder **Karussell** (2–10 Slides 4:5).

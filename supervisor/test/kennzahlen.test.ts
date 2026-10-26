@@ -52,6 +52,12 @@ describe('parseKennzahlen', () => {
     expect(k.saetze).toEqual(['Instagram ist um 2 Follower gewachsen.', 'TikTok hat 2.600 Aufrufe gebracht.'])
   })
 
+  it('reads the Higgsfield balance block and leaves it null when missing', () => {
+    const k = parseKennzahlen('---\ntype: kennzahlen\nhiggsfield: { credits: 550, plan: pro }\n---\n# K\n')
+    expect(k.higgsfield).toEqual({ credits: 550, plan: 'pro' })
+    expect(parseKennzahlen('---\ntype: kennzahlen\n---\n# K\n').higgsfield).toEqual({ credits: null, plan: null })
+  })
+
   it('never throws on an empty or odd note and defaults to nulls', () => {
     const k = parseKennzahlen('---\ntype: kennzahlen\nupdated:\nshop: nein\nnetzwerke: [a, b]\n---\n# leer\n')
     expect(k.updated).toBeNull()

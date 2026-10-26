@@ -33,6 +33,8 @@ export interface Kennzahlen {
   /** scheduled Metricool posts in the next 7 days */
   geplant_7t: number | null
   beste_zeiten: Record<string, string>
+  /** Higgsfield-Guthaben (KI-Video) aus `balance`; null, wenn nicht verbunden */
+  higgsfield: { credits: number | null; plan: string | null }
   /** short German sentences the worker wrote under "## Woche in Sätzen" */
   saetze: string[]
 }
@@ -90,6 +92,7 @@ export function parseKennzahlen(text: string): Kennzahlen {
     netzwerke,
     geplant_7t: num(data.geplant_7t),
     beste_zeiten,
+    higgsfield: { credits: num(obj(data.higgsfield).credits), plan: str(obj(data.higgsfield).plan) },
     saetze: saetze.slice(0, 6),
   }
 }

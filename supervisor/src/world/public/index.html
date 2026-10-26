@@ -85,7 +85,7 @@
   .tile .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
   .tile .v { font-size: 22px; font-weight: 700; margin-top: 4px; white-space: nowrap; }
   .tile .v small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; white-space: normal; margin-top: 2px; }
-  .tile.src-shop { border-top: 3px solid #7bd389; } .tile.src-social { border-top: 3px solid #5aa9ff; } .tile.src-printify { border-top: 3px solid #d98cff; }
+  .tile.src-shop { border-top: 3px solid #7bd389; } .tile.src-social { border-top: 3px solid #5aa9ff; } .tile.src-printify { border-top: 3px solid #d98cff; } .tile.src-higgsfield { border-top: 3px solid #f5c542; }
   table.z { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
   table.z th, table.z td { text-align: left; padding: 6px 8px; border-bottom: 1px dashed var(--line); }
   table.z th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
@@ -307,6 +307,9 @@
     } else {
       tile('printify', 'Printify', '–', 'nicht verbunden');
     }
+    var hf = k && k.higgsfield ? k.higgsfield : null;
+    if (hf && hf.credits != null) tile('higgsfield', 'Higgsfield-Guthaben', esc(de(hf.credits)) + ' Credits', (hf.plan ? 'Plan ' + hf.plan + ' · ' : '') + 'Raumclip ≈ 7,5 · UGC-Reel ≈ 100');
+    else tile('higgsfield', 'Higgsfield-Guthaben', '–', 'nicht verbunden oder noch kein Lauf');
     $('ztiles').innerHTML = tiles.join('');
 
     var netzwerke = (k && k.netzwerke) || {};

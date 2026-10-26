@@ -23,6 +23,7 @@ tools:
   - Bash(node supervisor/dist/adapters/posts.js *)
   - Bash(node supervisor/dist/adapters/metricool.js scheduled*)
   - Bash(node supervisor/dist/adapters/metricool.js published*)
+  - mcp__higgsfield__balance
 context:
   - Marke/Kanäle.md
   - Marke/Produkte.md
